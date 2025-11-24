@@ -1317,8 +1317,6 @@ q<!DOCTYPE html>
             <div class="teacher-fullname" id="tvFullName">Full Name</div>
             <div style="color: var(--gray-600); margin-bottom: 14px;">
                 <span id="tvUsername">@username</span>
-                <span style="margin: 0 8px; color: var(--gray-300);">|</span>
-                <span id="tvEmployeeId">Employee ID: —</span>
             </div>
 
             <h4 style="margin-top: 12px; margin-bottom: 10px; color: var(--primary-dark); border-bottom: 2px solid var(--gray-200); padding-bottom: 6px;">
@@ -1342,7 +1340,6 @@ q<!DOCTYPE html>
                 <i class="fas fa-briefcase"></i> Employment Details
             </h4>
             <div class="teacher-details-grid">
-                <div class="detail-item"><span class="detail-label">Department</span><span id="tvDepartment" class="detail-value">—</span></div>
                 <div class="detail-item"><span class="detail-label">Position</span><span id="tvPosition" class="detail-value">—</span></div>
                 <div class="detail-item"><span class="detail-label">Specialization</span><span id="tvSpecialization" class="detail-value">—</span></div>
                 <div class="detail-item"><span class="detail-label">Date Hired</span><span id="tvDateHired" class="detail-value">—</span></div>
@@ -2066,7 +2063,10 @@ q<!DOCTYPE html>
             try {
                 const url = isEdit ? `/api/teachers/${teacherId}` : '/api/teachers';
                 const method = isEdit ? 'PUT' : 'POST';
-                
+
+                // Debug: log form payload to ensure contact_number is present
+                try { console.log('DEBUG teacher formData:', formData); } catch (e) {}
+
                 const response = await fetch(url, {
                     method: method,
                     headers: { 'Content-Type': 'application/json' },
@@ -2104,7 +2104,6 @@ q<!DOCTYPE html>
                 const fullName = [t.first_name, t.middle_name, t.last_name, t.ext_name].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
                 document.getElementById('tvFullName').innerText = fullName || '—';
                 document.getElementById('tvUsername').innerText = t.username ? '@' + t.username : '—';
-                document.getElementById('tvEmployeeId').innerText = 'Employee ID: ' + (t.employee_id || '—');
 
                 // Personal
                 document.getElementById('tvBirthday').innerText = t.birthday ? new Date(t.birthday).toLocaleDateString() : '—';
@@ -2116,7 +2115,6 @@ q<!DOCTYPE html>
                 document.getElementById('tvContact').innerText = t.contact_number || '—';
 
                 // Employment
-                document.getElementById('tvDepartment').innerText = t.department || '—';
                 document.getElementById('tvPosition').innerText = t.position || '—';
                 document.getElementById('tvSpecialization').innerText = t.specialization || '—';
                 document.getElementById('tvDateHired').innerText = t.date_hired ? new Date(t.date_hired).toLocaleDateString() : '—';
@@ -2543,9 +2541,9 @@ q<!DOCTYPE html>
                                     : '<span class="badge" style="background: var(--gray-400); color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px;">Inactive</span>'}
                             </td>
                             <td class="table-actions">
-                                <a href="/sections/${section.id}/view" class="action-btn action-view" title="View students in this section">
+                                <button type="button" class="action-btn action-view" title="View students in this section" onclick="viewSectionStudents(${section.id}, '${(section.grade_level || '').replace(/'/g, "\\'")}', '${(section.section_name || '').replace(/'/g, "\\'")}')">
                                     <i class="fas fa-eye"></i> View
-                                </a>
+                                </button>
 
                                 <div class="action-dropdown" style="position:relative; display:inline-block;">
                                     <button type="button" class="action-btn action-edit js-dropdown-toggle" aria-haspopup="true" aria-expanded="false" onclick="toggleActionMenu(this)">

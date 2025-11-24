@@ -4268,6 +4268,9 @@ app.post('/api/teachers', async (req, res) => {
         date_hired
     } = req.body;
 
+    // Debug: log incoming contact number
+    console.log('DEBUG POST /api/teachers contact_number:', req.body && req.body.contact_number);
+
     // Validate required fields
     if (!username || !password || !first_name || !last_name) {
         return res.status(400).json({ 
@@ -4359,6 +4362,9 @@ app.put('/api/teachers/:id', async (req, res) => {
         date_hired,
         is_active
     } = req.body;
+
+    // Debug: log incoming contact number for update
+    console.log('DEBUG PUT /api/teachers/:id contact_number:', req.body && req.body.contact_number);
 
     try {
         // Check if teacher exists
