@@ -880,6 +880,10 @@ q<!DOCTYPE html>
                         <div style="height: 240px;">
                             <canvas id="genderDistributionChart"></canvas>
                         </div>
+                        <h3 class="stat-title" style="margin-top:12px; margin-bottom:8px;">Barangay Distribution</h3>
+                        <div style="height: 200px;">
+                            <canvas id="barangayDistributionChart"></canvas>
+                        </div>
                     </div>
                 </div>
 
@@ -3565,6 +3569,7 @@ q<!DOCTYPE html>
         // Dashboard data and charts
         let enrollmentChart = null;
         let genderChart = null;
+        let barangayChart = null;
 
         async function loadDashboard() {
             try {
@@ -3601,6 +3606,14 @@ q<!DOCTYPE html>
                 // Default to the snapshots chart (controls removed)
                 try { await plotSnapshotsBySY(); } catch (e) { console.warn('Failed to plot snapshots by SY on load', e); }
                 renderGenderDistributionChart(m.students.male, m.students.female);
+                // Load barangay distribution and render chart
+                try {
+                    const r = await fetch('/api/stats/barangay-distribution');
+                    const jr = await r.json();
+                    if (jr && jr.success && jr.counts) {
+                        renderBarangayDistributionChart(jr.counts);
+                    }
+                } catch (e) { console.warn('Failed to load barangay distribution', e); }
             } catch (err) {
                 console.error('Dashboard load error:', err);
             }
@@ -3633,6 +3646,36 @@ q<!DOCTYPE html>
                             }
                         } 
                     }
+                }
+            });
+        }
+
+        function renderBarangayDistributionChart(counts) {
+            const ctx = document.getElementById('barangayDistributionChart');
+            if (!ctx) return;
+            if (barangayChart) barangayChart.destroy();
+
+            const labels = Object.keys(counts || {});
+            const values = labels.map(l => counts[l] || 0);
+
+            barangayChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Students',
+                        data: values,
+                        backgroundColor: ['#60A5FA', '#A78BFA', '#F97316', '#9CA3AF']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: 'Barangay' } },
+                        y: { beginAtZero: true, title: { display: true, text: 'Count' } }
+                    },
+                    plugins: { legend: { display: false } }
                 }
             });
         }

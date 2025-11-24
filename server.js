@@ -5507,3 +5507,65 @@ app.get('/api/teachers/archive/:archiveId', async (req, res) => {
         res.status(500).json({ success: false, message: 'Error fetching archived teacher' });
     }
 });
+
+// Barangay distribution stats (counts for specific barangays)
+app.get('/api/stats/barangay-distribution', async (req, res) => {
+    // Allow ictcoor/registrar/admin roles to view basic distribution
+    if (!req.session.user || !['ictcoor','registrar','admin','guidance'].includes(req.session.user.role)) {
+        return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+
+    try {
+        // Strategy: prefer explicit `barangay` columns if present, else fall back to searching `current_address` for substring matches
+        const hasStudentsBarangay = await pool.query("SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='students' AND column_name='barangay') AS has_col");
+        const hasEarlyBarangay = await pool.query("SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='early_registration' AND column_name='barangay') AS has_col");
+
+        let rows;
+        if (hasStudentsBarangay.rows[0].has_col || hasEarlyBarangay.rows[0].has_col) {
+            // Use barangay columns where available (union both tables if both have the column)
+            const parts = [];
+            if (hasStudentsBarangay.rows[0].has_col) parts.push("SELECT barangay FROM students");
+            if (hasEarlyBarangay.rows[0].has_col) parts.push("SELECT barangay FROM early_registration");
+            const unionSql = parts.join(' UNION ALL ');
+            const q = `
+                SELECT
+                    SUM(CASE WHEN LOWER(barangay) = 'mainaga' THEN 1 ELSE 0 END)::int AS mainaga,
+                    SUM(CASE WHEN LOWER(barangay) = 'san francisco' THEN 1 ELSE 0 END)::int AS san_francisco,
+                    SUM(CASE WHEN LOWER(barangay) = 'calamias' THEN 1 ELSE 0 END)::int AS calamias,
+                    SUM(CASE WHEN LOWER(barangay) NOT IN ('mainaga','san francisco','calamias') OR barangay IS NULL THEN 1 ELSE 0 END)::int AS others
+                FROM (
+                    ${unionSql}
+                ) t
+            `;
+            rows = await pool.query(q);
+        } else {
+            // Fallback: search current_address text for substrings in both students and early_registration
+            const parts = [];
+            parts.push("SELECT current_address FROM students");
+            parts.push("SELECT current_address FROM early_registration");
+            const unionSql = parts.join(' UNION ALL ');
+            const q = `
+                SELECT
+                    SUM(CASE WHEN LOWER(COALESCE(current_address,'')) LIKE '%mainaga%' THEN 1 ELSE 0 END)::int AS mainaga,
+                    SUM(CASE WHEN LOWER(COALESCE(current_address,'')) LIKE '%san francisco%' THEN 1 ELSE 0 END)::int AS san_francisco,
+                    SUM(CASE WHEN LOWER(COALESCE(current_address,'')) LIKE '%calamias%' THEN 1 ELSE 0 END)::int AS calamias,
+                    SUM(CASE WHEN LOWER(COALESCE(current_address,'')) NOT LIKE '%mainaga%' AND LOWER(COALESCE(current_address,'')) NOT LIKE '%san francisco%' AND LOWER(COALESCE(current_address,'')) NOT LIKE '%calamias%' THEN 1 ELSE 0 END)::int AS others
+                FROM (
+                    ${unionSql}
+                ) t
+            `;
+            rows = await pool.query(q);
+        }
+
+        const r = rows.rows[0] || { mainaga:0, san_francisco:0, calamias:0, others:0 };
+        res.json({ success: true, counts: {
+            Mainaga: parseInt(r.mainaga || 0),
+            'San Francisco': parseInt(r.san_francisco || 0),
+            Calamias: parseInt(r.calamias || 0),
+            Others: parseInt(r.others || 0)
+        }});
+    } catch (err) {
+        console.error('Error computing barangay distribution:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
