@@ -352,6 +352,12 @@ hr {
 .signature-modal-btn-container {
     text-align: center;
 }
+
+/* Barangay 'Other' input styling (moved from inline styles) */
+#barangayOther {
+    display: none;
+    margin-top: 8px;
+}
 .signature-line-input {
     width: 100%;
     border: none;
