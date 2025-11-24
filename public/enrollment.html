@@ -169,17 +169,17 @@
                   >
               </div>
               <div class="form-field form-field-flex-2">
-                  <label for="lrn">Learner Reference No. (LRN), if applicable:</label>
+                  <label for="lrn">Learner Reference No. (LRN)</label>
                   <input 
-                      type="text" 
+                      type="tel" 
                       id="lrn" 
                       name="lrn" 
                       maxlength="12" 
-                      pattern="\d{12}" 
-                      placeholder="Enter 12-digit LRN" 
+                     placeholder="Enter 12-digit LRN" 
                       class="lrn-input" 
                       inputmode="numeric"
-                      title="Please enter a 12-digit LRN"
+                      pattern="[0-9]{0,12}"
+                     title="Enter 12-digit LRN"
                   >
               </div>
               <div class="form-field max-width-200">
@@ -258,7 +258,17 @@
           <div class="address-group">
               <label class="form-section-title">Current Address</label>
               <div class="form-row address-row">
-                  <div class="form-field"><label for="barangay">Barangay</label><input type="text" id="barangay" name="barangay" placeholder="Barangay" title="Enter Barangay"></div>
+                  <div class="form-field">
+                      <label for="barangay">Barangay</label>
+                      <select id="barangay" name="barangay" title="Select Barangay">
+                          <option value="">Select Barangay</option>
+                          <option value="Mainaga">Mainaga</option>
+                          <option value="San Francisco">San Francisco</option>
+                          <option value="Calamias">Calamias</option>
+                          <option value="Others">Others</option>
+                      </select>
+                      <input type="text" id="barangayOther" name="barangayOther" placeholder="Enter Barangay name" title="Enter Barangay name" style="display:none; margin-top:8px;">
+                  </div>
               </div>
               <div class="form-row address-row">
                   <div class="form-field"><label for="municipality">Municipality/City</label><input type="text" id="municipality" name="municipality" placeholder="Municipality/City" title="Enter Municipality/City"></div>
@@ -569,7 +579,10 @@
         formData.append('submitTime', submitTime);
         formData.append('gmail', val('gmail'));
         formData.append('schoolYear', val('schoolYear'));
-        formData.append('lrn', val('lrn'));
+        // Normalize LRN: remove non-digit chars; keep blank if not provided
+        const rawLrn = (val('lrn') || '').trim();
+        const normalizedLrn = rawLrn ? rawLrn.replace(/\D/g, '') : '';
+        formData.append('lrn', normalizedLrn);
         formData.append('gradeLevel', val('gradeLevel'));
         formData.append('lastName', val('lastName'));
         formData.append('givenName', val('givenName'));
@@ -580,7 +593,17 @@
         formData.append('sex', (function(){const el = document.querySelector('input[name="sex"]:checked'); return el? el.value: '';})());
     formData.append('religion', val('religion'));
     // Address parts (server composes current_address)
-    formData.append('barangay', val('barangay'));
+    // Barangay: if 'Others' is selected, use the barangayOther input value instead
+    const _barangayEl = document.getElementById('barangay');
+    let _barangayVal = '';
+    if (_barangayEl) {
+        if (_barangayEl.value === 'Others') {
+            _barangayVal = (document.getElementById('barangayOther')?.value || '').trim();
+        } else {
+            _barangayVal = (_barangayEl.value || '').trim();
+        }
+    }
+    formData.append('barangay', _barangayVal);
     formData.append('municipality', val('municipality'));
     formData.append('province', val('province'));
     formData.append('country', val('country'));
@@ -695,6 +718,27 @@
             }
         });
     });
+
+        // Barangay select: show/hide 'Other' input when appropriate
+        document.addEventListener('DOMContentLoaded', function() {
+            const barangaySelect = document.getElementById('barangay');
+            const barangayOther = document.getElementById('barangayOther');
+            function toggleBarangayOther() {
+                if (!barangaySelect || !barangayOther) return;
+                if (barangaySelect.value === 'Others') {
+                    barangayOther.style.display = '';
+                    barangayOther.required = true;
+                } else {
+                    barangayOther.style.display = 'none';
+                    barangayOther.required = false;
+                    barangayOther.value = '';
+                }
+            }
+            if (barangaySelect) {
+                barangaySelect.addEventListener('change', toggleBarangayOther);
+                toggleBarangayOther();
+            }
+        });
 </script>
     <script src="/js/toast.js"></script>
 </body>
