@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recommendation</title>
+  <link rel="stylesheet" href="/guidance.css">
+  <link rel="stylesheet" href="/guidance-toast.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #ffffff; min-height: 100vh; color:#222; }
+
+    /* Sidebar */
+  .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 250px; background: #dc2626; color: #fff; padding: 22px 20px 20px; box-shadow: 2px 0 14px rgba(0,0,0,0.12); display: flex; flex-direction: column; gap: 18px; }
+    .sidebar .brand { display: flex; align-items: center; gap: 12px; }
+    .sidebar .brand img { width: 44px; height: 44px; border-radius: 50%; background: #fff; padding: 6px; }
+    .sidebar .school-name-text { font-size: 16px; font-weight: 700; line-height: 1.2; }
+    .sidebar .nav { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .sidebar .nav a { color: #fff; text-decoration: none; padding: 11px 14px; border-radius: 10px; background: rgba(255,255,255,0.10); transition: background .18s, transform .18s; font-weight: 600; letter-spacing:.3px; }
+  .sidebar .nav a:hover { background: rgba(255,255,255,0.22); transform: translateX(3px); }
+  .sidebar .nav a.active { background: #fff; color:#dc2626; font-weight:700; }
+    .sidebar .spacer { flex: 1; }
+  .sidebar .logout-btn { display: inline-block; color: #fff; text-decoration: none; padding: 12px 14px; border-radius: 10px; background: #b91c1c; font-weight: 700; text-align: center; transition: background .18s; }
+  .sidebar .logout-btn:hover { background: #991b1b; }
+
+    /* Main */
+  main { max-width: 1400px; margin: 32px 24px 40px 290px; }
+    .page-container { background: #fff; border-radius: 15px; padding: 30px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+    .page-header { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0; }
+    .page-header h1 { font-size: 32px; color: #333; }
+    .help-text { color: #666; font-size: 14px; margin-top: 6px; }
+  .selected-issue { background: #fff7f7; border-left: 4px solid #dc2626; padding: 14px; border-radius: 10px; margin-bottom: 18px; }
+  .selected-issue h3 { margin: 0 0 8px 0; font-size: 16px; color: #991b1b; }
+  .selected-issue p { margin: 0; color: #444; }
+  .selected-issue .use-btn { margin-top: 8px; padding: 8px 12px; background:#dc2626; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700; }
+  .selected-issue.hidden { display: none; }
+
+    /* Two-column layout */
+    .content-grid { display: grid; grid-template-columns: 1fr 400px; gap: 24px; margin-bottom: 30px; }
+    
+    /* Compose Message Section */
+  .compose-section { background: #ffffff; padding: 22px; border-radius: 16px; border: 1px solid #f1f1f1; box-shadow:0 6px 24px rgba(0,0,0,0.08); }
+    .compose-section h2 { font-size: 20px; color: #333; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-weight: 600; color: #555; margin-bottom: 6px; font-size: 14px; }
+    .form-select, .form-textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-family: inherit; font-size: 14px; }
+    .form-select:focus, .form-textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+    .form-textarea { resize: vertical; min-height: 150px; }
+  .send-btn { width: 100%; padding: 12px; background: #dc2626; color: #fff; border: none; border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; transition: transform .2s, box-shadow .2s, background .2s; }
+  .send-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(220,38,38,0.35); background:#b91c1c; }
+    .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* DSS Suggestions Section */
+  .suggestions-section { background: #fff5f5; padding: 20px; border-radius: 16px; border: 1px solid #fecaca; }
+  .suggestions-section h2 { font-size: 18px; color: #991b1b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .suggestions-hint { margin-bottom: 12px; font-size: 13px; }
+  .suggestion-item { background: #fff; padding: 12px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid #dc2626; cursor: pointer; transition: all .2s; }
+  .suggestion-item:hover { transform: translateX(4px); box-shadow: 0 2px 10px rgba(220,38,38,0.18); }
+    .suggestion-title { font-weight: 600; color: #333; font-size: 14px; margin-bottom: 4px; }
+    .suggestion-text { color: #666; font-size: 13px; line-height: 1.5; }
+    .suggestion-meta { display: flex; gap: 8px; margin-top: 6px; }
+    .suggestion-badge { padding: 4px 8px; background: #f0f0f0; border-radius: 4px; font-size: 11px; color: #555; }
+    .suggestions-empty { text-align: center; color: #999; padding: 20px; font-size: 14px; }
+
+    /* Message History */
+    .history-section { background: #fff; }
+    .history-section h2 { font-size: 20px; color: #333; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .messages-table { width: 100%; border-collapse: collapse; }
+    .messages-table th { background: #f8f9fa; padding: 12px; text-align: left; font-weight: 600; color: #555; border-bottom: 2px solid #e5e7eb; font-size: 13px; }
+    .messages-table td { padding: 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #333; }
+    .messages-table tbody tr:hover { background: #f8f9fa; }
+    .message-preview { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #666; }
+    .empty-cell { text-align: center; color: #999; }
+    .status-badge { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .status-sent { background: #fee2e2; color: #991b1b; }
+  .status-read { background: #dcfce7; color: #166534; }
+
+
+
+    @media (max-width: 900px) { .sidebar { width: 200px; } main { margin: 20px 12px 20px 220px; } }
+  </style>
+</head>
+<body>
+  <!-- Polyfill to prevent deprecated DOM mutation event warnings -->
+  <script src="/js/deprecated-dom-events-polyfill.js"></script>
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="/pictures/SchoolLogo-removebg-preview.png" alt="School Logo" />
+      <span class="school-name-text">Mainaga San Francisco Integrated School</span>
+    </div>
+      <nav class="nav">
+      <a href="/guidance/dashboard">📋 Dashboard</a>
+  <a href="/guidance/document-requests">� Document Requests</a>
+  <a href="/guidance/behavior-analytics">� Behavior Analytics</a>
+      <a href="/guidance/recommendations" class="active">💬 Recommendations</a>
+      <a href="/guidance/sent-messages">📋 Sent Messages</a>
+      <a href="/guidance/behavior-archive">📦 Archived Reports</a>
+  <a href="/guidance/analytics">🔒 Security</a>
+    </nav>
+    <div class="spacer"></div>
+    <a class="logout-btn" href="/guidance/logout">Logout</a>
+  </aside>
+
+  <main>
+    <div class="page-container">
+      <div class="page-header">
+  <h1>💬 Teacher Communication</h1>
+      </div>
+
+      <!-- Selected issue will appear here when coming from Behavior Analytics -->
+      <div id="selectedIssueBox" class="selected-issue hidden">
+        <h3 id="selectedIssueTitle">Selected Issue</h3>
+        <p id="selectedIssueText"></p>
+        <button id="useSelectedBtn" class="use-btn">Use in Message</button>
+      </div>
+
+      <div class="content-grid">
+        <!-- LEFT: Compose Message -->
+        <div class="compose-section">
+          <h2>📝 Compose Message</h2>
+          
+          <form id="messageForm">
+            <div class="form-group">
+              <label for="teacherSelect">To Teacher:</label>
+              <select id="teacherSelect" class="form-select" required>
+                <option value="">Select a teacher...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="studentInput">Regarding Student (Optional):</label>
+              <input id="studentInput" class="form-select" list="studentList" placeholder="Type student name (or leave blank)" />
+              <datalist id="studentList"></datalist>
+            </div>
+
+            <div class="form-group">
+              <label for="messageText">Message:</label>
+              <textarea id="messageText" class="form-textarea" placeholder="Example: Please call the guardian of Juan Dela Cruz regarding attendance concerns. Student has been absent 5 times this month." required></textarea>
+            </div>
+
+            <button type="submit" class="send-btn" id="sendBtn">Send Message</button>
+          </form>
+        </div>
+
+        <!-- RIGHT: DSS Suggestions -->
+        <div class="suggestions-section">
+          <h2>💡 Suggestions</h2>
+          <p class="help-text suggestions-hint">Click to copy text into your message</p>
+          <div id="suggestionsContainer">
+            <div class="suggestions-empty">Loading suggestions...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sent Messages CTA removed as requested -->
+    </div>
+  </main>
+
+  <script src="/guidance-toast.js"></script>
+  <script>
+    let allReports = [];
+    let allTeachers = [];
+    let allStudents = [];
+
+    async function loadTeachers() {
+      try {
+        const res = await fetch('/api/guidance/teachers');
+        const data = await res.json();
+        if (data.success && data.teachers) {
+          allTeachers = data.teachers;
+          const select = document.getElementById('teacherSelect');
+          select.innerHTML = '<option value="">Select a teacher...</option>';
+          data.teachers.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.id;
+            opt.textContent = `${t.first_name} ${t.last_name}${t.section_name ? ` (${t.section_name})` : ''}`;
+            select.appendChild(opt);
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load teachers:', err);
+      }
+    }
+
+    async function loadStudents() {
+      try {
+        const res = await fetch('/api/guidance/students');
+        const data = await res.json();
+        if (data.success && data.students) {
+          allStudents = data.students;
+          // Populate datalist with all students for free typing
+          const datalist = document.getElementById('studentList');
+          datalist.innerHTML = '';
+          data.students.forEach(s => {
+            const opt = document.createElement('option');
+            // Use a readable label in the datalist value
+            opt.value = `${s.full_name} (${s.section_name || 'No section'})`;
+            datalist.appendChild(opt);
+          });
+          // If a teacher is already selected, filter to that teacher's students
+          const teacherSel = document.getElementById('teacherSelect');
+          if (teacherSel && teacherSel.value) populateStudentsForTeacher(teacherSel.value);
+        }
+      } catch (err) {
+        console.error('Failed to load students:', err);
+      }
+    }
+
+    // Populate the student datalist with students for the selected teacher's section
+    function populateStudentsForTeacher(teacherId) {
+      const datalist = document.getElementById('studentList');
+      datalist.innerHTML = '';
+
+      // Always include all students as a fallback
+      if (!teacherId) {
+        allStudents.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = `${s.full_name} (${s.section_name || 'No section'})`;
+          datalist.appendChild(opt);
+        });
+        return;
+      }
+
+      const teacher = allTeachers.find(t => String(t.id) === String(teacherId));
+      if (!teacher) return;
+
+      const sectionName = teacher.section_name || '';
+      const matched = allStudents.filter(s => (s.section_name || '') === sectionName);
+
+      if (!matched.length) {
+        // If no match, still include all students but optionally leave a hint
+        allStudents.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = `${s.full_name} (${s.section_name || 'No section'})`;
+          datalist.appendChild(opt);
+        });
+        return;
+      }
+
+      matched.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = `${s.full_name} (${s.section_name || 'No section'})`;
+        datalist.appendChild(opt);
+      });
+    }
+
+    // Resolve a typed student input to an ID (best-effort)
+    function getStudentIdFromInput(value) {
+      if (!value) return null;
+      const normalized = String(value).trim().toLowerCase();
+
+      // Exact match by "Full Name (Section)"
+      let found = allStudents.find(s => (`${s.full_name} (${s.section_name || 'No section'})`).toLowerCase() === normalized);
+      if (found) return found.id;
+
+      // Exact match by full_name only
+      found = allStudents.find(s => s.full_name.toLowerCase() === normalized);
+      if (found) return found.id;
+
+      // Starts-with match on name
+      found = allStudents.find(s => s.full_name.toLowerCase().startsWith(normalized));
+      if (found) return found.id;
+
+      return null;
+    }
+
+    async function loadSuggestions() {
+      try {
+        const response = await fetch('/api/guidance/behavior-analytics');
+        const data = await response.json();
+        if (!data.success) throw new Error('API error');
+
+        allReports = data.reports || [];
+        renderSuggestions(allReports);
+      } catch (err) {
+        console.error('Failed to load suggestions:', err);
+        const c = document.getElementById('suggestionsContainer');
+        c.innerHTML = '<div class="suggestions-empty">Failed to load suggestions.</div>';
+      }
+    }
+
+    function renderSuggestions(reports) {
+      const container = document.getElementById('suggestionsContainer');
+      
+      // Generate simple suggestions from patterns
+      const suggestions = generateSimpleSuggestions(reports);
+      
+      if (suggestions.length === 0) {
+        container.innerHTML = '<div class="suggestions-empty">✓ No urgent patterns detected</div>';
+        return;
+      }
+
+      container.innerHTML = '';
+      suggestions.forEach(sug => {
+        const div = document.createElement('div');
+        div.className = 'suggestion-item';
+        div.onclick = () => copySuggestionToMessage(sug.text);
+        
+        div.innerHTML = `
+          <div class="suggestion-title">${sug.icon} ${sug.title}</div>
+          <div class="suggestion-text">${sug.text}</div>
+          <div class="suggestion-meta">
+            <span class="suggestion-badge">${sug.count} students</span>
+            <span class="suggestion-badge">${sug.category}</span>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function generateSimpleSuggestions(reports) {
+      const suggestions = [];
+      // Group reports by normalized category and prepare keyword-driven rules
+      const byCategory = {};
+      reports.forEach(r => {
+        const cat = (r.category || 'Other').trim();
+        if (!byCategory[cat]) byCategory[cat] = [];
+        byCategory[cat].push(r);
+      });
+
+      // Keyword → suggestion template mapping. Add more keywords here as teachers add categories.
+      const rules = [
+        { keys: ['attendance', 'absent', 'truancy', 'tardy', 'tardiness', 'late'],
+          icon: '📞',
+          title: 'Attendance Concerns',
+          text: (names) => `Contact guardians for: ${names}. Request reason for absences/tardiness and monitor attendance for 2 weeks.`,
+          min: 1,
+          category: 'Attendance'
+        },
+        { keys: ['academic', 'grades', 'performance', 'learning'],
+          icon: '📚',
+          title: 'Academic Support Suggested',
+          text: (names) => `Recommend targeted academic support for: ${names}. Consider peer tutoring, remedial groups, or targeted learning activities.`,
+          min: 1,
+          category: 'Academic'
+        },
+        { keys: ['disruption', 'conduct', 'behavior', 'disruptive'],
+          icon: '⚠️',
+          title: 'Behavioral Intervention',
+          text: (names) => `Schedule meeting with parents for: ${names}. Discuss classroom expectations, consistent consequences, and behavior supports.`,
+          min: 1,
+          category: 'Behavior'
+        },
+        { keys: ['bully', 'bullying', 'harass', 'harassment'],
+          icon: '🛡️',
+          title: 'Bullying / Safety Concern',
+          text: (names) => `Immediate safety check required for: ${names}. Investigate the incident, separate involved students, and notify guardians and administration.`,
+          min: 1,
+          category: 'Bullying'
+        },
+        { keys: ['health', 'illness', 'medical', 'sick'],
+          icon: '🩺',
+          title: 'Health-Related',
+          text: (names) => `Follow up on health concerns for: ${names}. Advise guardians to consult a health provider and consider temporary classroom adjustments.`,
+          min: 1,
+          category: 'Health'
+        },
+        { keys: ['mental', 'wellbeing', 'anxiety', 'depress', 'stress'],
+          icon: '💬',
+          title: 'Wellbeing / Mental Health',
+          text: (names) => `Consider counselor referral for: ${names}. Coordinate with guardians for additional support and monitor wellbeing.`,
+          min: 1,
+          category: 'Wellbeing'
+        },
+        { keys: ['engage', 'engagement', 'participation', 'silent'],
+          icon: '🤝',
+          title: 'Student Engagement',
+          text: (names) => `Increase engagement strategies for: ${names}. Try active learning, check-ins, and differentiated tasks.`,
+          min: 1,
+          category: 'Engagement'
+        },
+        { keys: ['materials', 'uniform', 'resources', 'supplies'],
+          icon: '🎒',
+          title: 'Resource Needs',
+          text: (names) => `Students needing materials: ${names}. Coordinate with guardians or school programs to provide necessary resources.`,
+          min: 1,
+          category: 'Resources'
+        },
+        { keys: ['cheat', 'cheating', 'plagiarism'],
+          icon: '✍️',
+          title: 'Academic Integrity',
+          text: (names) => `Investigate possible academic integrity issues for: ${names}. Discuss consequences and learning opportunities with student and guardian.`,
+          min: 1,
+          category: 'Integrity'
+        }
+      ];
+
+      // Helper to test if a report matches a rule
+      function matchesRule(report, rule) {
+        const cat = (report.category || '').toLowerCase();
+        const notes = (report.notes || '').toLowerCase();
+        return rule.keys.some(k => cat.includes(k) || notes.includes(k));
+      }
+
+      // Apply rules to produce suggestions
+      rules.forEach(rule => {
+        const matched = reports.filter(r => matchesRule(r, rule));
+        if (matched.length >= rule.min) {
+          const students = Array.from(new Set(matched.map(r => r.student_full_name))).slice(0, 4).join(', ');
+          suggestions.push({
+            icon: rule.icon,
+            title: rule.title,
+            text: rule.text(students || 'student(s)'),
+            count: matched.length,
+            category: rule.category
+          });
+        }
+      });
+
+      // High severity alerts remain highest priority
+      const highSeverity = reports.filter(r => (r.severity || '').toLowerCase() === 'high');
+      if (highSeverity.length > 0) {
+        const student = highSeverity[0];
+        suggestions.unshift({
+          icon: '🚨',
+          title: 'Urgent: High Severity Case',
+          text: `Immediate action needed for ${student.student_full_name}. Call parent TODAY and schedule face-to-face meeting within 48 hours.`,
+          count: highSeverity.length,
+          category: 'Urgent'
+        });
+      }
+
+      // Fallback: if no suggestions, show 'Other' category items grouped
+      if (suggestions.length === 0 && Object.keys(byCategory).length > 0) {
+        Object.keys(byCategory).forEach(cat => {
+          const list = byCategory[cat];
+          const students = list.map(r => r.student_full_name).slice(0,3).join(', ');
+          suggestions.push({
+            icon: 'ℹ️',
+            title: `${cat} (${list.length})`,
+            text: `Reports for: ${students}`,
+            count: list.length,
+            category: cat
+          });
+        });
+      }
+
+      return suggestions.slice(0, 8); // Return up to 8 suggestions
+    }
+
+    function copySuggestionToMessage(text) {
+      const textarea = document.getElementById('messageText');
+      textarea.value = text;
+      textarea.focus();
+      // Visual feedback
+      textarea.style.background = '#fff3cd';
+      setTimeout(() => { textarea.style.background = ''; }, 300);
+    }
+
+    async function loadMessageHistory() {
+      try {
+        const res = await fetch('/api/guidance/messages');
+        const data = await res.json();
+        if (!data.success) throw new Error('Failed to load');
+        
+        const tbody = document.getElementById('messagesTableBody');
+        if (!data.messages || data.messages.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="empty-row">No messages sent yet</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = '';
+        data.messages.forEach(msg => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${new Date(msg.created_at).toLocaleDateString()}</td>
+            <td>${msg.teacher_name || 'Unknown'}</td>
+            <td>${msg.student_name || '—'}</td>
+            <td><div class="message-preview">${msg.message}</div></td>
+            <td><span class="status-badge ${msg.is_read ? 'status-read' : 'status-sent'}">${msg.is_read ? 'Read' : 'Sent'}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Failed to load message history:', err);
+      }
+    }
+
+    document.getElementById('messageForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const teacherId = document.getElementById('teacherSelect').value;
+      const studentInputVal = document.getElementById('studentInput').value || '';
+      const studentId = getStudentIdFromInput(studentInputVal);
+      const message = document.getElementById('messageText').value;
+      
+      if (!teacherId || !message.trim()) {
+        showToast('Please select a teacher and enter a message', 'warn');
+        return;
+      }
+
+      const btn = document.getElementById('sendBtn');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      try {
+        console.log('Sending message:', { teacherId, studentId, message });
+        
+        const res = await fetch('/api/guidance/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ teacherId, studentId, message })
+        });
+        
+        console.log('Response status:', res.status);
+        console.log('Response headers:', res.headers.get('content-type'));
+        
+        // Check if we got HTML instead of JSON (means redirect/error page)
+        const contentType = res.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+          throw new Error('Session expired - please log out and log in again');
+        }
+        
+        const data = await res.json();
+        console.log('Response data:', data);
+        
+        if (!data.success) throw new Error(data.error || 'Failed to send');
+
+        showToast('✓ Message sent successfully!', 'success');
+        document.getElementById('messageForm').reset();
+        await loadMessageHistory();
+      } catch (err) {
+        console.error('Error sending message:', err);
+        if (err.message.includes('Session expired')) {
+          showToast('⚠️ Your session has expired. Please log out and log in again.', 'warn');
+        } else {
+          showToast('Failed to send message: ' + err.message, 'error');
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send Message';
+      }
+    });
+
+    // Apply incoming URL params (reportId, teacherId, studentId) after initial data loads
+    async function initPage() {
+      await loadTeachers();
+      await loadStudents();
+
+      // When teacher selection changes, show that teacher's students only
+      document.getElementById('teacherSelect').addEventListener('change', function () {
+        populateStudentsForTeacher(this.value);
+      });
+
+      await loadSuggestions();
+      await loadMessageHistory();
+
+      applyIncomingParams();
+    }
+
+    initPage();
+
+    // If the page was opened from Behavior Analytics with a selected report, prefill fields
+    function applyIncomingParams() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const reportId = params.get('reportId');
+        const teacherId = params.get('teacherId');
+        const studentId = params.get('studentId');
+
+        if (teacherId) {
+          const teacherSel = document.getElementById('teacherSelect');
+          if (teacherSel) {
+            teacherSel.value = teacherId;
+            populateStudentsForTeacher(teacherId);
+          }
+        }
+
+        if (studentId) {
+          const stu = allStudents.find(s => String(s.id) === String(studentId));
+          if (stu) {
+            const input = document.getElementById('studentInput');
+            input.value = `${stu.full_name} (${stu.section_name || 'No section'})`;
+          }
+        }
+
+        if (reportId) {
+          const rep = allReports.find(r => String(r.id) === String(reportId));
+          if (rep) {
+            renderFocusedSuggestion(rep);
+            // Pre-fill message area with brief context for faster action
+            const textarea = document.getElementById('messageText');
+            if (textarea) textarea.value = `Regarding ${rep.student_full_name || 'student'}: ${rep.notes || ''}`;
+          }
+        }
+      } catch (e) {
+        console.error('Failed to apply incoming params:', e);
+      }
+    }
+
+    // Render a focused suggestion based on a single report
+    function renderFocusedSuggestion(report) {
+      try {
+        const container = document.getElementById('suggestionsContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        // Suggestion item (report summary)
+        const div = document.createElement('div');
+        div.className = 'suggestion-item';
+        div.onclick = () => copySuggestionToMessage(report.notes || `Issue: ${report.category}`);
+
+        const title = document.createElement('div');
+        title.className = 'suggestion-title';
+        title.textContent = `🔎 Selected Issue: ${report.category || 'Issue'}`;
+
+        const text = document.createElement('div');
+        text.className = 'suggestion-text';
+        text.textContent = report.notes || 'No additional notes';
+
+        const meta = document.createElement('div');
+        meta.className = 'suggestion-meta';
+        const badge1 = document.createElement('span'); badge1.className = 'suggestion-badge'; badge1.textContent = report.student_full_name || '1 student';
+        const badge2 = document.createElement('span'); badge2.className = 'suggestion-badge'; badge2.textContent = report.category || '';
+        meta.appendChild(badge1); meta.appendChild(badge2);
+
+        // Support decision (prescriptive) generated from the report
+        const support = document.createElement('div');
+        support.className = 'suggestion-text';
+        support.style.marginTop = '10px';
+        support.style.fontWeight = '600';
+        support.textContent = 'Support decision: ' + generateSupportDecision(report);
+
+        div.appendChild(title);
+        div.appendChild(text);
+        div.appendChild(meta);
+        div.appendChild(support);
+
+        container.appendChild(div);
+
+        // Populate the selected issue box above the compose form
+        const box = document.getElementById('selectedIssueBox');
+        if (box) {
+          box.style.display = 'block';
+          const t = document.getElementById('selectedIssueTitle');
+          const txt = document.getElementById('selectedIssueText');
+          if (t) t.textContent = `${report.category || 'Issue'} — ${report.severity || ''}`;
+          if (txt) txt.textContent = `${report.student_full_name ? report.student_full_name + ' — ' : ''}${report.notes || ''}`;
+
+          const btn = document.getElementById('useSelectedBtn');
+          if (btn) {
+            btn.onclick = () => {
+              const message = `${report.student_full_name ? report.student_full_name + ': ' : ''}${report.notes || ''}\n\nSupport decision: ${generateSupportDecision(report)}`;
+              copyToMessage(message);
+            };
+          }
+        }
+      } catch (e) {
+        console.error('Failed to render focused suggestion:', e);
+      }
+    }
+
+    // Simple rule-based support decision generator (can be improved later)
+    function generateSupportDecision(report) {
+      if (!report) return 'No decision available';
+      const cat = (report.category || '').toLowerCase();
+      const sev = (report.severity || '').toLowerCase();
+      if (sev === 'high') return 'Immediate contact with parent/guardian and schedule face-to-face meeting within 48 hours.';
+
+      // Expanded category handling
+      if (cat.includes('attendance') || cat.includes('absent') || cat.includes('truancy') || cat.includes('tardy')) {
+        return 'Call guardian to discuss absences/tardiness, request documentation if available, and monitor attendance for two weeks. Consider referral to attendance officer.';
+      }
+
+      if (cat.includes('academic') || cat.includes('grades') || cat.includes('performance') || cat.includes('learning')) {
+        return 'Recommend targeted academic support: arrange peer tutoring, assign focused learning tasks, and follow up in 2 weeks.';
+      }
+
+      if (cat.includes('disruption') || cat.includes('conduct') || cat.includes('behavior') || cat.includes('disruptive')) {
+        return 'Meet with parents to discuss behavior, set clear expectations and consequences, and coordinate classroom supports with the teacher.';
+      }
+
+      if (cat.includes('bully') || cat.includes('bullying') || cat.includes('harass')) {
+        return 'Flag to administration and school counselor for investigation. Notify guardians and take immediate steps to ensure student safety.';
+      }
+
+      if (cat.includes('health') || cat.includes('illness') || cat.includes('medical') || cat.includes('sick')) {
+        return 'Advise guardian to seek medical evaluation if needed. Consider short-term adjustments and follow-up with the school nurse.';
+      }
+
+      if (cat.includes('mental') || cat.includes('wellbeing') || cat.includes('anxiety') || cat.includes('depress') || cat.includes('stress')) {
+        return 'Consider counselor referral and coordinate with guardians for ongoing monitoring and mental health support.';
+      }
+
+      if (cat.includes('engage') || cat.includes('engagement') || cat.includes('participation')) {
+        return 'Apply active engagement strategies, check for barriers to participation, and consider differentiated instruction.';
+      }
+
+      if (cat.includes('materials') || cat.includes('uniform') || cat.includes('resources')) {
+        return 'Identify resource needs and connect guardians to school support programs or community resources for supplies.';
+      }
+
+      if (cat.includes('cheat') || cat.includes('cheating') || cat.includes('plagiarism')) {
+        return 'Investigate academic integrity concerns, meet with student and guardian, and apply restorative steps or consequences as needed.';
+      }
+
+      return 'Review the case, consider contacting guardian and coordinate with the teacher for appropriate interventions and follow-up.';
+    }
+
+    // Copy given text into message textarea and focus
+    function copyToMessage(text) {
+      const textarea = document.getElementById('messageText');
+      if (!textarea) return;
+      textarea.value = text;
+      textarea.focus();
+      textarea.style.background = '#fff3cd';
+      setTimeout(() => { textarea.style.background = ''; }, 300);
+    }
+  </script>
+</body>
+</html>

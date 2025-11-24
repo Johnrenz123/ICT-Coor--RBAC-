@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Archived Behavior Reports</title>
+  <link rel="stylesheet" href="/guidance.css">
+  <link rel="stylesheet" href="/guidance-toast.css">
+  <style>
+    main { max-width: 1200px; margin: 32px 24px 40px 290px; }
+    .archive-card { background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #eaeaea; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+    .archive-table { width: 100%; border-collapse: collapse; }
+    .archive-table th { background: #dc2626; color: #fff; padding: 12px; text-align: left; }
+    .archive-table td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; }
+    .empty-row { text-align: center; color: #999; padding: 20px; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="/pictures/SchoolLogo-removebg-preview.png" alt="School Logo">
+      <span class="school-name-text">Mainaga San Francisco Integrated School</span>
+    </div>
+    <nav class="nav">
+      <a href="/guidance/dashboard">📋 Dashboard</a>
+      <a href="/guidance/document-requests">� Document Requests</a>
+      <a href="/guidance/behavior-analytics">� Behavior Analytics</a>
+      <a href="/guidance/recommendations">💡 Recommendations</a>
+      <a href="/guidance/sent-messages">📋 Sent Messages</a>
+      <a href="/guidance/behavior-archive" class="active">📦 Archived Reports</a>
+      <a href="/guidance/analytics">🔒 Security</a>
+    </nav>
+    <div class="spacer"></div>
+    <a class="logout-btn" href="/guidance/logout">Logout</a>
+  </aside>
+
+  <main>
+    <div class="archive-card">
+      <h1>📦 Archived Behavior Reports</h1>
+      <p class="muted-text">Reports that were archived. Deleting here is permanent.</p>
+      <table class="archive-table">
+        <thead>
+          <tr>
+            <th>Archived At</th>
+            <th>Student</th>
+            <th>Section</th>
+            <th>Teacher</th>
+            <th>Category</th>
+            <th>Severity</th>
+            <th>Notes</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="archivedTableBody">
+          <tr><td colspan="8" class="empty-row">Loading archived reports...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="/guidance-toast.js"></script>
+
+  <!-- Generic confirmation modal (replaces native confirm) -->
+  <div id="genericConfirmModal">
+    <div class="modal-inner">
+      <div id="genericConfirmMessage" class="modal-message"></div>
+      <div class="modal-actions">
+        <button id="genericConfirmCancel" class="action-button secondary">Cancel</button>
+        <button id="genericConfirmOk" class="action-button primary">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Modal helpers
+    let __confirmCallback = null;
+    function openConfirmModal(message, onConfirm) {
+      document.getElementById('genericConfirmMessage').innerText = message;
+      const modal = document.getElementById('genericConfirmModal');
+      modal.style.display = 'flex';
+      __confirmCallback = onConfirm;
+    }
+    function closeConfirmModal() {
+      document.getElementById('genericConfirmModal').style.display = 'none';
+      __confirmCallback = null;
+    }
+    document.getElementById('genericConfirmCancel').addEventListener('click', () => closeConfirmModal());
+    document.getElementById('genericConfirmOk').addEventListener('click', async () => {
+      const cb = __confirmCallback;
+      closeConfirmModal();
+      if (typeof cb === 'function') cb();
+    });
+
+  </script>
+
+  <script>
+    async function loadArchived() {
+      try {
+        const res = await fetch('/api/guidance/behavior-reports/archived');
+        const data = await res.json();
+        const tbody = document.getElementById('archivedTableBody');
+        tbody.innerHTML = '';
+        if (!data.reports || data.reports.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" class="empty-row">No archived reports</td></tr>';
+          return;
+        }
+        data.reports.forEach(r => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${new Date(r.archived_at).toLocaleString()}</td>
+            <td>${r.student_full_name || '—'}</td>
+            <td>${r.section_name || '—'}</td>
+            <td>${r.teacher_name || '—'}</td>
+            <td>${r.category || '—'}</td>
+            <td>${r.severity || '—'}</td>
+            <td class="notes-cell">${(r.notes||'').replace(/\n/g,'<br>')}</td>
+            <td>
+              <button class="action-button primary" onclick="confirmRecover(${r.id})">Recover</button>
+              <button class="action-button secondary" onclick="confirmDelete(${r.id})">Delete Permanently</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error('Failed to load archived:', err);
+        document.getElementById('archivedTableBody').innerHTML = '<tr><td colspan="8" class="empty-row">Failed to load archived reports</td></tr>';
+      }
+    }
+
+    let __deletePendingId = null;
+    function confirmDelete(id) {
+      __deletePendingId = id;
+      openConfirmModal('Permanently delete this archived report? This action cannot be undone.', deleteArchivedConfirmed);
+    }
+
+    async function deleteArchivedConfirmed() {
+      const id = __deletePendingId;
+      if (!id) return;
+      try {
+        const res = await fetch(`/api/guidance/behavior-reports/archived/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Archived report deleted', 'success');
+          await loadArchived();
+        } else {
+          showToast(data.error || 'Failed to delete', 'error');
+        }
+      } catch (err) {
+        console.error('Delete archived error', err);
+        showToast('Failed to delete archived report', 'error');
+      }
+    }
+
+    async function confirmRecover(id) {
+      openConfirmModal('Recover this archived report back to active reports?', async () => {
+        try {
+          const res = await fetch(`/api/guidance/behavior-reports/archived/${id}/recover`, { method: 'POST' });
+          // Try JSON first, but fall back to raw text for better error messages
+          let bodyText = null;
+          let data = null;
+          try {
+            data = await res.clone().json();
+          } catch (e) {
+            try { bodyText = await res.text(); } catch (t) { bodyText = null; }
+          }
+          if (res.ok && data && data.success) {
+            showToast('Archived report recovered', 'success');
+            await loadArchived();
+          } else {
+            const serverMsg = (data && (data.error || data.message)) || bodyText || `Server error: ${res.status}`;
+            console.error('Recover response status:', res.status, 'json:', data, 'text:', bodyText);
+            showToast(serverMsg, 'error');
+          }
+        } catch (err) {
+          console.error('Recover archived error', err);
+          showToast('Failed to recover archived report: ' + (err && err.message ? err.message : ''), 'error');
+        }
+      });
+    }
+
+    loadArchived();
+  </script>
+</body>
+</html>

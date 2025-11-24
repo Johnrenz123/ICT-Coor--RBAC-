@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Teacher - Student Demographics</title>
+  <!-- Base site styles -->
+  <link rel="stylesheet" href="/style.css" />
+  <!-- Page-specific styles -->
+  <link rel="stylesheet" href="/views/teacher/teacher.css" />
+  <link rel="stylesheet" href="/guidance-toast.css">
+  <style>
+    .filters-row { display: flex; gap: 8px; align-items: center; margin: 8px 0; flex-wrap:wrap; }
+    .filter-label { color: #666; font-size: 0.95rem; }
+    .input-field { padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-container">
+      <div class="school-logo">
+        <img src="/pictures/SchoolLogo-removebg-preview.png" alt="Logo" class="logo-img"> 
+        <span class="school-name-text">Mainaga San Francisco Integrated School</span>
+      </div>
+      <div class="navbar-logout">
+        <button class="notification-btn" onclick="switchTab(event, 'messages-tab')" title="Messages from Guidance">
+          <span class="bell-icon">🔔</span>
+          <span id="notificationBadge" class="notification-badge hidden">0</span>
+        </button>
+        <a href="/logout-teacher" class="cta-button">Logout</a>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class="page-wrap mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+        <div>
+          <h1 class="dashboard-title mb-1">My Section Students</h1>
+          <p class="dashboard-subtitle mb-0">Overview of your assigned section and students</p>
+        </div>
+        <div class="text-end">
+          <!-- reserved for quick actions -->
+        </div>
+      </div>
+
+      <!-- Tabbed Interface - Vertical Sidebar -->
+      <div class="tabs-container-vertical">
+        <div class="tabs-sidebar">
+          <button class="tab-btn active" onclick="switchTab(event, 'profile-tab')">My Profile</button>
+          <button class="tab-btn" onclick="switchTab(event, 'advisory-tab')">My Advisory</button>
+          <button class="tab-btn" onclick="switchTab(event, 'reports-tab')">Section Reports</button>
+          <button class="tab-btn" onclick="switchTab(event, 'messages-tab')">📬 Messages <span id="messagesBadge" class="badge badge-hidden">0</span></button>
+        </div>
+        
+        <div class="tabs-content-wrapper">
+
+        <!-- Tab 1: My Profile -->
+        <div id="profile-tab" class="tab-content active">
+          <div class="tab-profile-grid">
+            <div class="profile-item">
+              <div class="profile-label">Name:</div>
+              <div class="profile-value" id="profName">—</div>
+            </div>
+            <div class="profile-item">
+              <div class="profile-label">Username:</div>
+              <div class="profile-value" id="profUsername">—</div>
+            </div>
+            <div class="profile-item">
+              <div class="profile-label">Email:</div>
+              <div class="profile-value" id="profEmail">—</div>
+            </div>
+            <div class="profile-item">
+              <div class="profile-label">Contact:</div>
+              <div class="profile-value" id="profContact">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: My Advisory -->
+        <div id="advisory-tab" class="tab-content">
+          <div class="advisory-grid">
+            <div class="advisory-item">
+              <div class="advisory-item-label">Current Section</div>
+              <div class="advisory-item-value" id="currentSectionName">—</div>
+            </div>
+            <div class="advisory-item">
+              <div class="advisory-item-label">Number of Students</div>
+              <div class="advisory-item-value-group">
+                <div class="student-stat">
+                  <span class="stat-label">Total:</span>
+                  <span class="stat-value" id="currentSectionCount">—</span>
+                </div>
+                <div class="student-stat">
+                  <span class="stat-label">Male:</span>
+                  <span class="stat-value" id="maleCount">—</span>
+                </div>
+                <div class="student-stat">
+                  <span class="stat-label">Female:</span>
+                  <span class="stat-value" id="femaleCount">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Selector removed: teachers see only their assigned section -->
+
+          <div class="filters-row">
+            <input id="studentsSearch" type="search" placeholder="Search students by name or LRN" class="input-field" title="Search students by name or LRN" />
+            <button class="cta-button" id="studentsReset">Reset</button>
+          </div>
+
+          <!-- Students Table -->
+          <div class="table-section mt-3">
+            <h3 class="mb-3">Students</h3>
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped" id="studentsTable">
+                <thead>
+                  <tr><th>Name</th><th>LRN</th><th>Sex</th><th>Age</th><th>Actions</th></tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Section Reports -->
+        <div id="reports-tab" class="tab-content">
+          <div class="table-section">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h3 class="mb-0">Behavior Reports for Current Section</h3>
+              <div class="muted-text" id="reportsSectionLabel">—</div>
+            </div>
+            <div class="filters-row">
+              <input id="reportsSearch" type="search" placeholder="Search reports by student, category, or notes" class="input-field" title="Search reports" />
+              <label for="reportsFrom" class="filter-label">From</label>
+              <input id="reportsFrom" type="date" class="input-field" title="Report date from" />
+              <label for="reportsTo" class="filter-label">To</label>
+              <input id="reportsTo" type="date" class="input-field" title="Report date to" />
+              <button class="cta-button" id="reportsReset">Reset</button>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped" id="sectionReportsTable">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Student</th>
+                    <th>Category</th>
+                    <th>Severity</th>
+                    <th>Notes</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Messages from Guidance -->
+        <div id="messages-tab" class="tab-content">
+          <div class="table-section">
+            <h3 class="mb-3">📬 Messages from Guidance Office</h3>
+            <div class="filters-row">
+              <input id="messagesSearch" type="search" placeholder="Search messages" class="input-field" title="Search messages" />
+              <label for="messagesFrom" class="filter-label">From</label>
+              <input id="messagesFrom" type="date" class="input-field" title="Messages from" />
+              <label for="messagesTo" class="filter-label">To</label>
+              <input id="messagesTo" type="date" class="input-field" title="Messages to" />
+              <button class="cta-button" id="messagesReset">Reset</button>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped" id="messagesTable">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>From</th>
+                    <th>Student</th>
+                    <th>Message</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        </div>
+      </div>
+
+      <!-- Student Reports Modal (replaces old inline card) -->
+      <div id="studentReportsModal" class="modal hidden">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Behavior Reports for <span id="studentReportsModalName"></span></h2>
+            <button class="modal-close" onclick="closeStudentReportsModal()">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="btn-row">
+              <button class="cta-button" id="addReportBtn">Add Behavior Report</button>
+            </div>
+            <table id="reportsTable">
+              <thead>
+                <tr><th>Date</th><th>Category</th><th>Severity</th><th>Notes</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button class="cta-button" onclick="closeStudentReportsModal()">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Report Modal -->
+  <div id="reportModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add Behavior Report for <span id="reportStudentModalName">Student</span></h2>
+        <button class="modal-close" onclick="closeReportModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="reportForm">
+          <div class="form-group">
+            <label for="reportCategory">Category:</label>
+            <select id="reportCategory" required>
+              <option value="">Select Category</option>
+              <option value="Disruption">Disruption</option>
+              <option value="Attendance">Attendance</option>
+              <option value="Academic">Academic Performance</option>
+              <option value="Conduct">Conduct</option>
+              <option value="Bullying">Bullying</option>
+              <option value="Mental Health">Mental Health</option>
+              <option value="Family Issues">Family / Home Issues</option>
+              <option value="Medical">Medical / Health</option>
+              <option value="Substance Use">Substance Use</option>
+              <option value="Peer Conflict">Peer Conflict</option>
+              <option value="Vandalism">Vandalism</option>
+              <option value="Safety">Safety Concern</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="reportSeverity">Severity Level:</label>
+            <select id="reportSeverity" required>
+              <option value="">Select Severity</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="reportNotes">Detailed Notes:</label>
+            <textarea id="reportNotes" rows="4" placeholder="Provide details about the incident or behavior..." class="textarea-input"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="cta-button" onclick="closeReportModal()">Cancel</button>
+        <button type="submit" class="cta-button secondary" form="reportForm">Submit Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Student Detail Modal -->
+  <div id="studentModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalStudentName">Student Details</h2>
+        <button class="modal-close" onclick="closeStudentModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-section">
+            <h3>Personal Information</h3>
+            <div class="detail-row">
+              <span class="detail-label">Full Name:</span>
+              <span class="detail-value" id="detailFullName">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">LRN:</span>
+              <span class="detail-value" id="detailLRN">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Birthday:</span>
+              <span class="detail-value" id="detailBirthday">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Age:</span>
+              <span class="detail-value" id="detailAge">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Sex:</span>
+              <span class="detail-value" id="detailSex">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Religion:</span>
+              <span class="detail-value" id="detailReligion">—</span>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h3>Academic Information</h3>
+            <div class="detail-row">
+              <span class="detail-label">School Year:</span>
+              <span class="detail-value" id="detailSchoolYear">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Grade Level:</span>
+              <span class="detail-value" id="detailGradeLevel">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Enrollment ID:</span>
+              <span class="detail-value" id="detailEnrollmentID">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Gmail:</span>
+              <span class="detail-value" id="detailGmail">—</span>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h3>Contact Information</h3>
+            <div class="detail-row">
+              <span class="detail-label">Address:</span>
+              <span class="detail-value" id="detailAddress">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Contact Number:</span>
+              <span class="detail-value" id="detailContactNumber">—</span>
+            </div>
+          </div>
+
+          <div class="detail-section">
+            <h3>Family Information</h3>
+            <div class="detail-row">
+              <span class="detail-label">Father:</span>
+              <span class="detail-value" id="detailFatherName">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Mother:</span>
+              <span class="detail-value" id="detailMotherName">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Guardian:</span>
+              <span class="detail-value" id="detailGuardianName">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="cta-button" onclick="closeStudentModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    console.log('✅ Teacher Demographics Page JavaScript Loading...');
+    let currentSectionId = null;
+    let currentStudent = null;
+    // Cached data for client-side filtering
+    let allStudents = [];
+    let allReports = [];
+    let allMessages = [];
+
+    function parseDateOnly(input) {
+      if (!input) return null;
+      const d = new Date(input);
+      if (isNaN(d)) return null;
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    }
+
+    function renderStudents() {
+      const tbody = document.querySelector('#studentsTable tbody');
+      if (!currentSectionId) {
+        tbody.innerHTML = '<tr><td colspan="5">No section assigned.</td></tr>';
+        return;
+      }
+      const search = (document.getElementById('studentsSearch')?.value || '').toLowerCase().trim();
+      const filtered = (allStudents || []).filter(st => {
+        if (search) {
+          const matchText = ((st.full_name || '') + ' ' + (st.lrn || '')).toLowerCase();
+          if (!matchText.includes(search)) return false;
+        }
+        return true;
+      });
+
+      // Update counts
+      const maleCount = filtered.filter(s => s.sex && s.sex.toLowerCase() === 'male').length;
+      const femaleCount = filtered.filter(s => s.sex && s.sex.toLowerCase() === 'female').length;
+      document.getElementById('currentSectionCount').textContent = filtered.length;
+      document.getElementById('maleCount').textContent = maleCount;
+      document.getElementById('femaleCount').textContent = femaleCount;
+
+      if (!filtered || filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5">No students in this section.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      filtered.forEach(st => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${st.full_name}</td>
+          <td>${st.lrn || ''}</td>
+          <td>${st.sex || ''}</td>
+          <td>${st.age || ''}</td>
+          <td>
+            <button class="cta-button" onclick="viewStudent(${st.id}, '${(st.full_name||'').replace(/'/g, "\\'")}')">View</button>
+            <button class="cta-button" onclick="openReports(${st.id}, '${(st.full_name||'').replace(/'/g, "\\'")}')">Reports</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderSectionReports() {
+      const tbody = document.querySelector('#sectionReportsTable tbody');
+      if (!allReports || allReports.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5">No reports for this section yet.</td></tr>';
+        return;
+      }
+      const search = (document.getElementById('reportsSearch')?.value || '').toLowerCase().trim();
+      const from = parseDateOnly(document.getElementById('reportsFrom')?.value);
+      const toRaw = parseDateOnly(document.getElementById('reportsTo')?.value);
+      let to = toRaw;
+      if (to) { to.setHours(23,59,59,999); }
+
+      const filtered = allReports.filter(r => {
+        if (search) {
+          const hay = ((r.student_name||'') + ' ' + (r.category||'') + ' ' + (r.notes||'')).toLowerCase();
+          if (!hay.includes(search)) return false;
+        }
+        if ((from || to) && r.report_date) {
+          const d = parseDateOnly(r.report_date);
+          if (d) {
+            if (from && d < from) return false;
+            if (to && d > to) return false;
+          }
+        }
+        return true;
+      });
+
+      if (!filtered || filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5">No reports match the filter.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      filtered.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${new Date(r.report_date).toLocaleDateString()}</td>
+          <td>${r.student_name || ''}</td>
+          <td>${r.category}</td>
+          <td>${r.severity}</td>
+          <td>${r.notes || ''}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderMessages() {
+      const tbody = document.querySelector('#messagesTable tbody');
+      if (!allMessages) { tbody.innerHTML = '<tr><td colspan="5">No messages yet</td></tr>'; return; }
+      const search = (document.getElementById('messagesSearch')?.value || '').toLowerCase().trim();
+      const from = parseDateOnly(document.getElementById('messagesFrom')?.value);
+      const toRaw = parseDateOnly(document.getElementById('messagesTo')?.value);
+      let to = toRaw; if (to) { to.setHours(23,59,59,999); }
+
+      const filtered = allMessages.filter(m => {
+        if (search) {
+          const hay = ((m.guidance_name||'') + ' ' + (m.student_name||'') + ' ' + (m.message||'')).toLowerCase();
+          if (!hay.includes(search)) return false;
+        }
+        if ((from || to) && m.created_at) {
+          const d = parseDateOnly(m.created_at);
+          if (d) {
+            if (from && d < from) return false;
+            if (to && d > to) return false;
+          }
+        }
+        return true;
+      });
+
+      if (!filtered || filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;">No messages match the filter</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      filtered.forEach(msg => {
+        const tr = document.createElement('tr');
+        tr.style.background = msg.is_read ? '#fff' : '#fff3cd';
+        tr.innerHTML = `
+          <td>${new Date(msg.created_at).toLocaleDateString()}</td>
+          <td>${msg.guidance_name || 'Guidance'}</td>
+          <td>${msg.student_name || '—'}</td>
+          <td>${msg.message}</td>
+          <td>${msg.is_read ? '✓ Read' : '<button class="cta-button" onclick="markAsRead(' + msg.id + ')">Mark Read</button>'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Update badge count
+      const unreadCount = filtered.filter(m => !m.is_read).length;
+      updateMessageBadge(unreadCount);
+    }
+
+    function switchTab(event, tabName) {
+      // Remove active class from all tabs and buttons
+      const tabs = document.querySelectorAll('.tab-content');
+      const buttons = document.querySelectorAll('.tab-btn');
+      
+      tabs.forEach(tab => tab.classList.remove('active'));
+      buttons.forEach(btn => btn.classList.remove('active'));
+      
+      // Add active class to selected tab and button
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+      
+      // Load messages when messages tab is opened
+      if (tabName === 'messages-tab') {
+        loadMessages();
+      }
+    }
+
+    async function safeFetchJson(url, options = {}) {
+      console.log('🔵 Fetching:', url);
+      // Ensure credentials are included for session cookies
+      const fetchOptions = {
+        ...options,
+        credentials: 'include'
+      };
+      const res = await fetch(url, fetchOptions);
+      console.log('🔵 Response status for', url, ':', res.status);
+      // Redirect to login if unauthorized
+      if (res.status === 401) {
+        console.error('❌ Unauthorized (401) - redirecting to login');
+        location.href = '/teacher-login?force=1';
+        return { success: false };
+      }
+      const ct = res.headers.get('content-type') || '';
+      if (!ct.includes('application/json')) {
+        // Avoid "Unexpected token '<'" when server returns HTML
+        const text = await res.text();
+        console.error('Non-JSON response for', url, text.slice(0, 200));
+        return { success: false, error: 'Unexpected response from server' };
+      }
+      try { return await res.json(); }
+      catch (e) {
+        console.error('Failed to parse JSON for', url, e);
+        return { success: false, error: 'Failed to parse server response' };
+      }
+    }
+
+    async function loadProfile() {
+      const data = await safeFetchJson('/api/teacher/me');
+      console.log('Profile API response:', data); // DEBUG
+      if (!data.success) {
+        console.error('Failed to load teacher profile'); // DEBUG
+        return;
+      }
+      const t = data.teacher;
+      const full = [t.first_name, t.middle_name, t.last_name].filter(Boolean).join(' ');
+      console.log('Teacher full name:', full); // DEBUG
+      document.getElementById('profName').textContent = full;
+      document.getElementById('profUsername').textContent = t.username || '—';
+      document.getElementById('profEmail').textContent = t.email || '—';
+      document.getElementById('profContact').textContent = t.contact_number || '—';
+    }
+
+    async function loadSections() {
+      // Prefer server-side resolved single assignment to avoid wrong picks when multiple sections match
+      const resolved = await safeFetchJson('/api/teacher/assigned-section');
+      console.log('Assigned-section API response:', resolved); // DEBUG
+      if (!resolved.success) {
+        console.warn('Assigned-section API failed, falling back to list');
+      }
+
+      if (resolved.success && resolved.section) {
+        const chosen = resolved.section;
+        currentSectionId = chosen.id;
+        document.getElementById('currentSectionName').textContent = chosen.section_name;
+        await loadStudents();
+        await loadSectionReports();
+        return;
+      }
+
+      // Fallback: use sections list but prefer Non-Graded if present
+      const data = await safeFetchJson('/api/teacher/sections');
+      console.log('Sections API response (fallback):', data); // DEBUG
+      if (!data.success || !data.sections || data.sections.length === 0) {
+        document.getElementById('currentSectionName').textContent = 'Not assigned';
+        document.getElementById('currentSectionCount').textContent = '0';
+        console.warn('No sections found for this teacher'); // DEBUG
+        currentSectionId = null;
+        // Clear tables
+        document.querySelector('#studentsTable tbody').innerHTML = '<tr><td colspan="5">No section assigned.</td></tr>';
+        const secTbody = document.querySelector('#sectionReportsTable tbody');
+        if (secTbody) secTbody.innerHTML = '<tr><td colspan="5">No section assigned.</td></tr>';
+        return;
+      }
+      console.log('Found sections (fallback):', data.sections.length); // DEBUG
+      // Prefer Non-Graded; else first
+      const chosen = data.sections.find(s => (s.grade_level || '').toLowerCase() === 'non-graded') || data.sections[0];
+      currentSectionId = chosen.id;
+      document.getElementById('currentSectionName').textContent = chosen.section_name;
+      // Load students and reports for this section
+      await loadStudents();
+      await loadSectionReports();
+    }
+
+    async function loadStudents() {
+      const tbody = document.querySelector('#studentsTable tbody');
+      if (!currentSectionId) {
+        tbody.innerHTML = '<tr><td colspan="5">No section assigned.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+      const data = await safeFetchJson(`/api/teacher/sections/${currentSectionId}/students`);
+      if (!data.success) {
+        tbody.innerHTML = '<tr><td colspan="5">Failed to load students</td></tr>';
+        return;
+      }
+      allStudents = data.students || [];
+      renderStudents();
+    }
+
+    async function viewStudent(id, name) {
+      try {
+        const res = await fetch(`/api/teacher/students/${id}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Failed');
+        const s = data.student;
+        
+        // Populate modal with student data
+        document.getElementById('modalStudentName').textContent = s.full_name || name;
+        document.getElementById('detailFullName').textContent = s.full_name || name;
+        document.getElementById('detailLRN').textContent = s.lrn || '—';
+        document.getElementById('detailBirthday').textContent = s.birthday ? new Date(s.birthday).toLocaleDateString() : '—';
+        document.getElementById('detailAge').textContent = s.age || '—';
+        document.getElementById('detailSex').textContent = s.sex || '—';
+        document.getElementById('detailReligion').textContent = s.religion || '—';
+        document.getElementById('detailSchoolYear').textContent = s.school_year || '—';
+        document.getElementById('detailGradeLevel').textContent = s.grade_level || '—';
+        document.getElementById('detailEnrollmentID').textContent = s.enrollment_id || '—';
+        document.getElementById('detailGmail').textContent = s.gmail_address || '—';
+        document.getElementById('detailAddress').textContent = s.current_address || '—';
+        document.getElementById('detailContactNumber').textContent = s.contact_number || '—';
+        document.getElementById('detailFatherName').textContent = s.father_name || '—';
+        document.getElementById('detailMotherName').textContent = s.mother_name || '—';
+        document.getElementById('detailGuardianName').textContent = s.guardian_name || '—';
+        
+        // Show modal
+        document.getElementById('studentModal').classList.remove('hidden');
+      } catch (e) {
+          showToast('Failed to load student details: ' + e.message, 'error');
+        }
+    }
+
+    function closeStudentModal() {
+      document.getElementById('studentModal').classList.add('hidden');
+    }
+
+    async function openReports(studentId, studentName) {
+      currentStudent = { id: studentId, name: studentName };
+      document.getElementById('studentReportsModalName').textContent = studentName;
+      document.getElementById('studentReportsModal').classList.remove('hidden');
+      await loadStudentReports();
+    }
+
+    function closeStudentReportsModal() {
+      document.getElementById('studentReportsModal').classList.add('hidden');
+    }
+
+    async function loadStudentReports() {
+      const tbody = document.querySelector('#reportsTable tbody');
+      tbody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+      const data = await safeFetchJson(`/api/behavior-reports?studentId=${currentStudent.id}`);
+      if (!data.success) { tbody.innerHTML = '<tr><td colspan="4">Failed to load</td></tr>'; return; }
+      tbody.innerHTML = '';
+      if (!data.reports || data.reports.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4">No reports yet.</td></tr>';
+        return;
+      }
+      data.reports.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${new Date(r.report_date).toLocaleDateString()}</td><td>${r.category}</td><td>${r.severity}</td><td>${r.notes || ''}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function loadSectionReports() {
+      const tbody = document.querySelector('#sectionReportsTable tbody');
+      if (!currentSectionId) {
+        console.log('loadSectionReports: No section ID');
+        tbody.innerHTML = '<tr><td colspan="5">No section assigned.</td></tr>';
+        return;
+      }
+      console.log('loadSectionReports: Loading for section ID:', currentSectionId);
+      tbody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+      const data = await safeFetchJson(`/api/behavior-reports?sectionId=${currentSectionId}`);
+      console.log('loadSectionReports: API response:', data);
+      const label = document.getElementById('reportsSectionLabel');
+      label.textContent = document.getElementById('currentSectionName').textContent || '—';
+      if (!data.success) { 
+        console.error('loadSectionReports: API returned error:', data.error);
+        tbody.innerHTML = '<tr><td colspan="5">Failed to load</td></tr>'; 
+        return; 
+      }
+      allReports = data.reports || [];
+      renderSectionReports();
+    }
+
+    document.getElementById('addReportBtn')?.addEventListener('click', async () => {
+      if (!currentStudent || !currentSectionId) {
+        showToast('Please select a student first', 'warn');
+        return;
+      }
+      // Show modal
+      document.getElementById('reportStudentModalName').textContent = currentStudent.name;
+      document.getElementById('reportModal').classList.remove('hidden');
+      document.getElementById('reportForm').reset();
+    });
+
+    function closeReportModal() {
+      document.getElementById('reportModal').classList.add('hidden');
+      document.getElementById('reportForm').reset();
+    }
+
+    document.getElementById('reportForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentStudent || !currentSectionId) return;
+      
+      const category = document.getElementById('reportCategory').value;
+      const severity = document.getElementById('reportSeverity').value;
+      const notes = document.getElementById('reportNotes').value;
+      
+      if (!category || !severity) {
+        showToast('Please fill in all required fields', 'warn');
+        return;
+      }
+      
+      try {
+        const res = await fetch('/api/behavior-reports', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ studentId: currentStudent.id, sectionId: currentSectionId, category, severity, notes })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Failed');
+        showToast('Report submitted successfully', 'success');
+        closeReportModal();
+        await loadStudentReports();
+        await loadSectionReports();
+      } catch (e) {
+        showToast('Failed to save report: ' + e.message, 'error');
+      }
+    });
+
+    // ========== MESSAGES FROM GUIDANCE ==========
+    
+    async function loadMessages() {
+      const tbody = document.querySelector('#messagesTable tbody');
+      tbody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+      
+      try {
+        const res = await safeFetchJson('/api/teacher/messages');
+        if (!res.success) throw new Error('Failed to load');
+        allMessages = res.messages || [];
+        renderMessages();
+      } catch (err) {
+        console.error('Failed to load messages:', err);
+        tbody.innerHTML = '<tr><td colspan="5">Failed to load messages</td></tr>';
+      }
+    }
+
+    async function markAsRead(messageId) {
+      try {
+        const res = await fetch(`/api/teacher/messages/${messageId}/read`, { method: 'PUT' });
+        const data = await res.json();
+        if (!data.success) throw new Error('Failed');
+        await loadMessages();
+        await updateUnreadCount();
+      } catch (err) {
+        console.error('Failed to mark as read:', err);
+      }
+    }
+
+    async function updateUnreadCount() {
+      try {
+        const res = await safeFetchJson('/api/teacher/messages/unread-count');
+        if (res.success) {
+          updateMessageBadge(res.count);
+        }
+      } catch (err) {
+        console.error('Failed to get unread count:', err);
+      }
+    }
+
+    function updateMessageBadge(count) {
+      const navBadge = document.getElementById('notificationBadge');
+      const tabBadge = document.getElementById('messagesBadge');
+      
+      if (count > 0) {
+        navBadge.textContent = count;
+        navBadge.classList.remove('hidden');
+        tabBadge.textContent = count;
+        tabBadge.classList.remove('badge-hidden');
+      } else {
+        navBadge.classList.add('hidden');
+        tabBadge.classList.add('badge-hidden');
+      }
+    }
+
+    // init
+    loadProfile();
+    loadSections();
+    updateUnreadCount(); // Load notification count on page load
+    
+    // Auto-refresh when tab becomes visible (helps when teacher is reassigned)
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        console.log('Tab became visible, reloading sections...');
+        loadSections();
+        updateUnreadCount(); // Refresh message count
+      }
+    });
+
+    // Poll for new messages every 2 minutes
+    setInterval(updateUnreadCount, 120000);
+
+    // Wire up filters (guard with optional chaining)
+    document.getElementById('studentsSearch')?.addEventListener('input', renderStudents);
+    document.getElementById('studentsReset')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('studentsSearch').value = '';
+      renderStudents();
+    });
+
+    document.getElementById('reportsSearch')?.addEventListener('input', renderSectionReports);
+    document.getElementById('reportsFrom')?.addEventListener('change', renderSectionReports);
+    document.getElementById('reportsTo')?.addEventListener('change', renderSectionReports);
+    document.getElementById('reportsReset')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('reportsSearch').value = '';
+      document.getElementById('reportsFrom').value = '';
+      document.getElementById('reportsTo').value = '';
+      renderSectionReports();
+    });
+
+    document.getElementById('messagesSearch')?.addEventListener('input', renderMessages);
+    document.getElementById('messagesFrom')?.addEventListener('change', renderMessages);
+    document.getElementById('messagesTo')?.addEventListener('change', renderMessages);
+    document.getElementById('messagesReset')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('messagesSearch').value = '';
+      document.getElementById('messagesFrom').value = '';
+      document.getElementById('messagesTo').value = '';
+      renderMessages();
+    });
+  </script>
+  <script src="/guidance-toast.js"></script>
+</body>
+</html>

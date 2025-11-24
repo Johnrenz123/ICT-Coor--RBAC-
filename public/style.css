@@ -1,0 +1,739 @@
+/* Enrollment Radio and Spacing Utilities */
+/* Enrollment Checkbox and Spacing Utilities */
+.checkbox-row {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+.inline-label {
+    display: inline;
+}
+.ml-16 {
+    margin-left: 16px;
+}
+.mt-6 {
+    margin-top: 6px;
+}
+/* About Us Intro Container */
+.about-intro-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    padding: 32px 24px 24px 24px;
+    margin-bottom: 32px;
+    text-align: center;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+/* Main white container to cover all content and hide background when scrolling */
+.main-white-container {
+    background: #fff;
+    min-height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    border-radius: 0 0 20px 20px;
+    overflow: hidden;
+    padding-bottom: 40px;
+}
+/* General Body & Typography */
+:root {
+    --primary-color: #007bff; /* Friendly blue */
+    --secondary-color: #5cb85c; /* A supportive green */
+    --text-color: #333;
+    --heading-color: #222;
+    --background-color: #f4f4f4;
+    --card-background: #ffffff;
+    --box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    margin: 0;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    background-image: url('../pictures/Schoolbench.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    color: var(--heading-color);
+    margin-bottom: 10px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Navbar */
+.navbar {
+    background-color: var(--card-background);
+    padding: 10px 0;
+    box-shadow: var(--box-shadow);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.school-logo {
+    display: flex;
+    align-items: center;
+}
+
+.school-logo img {
+    height: 50px;
+    margin-right: 10px;
+    content: url('../pictures/SchoolLogo-removebg-preview.png');
+}
+
+.school-name-text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.nav-links ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-grow: 1; 
+    /* ADDED: Gap between buttons (list items) */
+    gap: 15px; 
+    justify-content: flex-end; 
+}
+
+.nav-links ul li {
+    /* margin-left: 25px; REMOVED */
+    /* ADDED: Makes all nav items take equal width and centers text */
+    flex-grow: 1; 
+    text-align: center;
+}
+
+.nav-links ul li a {
+    text-decoration: none;
+    color: #555;
+    font-weight: 600;
+    /* Adjusted padding for button shape and space */
+    padding: 8px 15px; 
+    /* Set to inline-block to accept padding and be sized by content */
+    display: inline-block; 
+    transition: color 0.3s ease;
+    border-radius: 5px; /* Added for a rounded button look */
+}
+
+.nav-links ul li a:hover,
+.nav-links ul li a.active {
+    color: var(--primary-color);
+}
+
+/* Hero Section */
+.hero-section {
+    position: relative;
+    height: 450px;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-align: center;
+    overflow: hidden;
+    animation: fadeIn 1.5s ease-in-out;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    padding: 20px;
+}
+
+.hero-content h1 {
+    font-size: 3.5em;
+    margin-bottom: 10px;
+    color: #fff;
+    line-height: 1.1;
+    animation: slideInFromLeft 1s ease-out;
+}
+
+.hero-content p {
+    font-size: 1.5em;
+    color: #f0f0f0;
+    font-weight: 500;
+    animation: slideInFromRight 1s ease-out;
+}
+
+/* Announcements Section */
+.announcements-section {
+    padding: 40px 0;
+    background-color: var(--card-background);
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+}
+
+.announcement-cards {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.card {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    flex: 1;
+    transition: transform 0.3s ease;
+    min-width: 250px;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card h3 {
+    color: var(--primary-color);
+}
+
+.card .date {
+    font-style: italic;
+    color: #777;
+    font-size: 0.9em;
+}
+
+/* Student Life Section */
+.student-life-section {
+    padding: 40px 0;
+    margin-top: 20px;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.grid-item {
+    background-color: var(--card-background);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.grid-item:hover {
+    transform: translateY(-5px);
+}
+
+.grid-item img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.grid-item h3 {
+    color: var(--primary-color);
+    margin-top: 15px;
+}
+
+.grid-item p {
+    padding: 0 20px 20px;
+}
+
+/* Contact Section */
+.contact-section {
+    padding: 40px 0;
+    background-color: var(--card-background);
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    text-align: center;
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 600px;
+    margin: 20px auto 0;
+}
+
+.contact-form input,
+.contact-form textarea {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1em;
+}
+
+.cta-button {
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1em;
+    font-weight: 600;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+    background-color: #0056b3;
+}
+
+/* Footer */
+footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 40px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInFromLeft {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInFromRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .school-logo {
+        margin-bottom: 10px;
+    }
+
+    .nav-links ul {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .nav-links ul li {
+        margin-left: 0;
+    }
+
+    .hero-content h1 {
+        font-size: 2.5em;
+    }
+
+    .hero-content p {
+        font-size: 1.2em;
+    }
+
+    .announcement-cards,
+    .content-grid {
+        flex-direction: column;
+        gap: 20px;
+    }
+}
+/* Document Request Section */
+.document-request-section {
+    padding: 40px 0;
+    background-color: var(--card-background);
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    /* background-image removed, now on body */
+}
+
+.document-request-section h1 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.document-request-section p {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #666;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.request-form {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--heading-color);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box; /* Ensures padding doesn't affect total width */
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+}
+
+/* Re-use the cta-button style from the main CSS */
+.cta-button {
+    margin-top: 10px;
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1em;
+    font-weight: 600;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    align-self: flex-start; /* Aligns the button to the left */
+}
+
+.cta-button:hover {
+    background-color: #0056b3;
+}
+
+/* Specific styles for the Enrollment page */
+
+.enrollment-section {
+    padding: 40px 0;
+    background-color: var(--card-background);
+    margin-top: 20px;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+}
+
+.enrollment-section h1 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.enrollment-section h2 {
+    color: var(--heading-color);
+    margin-top: 30px;
+    text-align: center;
+}
+
+.enrollment-section p {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #666;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.enrollment-type-selection {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.tab-button {
+    background-color: #eee;
+    color: var(--text-color);
+    border: 1px solid #ddd;
+    padding: 12px 25px;
+    font-size: 1em;
+    font-weight: 600;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0 5px;
+}
+
+.tab-button:hover {
+    background-color: #e0e0e0;
+}
+
+.tab-button.active {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
+}
+
+.enrollment-form-container {
+    display: none; /* Initially hides all form containers */
+    max-width: 600px;
+    margin: 0 auto;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.enrollment-form-container.active-form {
+    display: block; /* Shows the active form */
+}
+
+.enrollment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--heading-color);
+}
+
+.form-group input,
+.form-group select {
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1em;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+}
+
+.cta-button {
+    margin-top: 10px;
+    align-self: flex-start;
+}
+/* About Us Section Styles */
+
+.about-section {
+    padding: 40px 0;
+}
+
+.about-section h1 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.about-section .mission-statement {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 40px;
+    font-style: italic;
+    color: #555;
+}
+
+.about-content {
+    background-color: var(--card-background);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+}
+
+/* About summary (homepage) styling — keep consistent with site design */
+.about-summary {
+    padding: 20px 0 10px;
+    max-width: 1000px;
+    margin: 0 auto 20px;
+}
+.about-summary h2,
+.about-summary h3 {
+    color: var(--primary-color);
+    margin-bottom: 8px;
+}
+.about-summary h2 {
+    font-size: 1.6em;
+}
+.about-summary h3 {
+    font-size: 1.05em;
+    margin-top: 12px;
+}
+.about-summary p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+/* Make any explicitly bolded text blue to match headings */
+.about-summary strong,
+.about-summary b {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+/* Announcement items styling to match About summary */
+.announcement-item {
+    margin-bottom: 16px;
+}
+.announcement-item h3 {
+    color: var(--primary-color);
+    margin-bottom: 6px;
+}
+.announcement-item p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+.announcement-item strong,
+.announcement-item b {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.mission-vision-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.mission-vision-container .card {
+    flex: 1;
+    background-color: #f9f9f9;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.mission-vision-container h2 {
+    color: var(--heading-color);
+    margin-bottom: 10px;
+}
+
+.school-history {
+    margin-bottom: 40px;
+}
+
+.school-history h2 {
+    color: var(--heading-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 5px;
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+.faculty-section h2 {
+    color: var(--heading-color);
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 5px;
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+.faculty-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+}
+
+.faculty-card {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+}
+
+.faculty-card:hover {
+    transform: translateY(-5px);
+}
+
+.faculty-card img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 3px solid var(--primary-color);
+}
+
+.faculty-card h3 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.faculty-card p {
+    margin: 5px 0;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+.faculty-card .bio {
+    font-style: normal;
+    color: #666;
+    font-size: 0.95em;
+    margin-top: 10px;
+}
+
+/* Responsive adjustments for about-us page */
+@media (max-width: 768px) {
+    .mission-vision-container {
+        flex-direction: column;
+    }
+}

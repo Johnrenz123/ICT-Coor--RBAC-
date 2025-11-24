@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Behavior Analytics</title>
+    <link rel="stylesheet" href="/guidance.css">
+    <link rel="stylesheet" href="/guidance-toast.css">
+    <script src="/guidance-toast.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#fff; min-height:100vh; color:#222; }
+
+        /* Sidebar Drawer (same as dashboard) */
+        .sidebar { position:fixed; top:0; left:0; bottom:0; width:250px; background:#dc2626; color:#fff; padding:22px 20px 20px; box-shadow:2px 0 14px rgba(0,0,0,0.12); display:flex; flex-direction:column; gap:18px; }
+
+        .sidebar .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar .brand img {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #fff;
+            padding: 6px;
+        }
+
+        .sidebar .brand .school-name-text {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .sidebar .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .sidebar .nav a { color:#fff; text-decoration:none; padding:11px 14px; border-radius:10px; background:rgba(255,255,255,0.10); transition:background .18s, transform .18s; font-weight:600; letter-spacing:.3px; }
+        .sidebar .nav a:hover { background:rgba(255,255,255,0.22); transform:translateX(3px); }
+        .sidebar .nav a.active { background:#fff; color:#dc2626; font-weight:700; }
+
+        .sidebar .spacer { flex: 1; }
+        .sidebar .logout-btn { display:inline-block; color:#fff; text-decoration:none; padding:12px 14px; border-radius:10px; background:#b91c1c; font-weight:700; text-align:center; transition:background .18s; }
+        .sidebar .logout-btn:hover { background:#991b1b; }
+
+        /* Main Content */
+        main { max-width:1400px; margin:32px 24px 40px 290px; padding:0; }
+
+        .analytics-container { background:#fff; border-radius:18px; padding:34px 34px 40px; box-shadow:0 6px 24px rgba(0,0,0,0.08); border:1px solid #f1f1f1; }
+
+        .analytics-header {
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .analytics-header h1 {
+            margin: 0 0 8px 0;
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .analytics-header p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Filters */
+        .filters-section {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 28px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 10px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            color: #333;
+            transition: all .2s;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .filter-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Reset button (match Apply style) */
+        .reset-button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .reset-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Keep Apply + Reset on the same row */
+        .filter-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            align-self: end; /* align to bottom of grid row */
+            grid-column: 1 / -1; /* span full row so buttons stay together */
+            white-space: nowrap;
+        }
+
+        /* Analytics Grid - Same cards as Dashboard */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .analytics-card { background:#dc2626; color:#fff; padding:28px 26px; border-radius:16px; box-shadow:0 4px 16px rgba(220,38,38,0.35); transition:transform .28s, box-shadow .28s; position:relative; overflow:hidden; }
+        .analytics-card:before { content:""; position:absolute; inset:0; background:linear-gradient(120deg, rgba(255,255,255,0.15), rgba(255,255,255,0)); }
+
+        .analytics-card:hover { transform:translateY(-6px); box-shadow:0 8px 24px rgba(220,38,38,0.45); }
+
+        .analytics-card h3 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .analytics-card .value {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .analytics-card .metric {
+            font-size: 13px;
+            opacity: 0.8;
+        }
+
+        .metric-success,
+        .metric-warning,
+        .metric-danger {
+            font-weight: 700;
+        }
+
+        /* Severity Distribution */
+        .severity-bars {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .severity-bar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .bar-fill {
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .bar-default {
+            height: 20px;
+        }
+
+        .bar-fill.low { background: #10b981; }
+        .bar-fill.medium { background: #f59e0b; }
+        .bar-fill.high { background: #dc2626; }
+
+        .bar-label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-align: center;
+        }
+
+        /* Reports Table */
+        .reports-section {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 28px;
+        }
+
+        .recommendations-cta { margin-top: 28px; }
+        .muted-text { color: #666; margin-bottom: 12px; }
+
+        .reports-section h2 {
+            margin: 0 0 20px 0;
+            font-size: 22px;
+            color: #333;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .reports-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .reports-table thead { background:#dc2626; color:#fff; }
+
+        .reports-table th {
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .reports-table td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .table-empty {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+        }
+
+        .reports-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .reports-table tr:hover {
+            background: #f0f4ff;
+        }
+
+        .student-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .section-badge {
+            background: #e0e7ff;
+            color: #4f46e5;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .category-badge {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .severity-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .severity-badge.low {
+            background: #10b981;
+        }
+
+        .severity-badge.medium {
+            background: #f59e0b;
+            color: #78350f;
+        }
+
+        .severity-badge.high {
+            background: #dc2626;
+        }
+
+        .teacher-name {
+            color: #666;
+            font-size: 13px;
+        }
+
+        /* Recommendations */
+        .recommendations-section {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .recommendations-section h2 {
+            margin: 0 0 20px 0;
+            font-size: 22px;
+            color: #333;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .recommendation-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 20px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .recommendation-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .recommendation-label {
+            font-weight: 700;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .recommendation-icon {
+            font-size: 18px;
+        }
+
+        .recommendation-text {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .recommendation-action {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            align-items: center;
+        }
+
+        .action-button {
+            padding: 8px 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .action-button.secondary {
+            background: transparent;
+            border: 1px solid #e0e0e0;
+            color: #333;
+        }
+
+        .action-button.secondary:hover {
+            background: #f0f0f0;
+        }
+
+        .recommendations-empty {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar { width: 200px; }
+            main { margin: 20px 12px 20px 220px; }
+
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .recommendation-item {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-section {
+                grid-template-columns: 1fr;
+            }
+
+            .reports-table {
+                font-size: 12px;
+            }
+
+            .reports-table th,
+            .reports-table td {
+                padding: 10px 8px;
+            }
+        }
+        .archive-btn { margin-left: 8px; }
+        </style>
+    </head>
+    <body>
+        <aside class="sidebar">
+            <div class="brand">
+                <img src="/pictures/SchoolLogo-removebg-preview.png" alt="School Logo">
+                <span class="school-name-text">Mainaga San Francisco Integrated School</span>
+            </div>
+            <nav class="nav">
+                <a href="/guidance/dashboard">📋 Dashboard</a>
+                <a href="/guidance/document-requests">� Document Requests</a>
+                <a href="/guidance/behavior-analytics" class="active">� Behavior Analytics</a>
+                <a href="/guidance/recommendations">💡 Recommendations</a>
+                <a href="/guidance/sent-messages">📋 Sent Messages</a>
+                <a href="/guidance/behavior-archive">📦 Archived Reports</a>
+                <a href="/guidance/analytics">🔒 Security</a>
+            </nav>
+            <div class="spacer"></div>
+            <a class="logout-btn" href="/guidance/logout">Logout</a>
+        </aside>
+
+    <main>
+        <div class="analytics-container">
+            <div class="analytics-header">
+                <h1>📊 Student Behavior Analytics</h1>
+                <p>Review teacher reports and identify patterns for student support interventions</p>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-section">
+                <div class="filter-group">
+                    <label for="filterSection">Filter by Section:</label>
+                    <select id="filterSection">
+                        <option value="">All Sections</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterSeverity">Filter by Severity:</label>
+                    <select id="filterSeverity">
+                        <option value="">All Severity Levels</option>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterCategory">Filter by Category:</label>
+                    <select id="filterCategory">
+                        <option value="">All Categories</option>
+                        <option value="Disruption">Disruption</option>
+                        <option value="Attendance">Attendance</option>
+                        <option value="Academic">Academic Performance</option>
+                        <option value="Conduct">Conduct</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterSchoolYear">School Year:</label>
+                    <select id="filterSchoolYear">
+                        <option value="">All Years</option>
+                        <option value="2020-2021">2020-2021</option>
+                        <option value="2021-2022">2021-2022</option>
+                        <option value="2022-2023">2022-2023</option>
+                        <option value="2023-2024">2023-2024</option>
+                        <option value="2024-2025">2024-2025</option>
+                        <option value="2025-2026">2025-2026</option>
+                        <option value="2026-2027">2026-2027</option>
+                        <option value="2027-2028">2027-2028</option>
+                        <option value="2028-2029">2028-2029</option>
+                        <option value="2029-2030">2029-2030</option>
+                        <option value="2030-2031">2030-2031</option>
+                        <option value="2031-2032">2031-2032</option>
+                        <option value="2032-2033">2032-2033</option>
+                        <option value="2033-2034">2033-2034</option>
+                        <option value="2034-2035">2034-2035</option>
+                        <option value="2035-2036">2035-2036</option>
+                        <option value="2036-2037">2036-2037</option>
+                        <option value="2037-2038">2037-2038</option>
+                        <option value="2038-2039">2038-2039</option>
+                        <option value="2039-2040">2039-2040</option>
+                        <option value="2040-2041">2040-2041</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterStatus">Status</label>
+                    <select id="filterStatus">
+                        <option value="">All</option>
+                        <option value="active">Active</option>
+                        <option value="done">Done</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button type="button" class="filter-button" onclick="applyFilters()">Apply Filters</button>
+                    <button type="button" class="reset-button" onclick="resetFilters()">Reset</button>
+                </div>
+            </div>
+
+            <!-- Analytics Cards -->
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h3>Total Reports</h3>
+                    <div class="value" id="totalReports">0</div>
+                    <div class="metric">Last 30 days</div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>High Severity Issues</h3>
+                    <div class="value metric-danger" id="highSeverityCount">0</div>
+                    <div class="metric">Requires immediate action</div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>At-Risk Students</h3>
+                    <div class="value metric-warning" id="atRiskStudents">0</div>
+                    <div class="metric">3+ reports in last month</div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>Most Common Issue</h3>
+                    <div class="value" id="commonIssue">—</div>
+                    <div class="metric" id="commonIssueCount"></div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>Behavioral Trend</h3>
+                    <div class="severity-bars">
+                        <div class="severity-bar">
+                            <div class="bar-fill low bar-default" id="barLow"></div>
+                            <div class="bar-label" id="lowPercent">—</div>
+                        </div>
+                        <div class="severity-bar">
+                            <div class="bar-fill medium bar-default" id="barMedium"></div>
+                            <div class="bar-label" id="mediumPercent">—</div>
+                        </div>
+                        <div class="severity-bar">
+                            <div class="bar-fill high bar-default" id="barHigh"></div>
+                            <div class="bar-label" id="highPercent">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>Affected Students</h3>
+                    <div class="value" id="uniqueStudents">0</div>
+                    <div class="metric">With behavioral reports</div>
+                </div>
+            </div>
+
+            <!-- Reports List -->
+            <div class="reports-section">
+                <h2>📋 Recent Behavior Reports</h2>
+                <table class="reports-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Student Name</th>
+                            <th>Section</th>
+                            <th>Teacher</th>
+                            <th>Category</th>
+                            <th>Severity</th>
+                            <th>Notes</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportsTableBody">
+                        <tr>
+                            <td colspan="7" class="table-empty">Loading reports...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Recommendations -->
+                <!-- Recommendations moved to its own page -->
+                <div class="reports-section recommendations-cta">
+                    <h2>💡 Smart Recommendations</h2>
+                    <p class="muted-text">View prioritized, data-driven actions based on behavior patterns.</p>
+                    <a href="/guidance/recommendations" class="action-button">Open Recommendations</a>
+                </div>
+        </div>
+    </main>
+
+    <script>
+        let allReports = [];
+        let allStudents = [];
+
+        async function loadBehaviorData() {
+            try {
+                // Fetch all behavior reports with student and teacher details
+                const response = await fetch('/api/guidance/behavior-analytics');
+                const data = await response.json();
+                
+                if (data.success) {
+                    allReports = data.reports || [];
+                    allStudents = data.students || [];
+                    
+                    // Load sections for filter
+                    const sections = [...new Set(allReports.map(r => r.section_name))];
+                    const sectionSelect = document.getElementById('filterSection');
+                    sections.forEach(section => {
+                        const option = document.createElement('option');
+                        option.value = section;
+                        option.textContent = section;
+                        sectionSelect.appendChild(option);
+                    });
+                    
+                    updateAnalytics();
+                    displayReports(allReports);
+                        // generateRecommendations(); // Removed as recommendations are now on a separate page
+                }
+            } catch (error) {
+                console.error('Error loading behavior data:', error);
+            }
+        }
+
+        function updateAnalytics() {
+            const filtered = getFilteredReports();
+            
+            // Total Reports
+            document.getElementById('totalReports').textContent = filtered.length;
+            
+            // High Severity Count
+            const highSeverity = filtered.filter(r => r.severity === 'High').length;
+            document.getElementById('highSeverityCount').textContent = highSeverity;
+            
+            // At-risk students (3+ reports in last 30 days)
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const recentReports = filtered.filter(r => new Date(r.report_date) >= thirtyDaysAgo);
+            const studentReportCounts = {};
+            recentReports.forEach(r => {
+                studentReportCounts[r.student_id] = (studentReportCounts[r.student_id] || 0) + 1;
+            });
+            const atRiskCount = Object.values(studentReportCounts).filter(count => count >= 3).length;
+            document.getElementById('atRiskStudents').textContent = atRiskCount;
+            
+            // Most Common Issue
+            const categoryCounts = {};
+            filtered.forEach(r => {
+                categoryCounts[r.category] = (categoryCounts[r.category] || 0) + 1;
+            });
+            const mostCommon = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0];
+            if (mostCommon) {
+                document.getElementById('commonIssue').textContent = mostCommon[0];
+                document.getElementById('commonIssueCount').textContent = `${mostCommon[1]} reports`;
+            }
+            
+            // Severity Distribution
+            const severityCounts = {
+                'Low': filtered.filter(r => r.severity === 'Low').length,
+                'Medium': filtered.filter(r => r.severity === 'Medium').length,
+                'High': filtered.filter(r => r.severity === 'High').length
+            };
+            const total = filtered.length || 1;
+            const lowPct = Math.round((severityCounts['Low'] / total) * 100);
+            const mediumPct = Math.round((severityCounts['Medium'] / total) * 100);
+            const highPct = Math.round((severityCounts['High'] / total) * 100);
+            
+            document.getElementById('barLow').style.height = (lowPct * 0.6) + 'px';
+            document.getElementById('barMedium').style.height = (mediumPct * 0.6) + 'px';
+            document.getElementById('barHigh').style.height = (highPct * 0.6) + 'px';
+            document.getElementById('lowPercent').textContent = lowPct + '%';
+            document.getElementById('mediumPercent').textContent = mediumPct + '%';
+            document.getElementById('highPercent').textContent = highPct + '%';
+            
+            // Unique Students
+            const uniqueStudentIds = new Set(filtered.map(r => r.student_id));
+            document.getElementById('uniqueStudents').textContent = uniqueStudentIds.size;
+        }
+
+        function getFilteredReports() {
+            let filtered = allReports;
+            const section = document.getElementById('filterSection').value;
+            const severity = document.getElementById('filterSeverity').value;
+            const category = document.getElementById('filterCategory').value;
+            const status = document.getElementById('filterStatus') ? document.getElementById('filterStatus').value : '';
+            const schoolYear = document.getElementById('filterSchoolYear').value;
+
+            if (section) filtered = filtered.filter(r => r.section_name === section);
+            if (severity) filtered = filtered.filter(r => r.severity === severity);
+            if (category) filtered = filtered.filter(r => r.category === category);
+            if (schoolYear) {
+                // Accepts 2024-2025, 2023-2024, etc. Match if report_date is within that school year (June 1 to May 31)
+                const [startYear, endYear] = schoolYear.split('-').map(Number);
+                const start = new Date(startYear, 5, 1); // June 1
+                const end = new Date(endYear, 4, 31, 23, 59, 59, 999); // May 31
+                filtered = filtered.filter(r => {
+                    const d = new Date(r.report_date);
+                    return d >= start && d <= end;
+                });
+            }
+            // Filter by status (is_done flag)
+            if (status === 'done') filtered = filtered.filter(r => r.is_done === true);
+            else if (status === 'active') filtered = filtered.filter(r => !r.is_done);
+            return filtered;
+        }
+
+        function displayReports(reports) {
+            const tbody = document.getElementById('reportsTableBody');
+            tbody.innerHTML = '';
+            
+            if (reports.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">No reports found</td></tr>';
+                return;
+            }
+            
+            reports.forEach(report => {
+                const row = document.createElement('tr');
+                                row.innerHTML = `
+                    <td>${new Date(report.report_date).toLocaleDateString()}</td>
+                    <td><span class="student-name">${report.student_full_name}</span></td>
+                    <td><span class="section-badge">${report.section_name}</span></td>
+                    <td><span class="teacher-name">${report.teacher_name}</span></td>
+                    <td><span class="category-badge">${report.category}</span></td>
+                    <td><span class="severity-badge ${report.severity.toLowerCase()}">${report.severity}</span></td>
+                    <td>${report.notes || '—'}</td>
+                                        <td>
+                                            <button class="action-button" onclick="sendToRecommendations(${report.id}, ${report.teacher_id || 'null'}, ${report.student_id || 'null'})">Send to Recommendations</button>
+                                            ${report.is_done ? `<span style="display:inline-block; padding:6px 10px; border-radius:8px; background:#e6f4ea; color:#047857; font-weight:700; margin-left:8px;">Done</span>` : `<button class="action-button" onclick="markReportDone(${report.id})" title="Mark this report as done">Mark as Done</button>`}
+                                            <button class="action-button secondary archive-btn" onclick="showArchiveConfirm(${report.id})">Archive</button>
+                                        </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Archive a report (moves to archived table)
+        let __archivePendingId = null;
+        function showArchiveConfirm(reportId) {
+            __archivePendingId = reportId;
+            const modal = document.getElementById('archiveConfirmModal');
+            if (!modal) return;
+            modal.classList.add('show');
+        }
+
+        // Mark report as done (adds is_done flag)
+        async function markReportDone(reportId) {
+            if (!reportId) return;
+            try {
+                const res = await fetch(`/api/guidance/behavior-reports/${reportId}/done`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ done: true })
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    showToast(data.message || 'Marked as done', 'success');
+                    await loadBehaviorData();
+                } else {
+                    showToast(data.error || 'Failed to mark done', 'error');
+                }
+            } catch (err) {
+                console.error('Mark done error', err);
+                showToast('Failed to mark report as done', 'error');
+            }
+        }
+
+        function hideArchiveConfirm() {
+            const modal = document.getElementById('archiveConfirmModal');
+            if (!modal) return;
+            modal.classList.remove('show');
+            __archivePendingId = null;
+        }
+
+        async function archiveReportConfirmed() {
+            const reportId = __archivePendingId;
+            if (!reportId) return hideArchiveConfirm();
+            try {
+                const res = await fetch(`/api/guidance/behavior-reports/${reportId}/archive`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Report archived', 'success');
+                    hideArchiveConfirm();
+                    await loadBehaviorData();
+                } else {
+                    showToast(data.error || 'Failed to archive', 'error');
+                }
+            } catch (err) {
+                console.error('Archive error', err);
+                showToast('Failed to archive report', 'error');
+            }
+        }
+
+        function generateRecommendations() {
+                // Function removed as recommendations are now on a separate page
+        }
+
+        function applyFilters() {
+            const filtered = getFilteredReports();
+            updateAnalytics();
+            displayReports(filtered);
+                // generateRecommendations(); // Removed as recommendations are now on a separate page
+        }
+
+        function resetFilters() {
+            const sectionEl = document.getElementById('filterSection');
+            const severityEl = document.getElementById('filterSeverity');
+            const categoryEl = document.getElementById('filterCategory');
+            const yearEl = document.getElementById('filterSchoolYear');
+
+            if (sectionEl) sectionEl.value = '';
+            if (severityEl) severityEl.value = '';
+            if (categoryEl) categoryEl.value = '';
+            if (yearEl) yearEl.value = '';
+
+            // Re-render full data with cleared filters
+            updateAnalytics();
+            displayReports(allReports);
+            generateRecommendations();
+        }
+
+        // Load data on page load
+        loadBehaviorData();
+        
+        // Send selected report to Recommendations page
+        function sendToRecommendations(reportId, teacherId, studentId) {
+            try {
+                const params = new URLSearchParams();
+                if (reportId) params.set('reportId', reportId);
+                if (teacherId) params.set('teacherId', teacherId);
+                if (studentId) params.set('studentId', studentId);
+                // Redirect to recommendations with parameters
+                window.location.href = '/guidance/recommendations?' + params.toString();
+            } catch (e) {
+                console.error('Failed to send to recommendations', e);
+            }
+        }
+    </script>
+    <!-- Archive Confirmation Modal -->
+    <div id="archiveConfirmModal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h2>Confirm Archive</h2>
+                <button class="close-btn" onclick="hideArchiveConfirm()">&times;</button>
+            </div>
+            <p>Archive this report? It will be moved to <strong>Archived Reports</strong> where you can permanently delete it.</p>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="hideArchiveConfirm()">Cancel</button>
+                <button class="btn-submit" onclick="archiveReportConfirmed()">Archive</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Hook modal show/hide to CSS class 'show' used elsewhere
+        (function () {
+            const modal = document.getElementById('archiveConfirmModal');
+            if (!modal) return;
+            const style = document.createElement('style');
+            style.textContent = `
+                #archiveConfirmModal { display: none; position: fixed; z-index: 99999; inset: 0; background: rgba(0,0,0,0.45); }
+                #archiveConfirmModal.show { display: block; }
+                #archiveConfirmModal .modal-content { margin: 80px auto; padding: 20px 22px; background: #fff; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,0.12); }
+                #archiveConfirmModal .modal-small { max-width: 480px; }
+                #archiveConfirmModal .modal-actions { margin-top: 18px; display: flex; gap: 10px; justify-content: flex-end; }
+            `;
+            document.head.appendChild(style);
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+/* Shared guidance styles - keep guidance pages consistent */
+:root{
+  --guidance-red:#dc2626;
+  --guidance-red-dark:#b91c1c;
+  --muted:#666;
+  --card-bg:#fff7f7;
+  --panel-bg:#ffffff;
+  --text:#222;
+  --max-width:1200px;
+}
+body{font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background:var(--panel-bg);color:var(--text);}
+/* Sidebar */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:250px;background:var(--guidance-red);color:#fff;padding:22px 20px;box-shadow:2px 0 14px rgba(0,0,0,0.12);display:flex;flex-direction:column;gap:16px}
+.sidebar .brand{display:flex;align-items:center;gap:12px}
+.sidebar .brand img{width:46px;height:46px;border-radius:50%;background:#fff;padding:6px}
+.sidebar .school-name-text{font-size:16px;font-weight:700;line-height:1.2}
+.sidebar .nav{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.sidebar .nav a{color:#fff;text-decoration:none;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.06);font-weight:600;transition:background .16s,transform .16s}
+.sidebar .nav a:hover{background:rgba(255,255,255,0.16);transform:translateX(3px)}
+.sidebar .nav a.active{background:#fff;color:var(--guidance-red);font-weight:700}
+.sidebar .logout-btn{display:inline-block;color:#fff;text-decoration:none;padding:10px 12px;border-radius:10px;background:var(--guidance-red-dark);font-weight:700;text-align:center}
+.sidebar .spacer { flex: 1; }
+
+/* Main layout */
+main{max-width:var(--max-width);margin:40px 24px 40px 290px}
+.page-wrap,.page-container,.dashboard-container{background:var(--panel-bg);border-radius:16px;padding:22px;border:1px solid #f1f1f1;box-shadow:0 6px 24px rgba(0,0,0,0.06)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px}
+.card{background:linear-gradient(180deg,#fff 0%,#fff7f7 100%);border:1px solid #ececec;border-radius:12px;padding:16px;min-height:100px;position:relative;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--guidance-red);border-top-left-radius:12px;border-bottom-left-radius:12px}
+.card h3{margin:0 0 8px;color:#333}
+.stat-value,.big{color:var(--guidance-red)}
+.btn{padding:10px 14px;border-radius:10px;border:0;background:var(--guidance-red);color:#fff;cursor:pointer}
+.btn.secondary{background:var(--guidance-red-dark)}
+.btn.danger{background:#ef4444}
+
+/* Filters and tables */
+.filters{display:flex;gap:10px;flex-wrap:wrap}
+.filters input,.filters select{padding:8px 10px;border:1px solid #ddd;border-radius:8px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px 12px;border-bottom:1px solid #eee;font-size:14px}
+th{background:var(--guidance-red);color:#fff;text-align:left}
+.muted{color:var(--muted);font-size:13px}
+
+/* Responsive tweaks */
+@media (max-width:900px){.sidebar{width:200px}.main{margin-left:220px}main{margin:20px 12px 20px 220px}}
+
+/* Utility */
+.inline{display:flex;align-items:center;gap:10px}
+.section{margin-top:20px}
+
+/* Generic confirmation modal (used across guidance pages) */
+#genericConfirmModal{display:none;position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,0.35);align-items:center;justify-content:center;z-index:2000}
+#genericConfirmModal .modal-inner{background:#fff;padding:18px;border-radius:8px;width:420px;box-shadow:0 6px 24px rgba(0,0,0,0.2)}
+#genericConfirmModal .modal-message{margin-bottom:12px;color:var(--text)}
+#genericConfirmModal .modal-actions{text-align:right}
+#genericConfirmModal .modal-actions .action-button{margin-left:8px}
+
+/* Notes column helper: wrap long notes nicely */
+.notes-cell{max-width:360px;white-space:normal;word-break:break-word}

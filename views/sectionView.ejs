@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Section Details</title>
+  <link rel="stylesheet" href="/enrollment.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #f9fafb; margin: 0; }
+    .container { max-width: 900px; margin: 32px auto; background: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 32px; }
+    h1, h2 { color: #b91c1c; }
+    table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+    th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
+    th { background: #fef2f2; }
+    .btn-view { background: #dc2626; color: #fff; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; }
+    .btn-view:hover { background: #b91c1c; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <button onclick="window.history.back()" style="background:#dc2626;color:#fff;border:none;padding:8px 18px;border-radius:8px;float:right;margin-bottom:10px;cursor:pointer;font-weight:600;">Back</button>
+    <h1>Section: <%= section.section_name %></h1>
+    <h2>Grade Level: <%= section.grade_level %></h2>
+    <p><strong>Adviser:</strong> <%= section.adviser_name %></p>
+    <p><strong>Room Number:</strong> <%= section.room_number || 'N/A' %></p>
+    <p><strong>Status:</strong> <%= section.is_active ? 'Active' : 'Inactive' %></p>
+    <p><strong>Max Capacity:</strong> <%= section.max_capacity %></p>
+    <p><strong>Current Count:</strong> <%= section.current_count %></p>
+
+    <!-- Dashboard summary -->
+    <div style="display:flex;gap:24px;margin:24px 0;">
+      <div style="background:#fef2f2;padding:18px 32px;border-radius:12px;box-shadow:0 2px 8px #eee;">
+        <div style="font-size:18px;font-weight:600;color:#b91c1c;">Total Students</div>
+        <div style="font-size:32px;font-weight:700;"> <%= students.length %> </div>
+      </div>
+      <div style="background:#f9fafb;padding:18px 32px;border-radius:12px;box-shadow:0 2px 8px #eee;">
+        <div style="font-size:18px;font-weight:600;color:#2563eb;">Male</div>
+        <div style="font-size:32px;font-weight:700;"> <%= students.filter(s=>s.sex==='Male').length %> </div>
+      </div>
+      <div style="background:#f9fafb;padding:18px 32px;border-radius:12px;box-shadow:0 2px 8px #eee;">
+        <div style="font-size:18px;font-weight:600;color:#dc2626;">Female</div>
+        <div style="font-size:32px;font-weight:700;"> <%= students.filter(s=>s.sex==='Female').length %> </div>
+      </div>
+    </div>
+
+    <!-- Search/filter bar -->
+    <div style="margin-bottom:18px;display:flex;gap:12px;align-items:center;">
+      <input type="text" id="searchInput" placeholder="Search by name..." style="padding:8px 14px;border-radius:8px;border:1px solid #eee;width:220px;">
+      <select id="genderFilter" style="padding:8px 14px;border-radius:8px;border:1px solid #eee;">
+        <option value="">All</option>
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+      </select>
+    </div>
+
+    <h2>Students</h2>
+    <table id="studentsTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>LRN</th>
+          <th>Sex</th>
+          <th>Age</th>
+          <th>Contact</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (students.length === 0) { %>
+          <tr><td colspan="6">No students in this section.</td></tr>
+        <% } else { students.forEach(function(st) { %>
+          <tr class="student-row" data-id="<%= st.id %>" data-name="<%= st.full_name.toLowerCase() %>" data-gender="<%= st.sex %>" data-address="<%= st.current_address || '' %>">
+            <td><%= st.full_name %></td>
+            <td><%= st.lrn %></td>
+            <td><%= st.sex %></td>
+            <td><%= st.age %></td>
+            <td><%= st.contact_number %></td>
+            <td>
+              <button class="btn-view" onclick="showStudentModal('<%= st.id %>')">View</button>
+            </td>
+          </tr>
+        <% }); } %>
+      </tbody>
+    </table>
+
+    <!-- Modal for student info -->
+    <div id="studentModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:9999;align-items:center;justify-content:center;">
+      <div style="background:#fff;padding:32px 28px;border-radius:16px;max-width:420px;width:90vw;box-shadow:0 8px 32px #b91c1c33;position:relative;">
+        <button onclick="closeStudentModal()" style="position:absolute;top:12px;right:12px;background:#dc2626;color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;">&times;</button>
+        <h2 id="modalName" style="color:#b91c1c;margin-bottom:8px;"></h2>
+        <div id="modalDetails" style="font-size:15px;line-height:1.7;color:#222;"></div>
+      </div>
+    </div>
+  </div>
+<script>
+  // Modal logic
+  function showStudentModal(id) {
+    // Find student data from table row using data-id
+    var row = document.querySelector('.student-row[data-id="' + id + '"]');
+    if (!row) return;
+    var cells = row.children;
+    var name = cells[0].textContent;
+    var lrn = cells[1].textContent;
+    var sex = cells[2].textContent;
+    var age = cells[3].textContent;
+    var contact = cells[4].textContent;
+    // You may want to fetch more info from server if needed
+    var address = row.getAttribute('data-address') || '';
+    var details = `<strong>LRN:</strong> ${lrn}<br>
+      <strong>Sex:</strong> ${sex}<br>
+      <strong>Age:</strong> ${age}<br>
+      <strong>Contact:</strong> ${contact}<br>
+      <strong>Address:</strong> ${address}`;
+    document.getElementById('modalName').textContent = name;
+    document.getElementById('modalDetails').innerHTML = details;
+    document.getElementById('studentModal').style.display = 'flex';
+  }
+  function closeStudentModal() {
+    document.getElementById('studentModal').style.display = 'none';
+  }
+
+  // Search/filter logic
+  document.getElementById('searchInput').addEventListener('input', filterStudents);
+  document.getElementById('genderFilter').addEventListener('change', filterStudents);
+  function filterStudents() {
+    var search = document.getElementById('searchInput').value.toLowerCase();
+    var gender = document.getElementById('genderFilter').value;
+    var rows = document.querySelectorAll('.student-row');
+    rows.forEach(function(row) {
+      var matchName = row.getAttribute('data-name').includes(search);
+      var matchGender = !gender || row.getAttribute('data-gender') === gender;
+      row.style.display = (matchName && matchGender) ? '' : 'none';
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!--  http://localhost:3000/index.html  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mainaga San Francisco Integrated School</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <style>
+            /* enable smooth scrolling for in-page anchors */
+            html { scroll-behavior: smooth; }
+        </style>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Dropdown menu styles */
+        .nav-links ul li {
+            position: relative;
+        }
+        
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1000;
+            top: 100%;
+            left: 0;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+        
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .dropdown.active .dropdown-content {
+            display: block;
+        }
+        
+        .dropdown > a {
+            cursor: pointer;
+        }
+        
+        .dropdown > a::after {
+            content: ' ▼';
+            font-size: 10px;
+            margin-left: 5px;
+            transition: transform 0.3s;
+        }
+        
+        .dropdown.active > a::after {
+            transform: rotate(180deg);
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdowns = document.querySelectorAll('.dropdown');
+            
+            dropdowns.forEach(dropdown => {
+                const dropdownToggle = dropdown.querySelector('a');
+                
+                // Toggle dropdown on click
+                dropdownToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    dropdown.classList.toggle('active');
+                    
+                    // Close other dropdowns
+                    dropdowns.forEach(other => {
+                        if (other !== dropdown) {
+                            other.classList.remove('active');
+                        }
+                    });
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.dropdown')) {
+                    dropdowns.forEach(dropdown => {
+                        dropdown.classList.remove('active');
+                    });
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="navbar-container">
+            <div class="school-logo">
+                <img src="../pictures/SchoolLogo-removebg-preview.png" alt="Mainaga San Francisco Integrated School Logo">
+                <span class="school-name-text">Mainaga San Francisco Integrated School</span>
+            </div>
+            <nav class="nav-links">
+                <ul>
+                    <li><a href="index.html" class="active">HOME</a></li>
+                        <li><a href="#about">ABOUT US</a></li>
+                    <li class="dropdown">
+                        <a href="#">DOCUMENT REQUEST</a>
+                        <div class="dropdown-content">
+                            <a href="document-request.html">Request Document</a>
+                            <a href="check-document-status.html">Check Status</a>
+                        </div>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#">ENROLLMENT</a>
+                        <div class="dropdown-content">
+                            <a href="enrollment.html">Enroll Now</a>
+                            <a href="check-status.html">Check Enrollment Status</a>
+                        </div>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero-section">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1>Welcome to<br>Mainaga San Francisco Integrated School</h1>
+                <p>Nurturing Young Minds, Building Bright Futures</p>
+                <a href="enrollment.html" class="cta-button">Enroll Now</a>
+            </div>
+        </section>
+            <!-- Duplicate About section removed; About is now inside Announcements container -->
+        <div class="main-white-container">
+            <section class="announcements-section">
+                <div class="container">
+                    <div id="about" class="about-summary">
+                        <h2>About Our School</h2>
+                        <p>At Mainaga San Francisco Integrated School, we are dedicated to providing a nurturing and stimulating environment where every child can achieve their full potential. Our mission is to inspire a lifelong love of learning and foster intellectual, social, and emotional growth.</p>
+
+                        <h3>Our Vision</h3>
+                        <p>To be a leading educational institution that empowers students to become compassionate, critical thinkers and responsible global citizens who are prepared to meet the challenges of the future.</p>
+
+                        <h3>Our Mission</h3>
+                        <p>We are committed to delivering a comprehensive and engaging curriculum, fostering a supportive community, and celebrating diversity. Our goal is to equip students with the knowledge and skills necessary for success in all aspects of life.</p>
+
+                        <h3>History</h3>
+                        <p>Founded in 1985, Mainaga San Francisco Integrated School began as a small community school with a big vision. Over the decades, we have grown and evolved, but our core values remain the same: a commitment to academic excellence, student well-being, and community engagement. We are proud of our rich history and the thousands of students who have passed through our doors and gone on to make a positive impact on the world.</p>
+                    </div>
+                    <h2>Announcements</h2>
+                    <div class="announcement-cards">
+                        <div class="card">
+                            <div class="announcement-item">
+                                <h3>Document Request Schedule</h3>
+                                <p><strong>Every Monday to Saturday</strong><br>7:00AM-3:00PM</p>
+                            </div>
+
+                            <div class="announcement-item">
+                                <h3>Enrollment Period for New and Old Students</h3>
+                                <p><strong>1st Week of June</strong><br>7:00AM-3:00PM</p>
+                            </div>
+
+                            <div class="announcement-item">
+                                <h3>Reminder for Document Request</h3>
+                                <p>Once you submit the Document Request Form, it will be verified by the Guidance Counselor.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Student Life section removed from homepage per request -->
+            
+            <!-- Contact section removed as requested -->
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Mainaga San Francisco Integrated School. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

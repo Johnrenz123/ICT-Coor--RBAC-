@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sent Messages - Guidance</title>
+    <link rel="stylesheet" href="/guidance.css">
+    <style>
+        /* Minimal page-specific styles for messages table */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#fff; color:#222; }
+        .container { max-width:1200px; margin:32px 24px 40px 290px; }
+        .messages-card { background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+        .messages-table { width: 100%; border-collapse: collapse; }
+        .messages-table th { background: #f8f9fa; padding: 12px; text-align: left; font-weight: 600; color: #555; border-bottom: 2px solid #e5e7eb; font-size: 13px; }
+        .messages-table td { padding: 12px; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #333; }
+        .messages-table tbody tr:hover { background: #f8f9fa; }
+        .empty-row { text-align: center; color: #999; padding: 20px; }
+        .back-link { margin-top: 16px; display: inline-block; }
+        .back-link a { color: #dc2626; text-decoration: none; font-weight: 700; }
+        /* Sent messages filters */
+        .filters { margin:12px 0 20px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+        .filters label { font-size:13px; color:#444; }
+        .filters .search-label { flex:1; min-width:220px; }
+        #searchMessages { width:100%; padding:6px 8px; border:1px solid #d1d5db; border-radius:6px; }
+        #archiveView { padding:6px 8px; border:1px solid #d1d5db; border-radius:6px; }
+        .message-actions { display:flex; gap:8px; align-items:center; }
+        .status-label { min-width:64px; display:inline-block; }
+        #resetFiltersBtn { background:#ef4444; color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; }
+        .message-cell { max-width:480px; white-space:normal; }
+        /* Simple confirm modal styles */
+        #confirmModal { position:fixed; left:0; top:0; right:0; bottom:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.45); z-index:2000; }
+        #confirmModal .modal-card { background:#fff; padding:18px; border-radius:10px; width:420px; box-shadow:0 8px 32px rgba(0,0,0,0.18); }
+        #confirmModal .modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:12px; }
+        #confirmModal .modal-title { font-weight:700; margin-bottom:6px; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <img src="/pictures/SchoolLogo-removebg-preview.png" alt="School Logo">
+            <span class="school-name-text">Mainaga San Francisco Integrated School</span>
+        </div>
+        <nav class="nav">
+            <a href="/guidance/dashboard">📋 Dashboard</a>
+            <a href="/guidance/document-requests">� Document Requests</a>
+            <a href="/guidance/behavior-analytics">📊 Behavior Analytics</a>
+            <a href="/guidance/recommendations">💡 Recommendations</a>
+            <a href="/guidance/sent-messages" class="active">📋 Sent Messages</a>
+            <a href="/guidance/behavior-archive">📦 Archived Reports</a>
+            <a href="/guidance/analytics">🔒 Security</a>
+        </nav>
+        <div class="spacer"></div>
+        <a class="logout-btn" href="/guidance/logout">Logout</a>
+    </aside>
+
+    <main class="container">
+        <div class="messages-card">
+            <h1>📋 Sent Messages</h1>
+            <p class="muted-text">History of messages sent from the Guidance Office to teachers.</p>
+            <div class="filters">
+                <label>From: <input id="fromDate" type="date"></label>
+                <label>To: <input id="toDate" type="date"></label>
+                <label>Show:
+                    <select id="archiveView">
+                        <option value="active">Active</option>
+                        <option value="archived">Archived</option>
+                        <option value="all">All</option>
+                    </select>
+                </label>
+                <label class="search-label">Search: <input id="searchMessages" type="search" placeholder="Search teacher, student, message, status" ></label>
+                <button id="resetFiltersBtn">Reset</button>
+            </div>
+            <table class="messages-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>To (Teacher)</th>
+                        <th>Student</th>
+                        <th>Message</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="messagesTableBody">
+                    <tr><td colspan="5" class="empty-row">Loading messages...</td></tr>
+                </tbody>
+            </table>
+
+            <!-- Back link removed per request -->
+        </div>
+    </main>
+
+    <script src="/js/toast.js"></script>
+    <script>
+        let allSentMessages = [];
+
+        function renderMessages(messages) {
+            const tbody = document.getElementById('messagesTableBody');
+            tbody.innerHTML = '';
+            if (!messages || messages.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-row">No messages found</td></tr>';
+                return;
+            }
+
+                messages.forEach(msg => {
+                const tr = document.createElement('tr');
+                tr.dataset.id = msg.id;
+                tr.dataset.isArchived = !!msg.is_archived;
+                const date = msg.created_at ? new Date(msg.created_at).toLocaleString() : '';
+                const teacher = msg.teacher_name || msg.teacher_id || '';
+                const student = msg.student_name || '—';
+                const safeMessage = (msg.message || '').replace(/\n/g, '<br>');
+                const status = msg.is_read ? 'Read' : 'Unread';
+
+                // Action buttons vary by archive state
+                let actions = '';
+                if (msg.is_archived) {
+                    actions = `
+                        <button class="btn btn-sm btn-outline-danger" data-action="permadelete" onclick="confirmAction(this, 'permadelete')">Permanently Delete</button>
+                        <button class="btn btn-sm btn-success" data-action="recover" onclick="confirmAction(this, 'recover')">Recover</button>
+                    `;
+                } else {
+                    actions = `
+                        <button class="btn btn-sm btn-outline-secondary" data-action="archive" onclick="confirmAction(this, 'archive')">Archive</button>
+                    `;
+                }
+
+                tr.innerHTML = `
+                    <td>${date}</td>
+                    <td>${teacher}</td>
+                    <td>${student}</td>
+                    <td class="message-cell">${safeMessage}</td>
+                    <td>
+                        <div class="message-actions">
+                            <span class="status-label">${status}</span>
+                            <div>${actions}</div>
+                        </div>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        function applySentFilters() {
+            const from = document.getElementById('fromDate').value;
+            const to = document.getElementById('toDate').value;
+            const viewMode = (document.getElementById('archiveView')||{}).value || 'active';
+            const q = (document.getElementById('searchMessages').value || '').trim().toLowerCase();
+
+            let filtered = allSentMessages.slice();
+
+            if (from) {
+                const fromDate = new Date(from);
+                filtered = filtered.filter(m => {
+                    if (!m.created_at) return false;
+                    const d = new Date(m.created_at);
+                    return d >= fromDate;
+                });
+            }
+
+            if (to) {
+                // include the entire 'to' day
+                const toDate = new Date(to);
+                toDate.setHours(23,59,59,999);
+                filtered = filtered.filter(m => {
+                    if (!m.created_at) return false;
+                    const d = new Date(m.created_at);
+                    return d <= toDate;
+                });
+            }
+
+            if (q) {
+                filtered = filtered.filter(m => {
+                    const teacher = (m.teacher_name || m.teacher_id || '').toString().toLowerCase();
+                    const student = (m.student_name || '').toString().toLowerCase();
+                    const message = (m.message || '').toString().toLowerCase();
+                    const status = (m.is_read ? 'read' : 'unread');
+                    return teacher.includes(q) || student.includes(q) || message.includes(q) || status.includes(q);
+                });
+            }
+
+            // Archive view filter
+            if (viewMode === 'active') {
+                filtered = filtered.filter(m => !m.is_archived);
+            } else if (viewMode === 'archived') {
+                filtered = filtered.filter(m => m.is_archived);
+            }
+
+            renderMessages(filtered);
+        }
+
+        async function loadSentMessages() {
+            try {
+                const res = await fetch('/api/guidance/messages');
+                const data = await res.json();
+                allSentMessages = Array.isArray(data.messages) ? data.messages : [];
+                applySentFilters();
+            } catch (err) {
+                console.error('Failed to load sent messages', err);
+                const tbody = document.getElementById('messagesTableBody');
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-row">Failed to load messages</td></tr>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSentMessages();
+            document.getElementById('fromDate').addEventListener('change', applySentFilters);
+            document.getElementById('toDate').addEventListener('change', applySentFilters);
+            const archiveView = document.getElementById('archiveView');
+            if (archiveView) archiveView.addEventListener('change', applySentFilters);
+            document.getElementById('searchMessages').addEventListener('input', applySentFilters);
+            document.getElementById('resetFiltersBtn').addEventListener('click', () => {
+                document.getElementById('fromDate').value = '';
+                document.getElementById('toDate').value = '';
+                document.getElementById('searchMessages').value = '';
+                const av = document.getElementById('archiveView'); if (av) av.value = 'active';
+                applySentFilters();
+            });
+        });
+
+        // --- Confirm modal + actions ---
+        function confirmAction(buttonEl, action) {
+            const tr = buttonEl.closest('tr');
+            if (!tr) return;
+            const id = tr.dataset.id;
+            let title = 'Confirm';
+            let msg = '';
+            if (action === 'archive') { title = 'Archive message'; msg = 'Are you sure you want to archive this sent message? It will be hidden from the active list.'; }
+            if (action === 'recover') { title = 'Recover message'; msg = 'Recover this archived message back to the active list?'; }
+            if (action === 'permadelete') { title = 'Permanently delete'; msg = 'Permanently delete this message? This cannot be undone.'; }
+            openConfirmModal(title, msg, async () => {
+                try {
+                    if (action === 'archive') await performArchive(id);
+                    else if (action === 'recover') await performRecover(id);
+                    else if (action === 'permadelete') await performPermanentDelete(id);
+                } catch (err) {
+                    console.error(err);
+                }
+            });
+        }
+
+        function openConfirmModal(title, message, onConfirm) {
+            let modal = document.getElementById('confirmModal');
+            if (!modal) return; // should not happen
+            modal.querySelector('.modal-title').textContent = title;
+            modal.querySelector('.modal-message').textContent = message;
+            modal.style.display = 'flex';
+            const confirmBtn = modal.querySelector('.btn-confirm');
+            const cancelBtn = modal.querySelector('.btn-cancel');
+            function cleanup() {
+                confirmBtn.removeEventListener('click', onOk);
+                cancelBtn.removeEventListener('click', onCancel);
+                modal.style.display = 'none';
+            }
+            function onOk() { cleanup(); try { onConfirm(); } catch(e){ console.error(e); } }
+            function onCancel() { cleanup(); }
+            confirmBtn.addEventListener('click', onOk);
+            cancelBtn.addEventListener('click', onCancel);
+        }
+
+        async function performArchive(id) {
+            try {
+                const res = await fetch(`/api/guidance/messages/${id}/archive`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    // update local cache
+                    const m = allSentMessages.find(x => x.id == id);
+                    if (m) m.is_archived = true;
+                    applySentFilters();
+                    try { showToast('Message archived', 'success'); } catch (e) { showInlineAlert('Message archived'); }
+                } else {
+                    try { showToast('Error: ' + (data.error || 'Failed to archive'), 'error'); } catch (e) { showInlineAlert('Error: ' + (data.error || 'Failed to archive')); }
+                }
+            } catch (err) {
+                console.error('Archive failed', err);
+                try { showToast('Archive request failed', 'error'); } catch (e) { showInlineAlert('Archive request failed'); }
+            }
+        }
+
+        async function performRecover(id) {
+            try {
+                const res = await fetch(`/api/guidance/messages/${id}/recover`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    const m = allSentMessages.find(x => x.id == id);
+                    if (m) m.is_archived = false;
+                    applySentFilters();
+                    try { showToast('Message recovered', 'success'); } catch (e) { showInlineAlert('Message recovered'); }
+                } else {
+                    try { showToast('Error: ' + (data.error || 'Failed to recover'), 'error'); } catch (e) { showInlineAlert('Error: ' + (data.error || 'Failed to recover')); }
+                }
+            } catch (err) {
+                console.error('Recover failed', err);
+                try { showToast('Recover request failed', 'error'); } catch (e) { showInlineAlert('Recover request failed'); }
+            }
+        }
+
+        async function performPermanentDelete(id) {
+            try {
+                const res = await fetch(`/api/guidance/messages/${id}`, { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    // remove from cache
+                    allSentMessages = allSentMessages.filter(x => x.id != id);
+                    applySentFilters();
+                    try { showToast('Message permanently deleted', 'success'); } catch (e) { showInlineAlert('Message permanently deleted'); }
+                } else {
+                    try { showToast('Error: ' + (data.error || 'Failed to delete'), 'error'); } catch (e) { showInlineAlert('Error: ' + (data.error || 'Failed to delete')); }
+                }
+            } catch (err) {
+                console.error('Permanent delete failed', err);
+                try { showToast('Delete request failed', 'error'); } catch (e) { showInlineAlert('Delete request failed'); }
+            }
+        }
+
+        function showInlineAlert(text) {
+            try {
+                const container = document.querySelector('.messages-card');
+                const tmp = document.createElement('div');
+                tmp.className = 'inline-alert';
+                tmp.style.cssText = 'background:#fdecea;border:1px solid #f5c2c7;color:#611a15;padding:10px;border-radius:8px;margin-bottom:8px;';
+                tmp.textContent = text;
+                container.insertBefore(tmp, container.firstChild);
+                setTimeout(() => { try { tmp.remove(); } catch(_){} }, 5000);
+            } catch (e) { console.error('showInlineAlert error', e); }
+        }
+    </script>
+</body>
+</html>
+
+    </script>
+
+    <!-- Confirm modal markup -->
+    <div id="confirmModal" aria-hidden="true">
+        <div class="modal-card">
+            <div class="modal-title">Confirm</div>
+            <div class="modal-message">Are you sure?</div>
+            <div class="modal-actions">
+                <button class="btn btn-sm btn-secondary btn-cancel">Cancel</button>
+                <button class="btn btn-sm btn-danger btn-confirm">Confirm</button>
+            </div>
+        </div>
+    </div>

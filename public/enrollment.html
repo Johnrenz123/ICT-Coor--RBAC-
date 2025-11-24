@@ -1,0 +1,701 @@
+<!-- http://localhost:3000/enrollment.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enrollment - Mainaga San Francisco Integrated School</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="enrollment.css">
+    <style>
+        /* Dropdown menu styles */
+        .nav-links ul li {
+            position: relative;
+        }
+        
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1000;
+            top: 100%;
+            left: 0;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+        
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .dropdown.active .dropdown-content {
+            display: block;
+        }
+        
+        .dropdown > a {
+            cursor: pointer;
+        }
+        
+        .dropdown > a::after {
+            content: ' ▼';
+            font-size: 10px;
+            margin-left: 5px;
+            transition: transform 0.3s;
+        }
+        
+        .dropdown.active > a::after {
+            transform: rotate(180deg);
+        }
+
+        /* Background styling */
+        body {
+            background-image: url('../pictures/Schoolbench.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        /* Adjust main content to account for navbar */
+        main {
+            padding-top: 80px;
+        }
+
+        /* Honeypot field - hidden from users, visible to bots */
+        .honeypot-field {
+            position: absolute;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Input error highlighting */
+        .input-error {
+            border: 2px solid #dc2626 !important;
+            background-color: #fff7f7 !important;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15) !important;
+        }
+    </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="navbar-container">
+        <div class="school-logo">
+            <img src="../pictures/SchoolLogo-removebg-preview.png" alt="Mainaga San Francisco Integrated School Logo">
+            <span class="school-name-text">Mainaga San Francisco Integrated School</span>
+        </div>
+        <nav class="nav-links">
+            <ul>
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="about-us.html">ABOUT US</a></li>
+                <li class="dropdown">
+                    <a href="#">DOCUMENT REQUEST</a>
+                    <div class="dropdown-content">
+                        <a href="document-request.html">Request Document</a>
+                        <a href="check-document-status.html">Check Status</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#">ENROLLMENT</a>
+                    <div class="dropdown-content">
+                        <a href="enrollment.html" class="active">Enroll Now</a>
+                        <a href="check-status.html">Check Enrollment Status</a>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="gmail-container">
+        <label for="gmail" class="gmail-label">
+            Gmail Address Used for Registration
+        </label>
+        <input 
+            type="email" 
+            id="gmail" 
+            name="gmail" 
+            required 
+            placeholder="Enter your Gmail address" 
+            class="gmail-input"
+            title="Enter your Gmail address"
+        >
+    </section>
+    <section class="enroll-container">
+      <header class="enroll-header">
+        <h1 class="enroll-title">BASIC EDUCATIONAL EARLY REGISTRATION FORM</h1>
+      </header>
+
+    <form id="enrollmentForm" class="enroll-form" autocomplete="off" novalidate>
+          
+          <!-- Honeypot field - hidden from users, catches bots -->
+          <input type="text" name="honeypot" class="honeypot-field" tabindex="-1" autocomplete="off" aria-hidden="true" title="Leave this field empty">
+          
+          <div class="form-row header-info-row">
+              <div class="form-field max-width-200">
+                  <label for="schoolYear">1. School Year</label>
+                  <input 
+                      type="text" 
+                      id="schoolYear" 
+                      name="schoolYear" 
+                      value="2025 - 2026" 
+                      required 
+                      placeholder="School Year" 
+                      title="Enter School Year"
+                      class="text-center"
+                  >
+              </div>
+              <div class="form-field form-field-flex-2">
+                  <label for="lrn">Learner Reference No. (LRN), if applicable:</label>
+                  <input 
+                      type="text" 
+                      id="lrn" 
+                      name="lrn" 
+                      maxlength="12" 
+                      pattern="\d{12}" 
+                      placeholder="Enter 12-digit LRN" 
+                      class="lrn-input" 
+                      inputmode="numeric"
+                      title="Please enter a 12-digit LRN"
+                  >
+              </div>
+              <div class="form-field max-width-200">
+                  <label for="gradeLevel">2. Grade Level to Enroll</label>
+                  <input 
+                      type="text" 
+                      id="gradeLevel" 
+                      name="gradeLevel" 
+                      placeholder="e.g., Grade 1" 
+                      required 
+                      title="Enter Grade Level"
+                  >
+              </div>
+          </div>
+
+          <hr>
+          
+          <h4 class="form-section-title">3. Learner's Personal Information</h4>
+          
+          <div class="form-group">
+              <label class="font-weight-600">Learner's Name:</label>
+              <div class="form-row learner-name-fields">
+                  <div class="form-field"><label for="lastName">Last Name</label><input type="text" id="lastName" name="lastName" required placeholder="Last Name" title="Enter Last Name"></div>
+                  <div class="form-field"><label for="givenName">Given Name</label><input type="text" id="givenName" name="givenName" required placeholder="Given Name" title="Enter Given Name"></div>
+                  <div class="form-field"><label for="middleName">Middle Name</label><input type="text" id="middleName" name="middleName" placeholder="Middle Name" title="Enter Middle Name"></div>
+                  <div class="form-field"><label for="extName">Extn. Name (if any)</label><input type="text" id="extName" name="extName" placeholder="e.g. Jr., Sr." title="Enter Extension Name"></div>
+              </div>
+          </div>
+
+          <div class="form-row basic-info-row">
+              <div class="form-field">
+                  <label for="birthday">Birthdate (mm/dd/yyyy):</label>
+                  <input type="date" id="birthday" name="birthday" required title="Select Birthdate" placeholder="Birthdate">
+              </div>
+              <div class="form-field">
+                  <label for="age">Age:</label>
+                  <input type="number" id="age" name="age" placeholder="Age" required title="Enter Age">
+              </div>
+              <div class="form-field">
+                  <label>Sex:</label>
+                  <div class="radio-group">
+                      <label><input type="radio" name="sex" value="Male" required> Male</label>
+                      <label><input type="radio" name="sex" value="Female"> Female</label>
+                  </div>
+              </div>
+              <div class="form-field">
+                  <label for="religion">Religion:</label>
+                  <input type="text" id="religion" name="religion" placeholder="Religion" title="Enter Religion">
+              </div>
+          </div>
+
+          <div class="form-group">
+              <label class="font-weight-600">Belonging to any Indigenous Peoples (IP) Community/Indigenous Cultural Community?</label>
+              <div class="radio-group">
+                  <label><input type="radio" name="ipCommunity" value="No" required> No</label>
+                  <label><input type="radio" name="ipCommunity" value="Yes"> Yes</label>
+              </div>
+              <div class="form-field margin-top-10 max-width-400">
+                  <label for="ipCommunitySpecify">If yes, please specify:</label>
+                  <input type="text" id="ipCommunitySpecify" name="ipCommunitySpecify" placeholder="Specify IP Community" title="Specify IP Community">
+              </div>
+          </div>
+
+          <div class="form-group">
+              <label class="font-weight-600">Is the learner a person with disability (PWD)?</label>
+              <div class="radio-group">
+                  <label><input type="radio" name="pwd" value="No" required> No</label>
+                  <label><input type="radio" name="pwd" value="Yes"> Yes</label>
+              </div>
+              <div class="form-field margin-top-10 max-width-400">
+                  <label for="pwdSpecify">If yes, please specify:</label>
+                  <input type="text" id="pwdSpecify" name="pwdSpecify" placeholder="Specify disability" title="Specify Disability">
+              </div>
+          </div>
+
+          <div class="address-group">
+              <label class="form-section-title">Current Address</label>
+              <div class="form-row address-row">
+                  <div class="form-field"><label for="barangay">Barangay</label><input type="text" id="barangay" name="barangay" placeholder="Barangay" title="Enter Barangay"></div>
+              </div>
+              <div class="form-row address-row">
+                  <div class="form-field"><label for="municipality">Municipality/City</label><input type="text" id="municipality" name="municipality" placeholder="Municipality/City" title="Enter Municipality/City"></div>
+                  <div class="form-field"><label for="province">Province</label><input type="text" id="province" name="province" placeholder="Province" title="Enter Province"></div>
+              </div>
+          </div>
+
+          <h4 class="form-section-title">Parent/Guardian Information</h4>
+
+          <div class="parent-info-section">
+              <label class="form-section-title parent-section-title">Father's Name:</label>
+              <div class="name-group-row">
+                  <div class="form-field"><label for="fatherLastName">Last Name</label><input type="text" id="fatherLastName" name="fatherLastName" placeholder="Last Name" title="Enter Father's Last Name"></div>
+                  <div class="form-field"><label for="fatherGivenName">Given Name</label><input type="text" id="fatherGivenName" name="fatherGivenName" placeholder="Given Name" title="Enter Father's Given Name"></div>
+                  <div class="form-field"><label for="fatherMiddleName">Middle Name</label><input type="text" id="fatherMiddleName" name="fatherMiddleName" placeholder="Middle Name" title="Enter Father's Middle Name"></div>
+                  <div class="form-field"><label for="fatherExtName">Extn. Name (if any)</label><input type="text" id="fatherExtName" name="fatherExtName" placeholder="Extension Name" title="Enter Father's Extension Name"></div>
+              </div>
+          </div>
+
+          <div class="parent-info-section">
+              <label class="form-section-title parent-section-title">Mother's Maiden Name:</label>
+              <div class="name-group-row">
+                  <div class="form-field"><label for="motherLastName">Last Name</label><input type="text" id="motherLastName" name="motherLastName" required placeholder="Last Name" title="Enter Mother's Last Name"></div>
+                  <div class="form-field"><label for="motherGivenName">Given Name</label><input type="text" id="motherGivenName" name="motherGivenName" required placeholder="Given Name" title="Enter Mother's Given Name"></div>
+                  <div class="form-field"><label for="motherMiddleName">Middle Name</label><input type="text" id="motherMiddleName" name="motherMiddleName" placeholder="Middle Name" title="Enter Mother's Middle Name"></div>
+                  <div class="form-field"><label for="motherExtName">Extn. Name (if any)</label><input type="text" id="motherExtName" name="motherExtName" placeholder="Extension Name" title="Enter Mother's Extension Name"></div>
+              </div>
+          </div>
+          
+          <div class="parent-info-section">
+              <label class="form-section-title parent-section-title">Legal Guardian's Name:</label>
+              <div class="name-group-row">
+                  <div class="form-field"><label for="guardianLastName">Last Name</label><input type="text" id="guardianLastName" name="guardianLastName" placeholder="Last Name" title="Enter Guardian's Last Name"></div>
+                  <div class="form-field"><label for="guardianGivenName">Given Name</label><input type="text" id="guardianGivenName" name="guardianGivenName" placeholder="Given Name" title="Enter Guardian's Given Name"></div>
+                  <div class="form-field"><label for="guardianMiddleName">Middle Name</label><input type="text" id="guardianMiddleName" name="guardianMiddleName" placeholder="Middle Name" title="Enter Guardian's Middle Name"></div>
+                  <div class="form-field"><label for="guardianExtName">Extn. Name (if any)</label><input type="text" id="guardianExtName" name="guardianExtName" placeholder="Extension Name" title="Enter Guardian's Extension Name"></div>
+              </div>
+          </div>
+
+          <div class="form-group">
+              <div class="form-field max-width-300">
+                  <label for="contactNumber" class="font-weight-600">Contact Number:</label>
+                  <input type="tel" id="contactNumber" name="contactNumber" placeholder="Contact Number" title="Enter Contact Number">
+              </div>
+          </div>
+
+          <hr>
+
+          <div class="disclaimer">
+              I hereby certify that the above information given are true and correct to the best of my knowledge and I allow the
+              Department of Education to use my child's details for the early registration data collection. The information herein shall be
+              treated as confidential in compliance with the **Data Privacy Act of 2012.**
+          <div class="signature-section signature-section-flex">
+
+          <div class="signature-section signature-section-flex">
+  <div class="sig-block sig-block-flex">
+    <div class="signature-upload-title signature-upload-title-style signature-upload-title-margin">Draw E-Signature</div>
+    <div class="signature-name-date-row">
+      <div class="name-field-flex-2">
+        <input type="text" id="signaturePrintedName" name="signaturePrintedName" placeholder="Type Printed Name Here" title="Type Printed Name Here" class="signature-line-input signature-name-input">
+        <div class="signature-text">Printed Name</div>
+      </div>
+      <div class="date-field-flex-1">
+        <input type="date" id="dateSigned" name="dateSigned" required title="Please select the date" placeholder="Select date" class="signature-line-input signature-date-input">
+        <div class="signature-text">Date</div>
+      </div>
+    </div>
+    <div class="signature-upload-container signature-upload-container-full">
+      <label for="signatureImage" class="signature-upload-label signature-upload-label-block">Upload E-Signature (Image):</label>
+      <input type="file" id="signatureImage" name="signatureImage" accept="image/*" class="signature-upload-input signature-upload-input-margin">
+      <div class="signature-upload-title signature-upload-title-style signature-upload-title-margin">Or draw your e-signature below:</div>
+      <div class="signature-canvas-container signature-canvas-container-start">
+        <canvas id="signaturePad" width="300" height="80" class="signature-canvas signature-canvas-styled"></canvas>
+        <button type="button" id="maximizeSignaturePad" class="signature-maximize-btn signature-maximize-btn-styled" title="Maximize">Maximize</button>
+      </div>
+      <div class="signature-clear-btn-container">
+        <button type="button" onclick="clearSignaturePad()" class="signature-clear-btn signature-clear-btn-styled">Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+                    <div class="submit-btn-container">
+                            <button type="submit" class="submit-early-registration-btn">Submit Early Registration</button>
+                            <footer class="footer footer-centered">
+                                &copy; 2025 Department of Education. All rights reserved.
+                            </footer>
+                    </div>
+            </form>
+    </section>
+  </main>
+    <div id="signaturePadModal" class="signature-modal">
+        <div class="signature-modal-content">
+            <button type="button" id="closeSignaturePadModal" class="signature-modal-close-btn" title="Cancel">&times;</button>
+            <h3 class="signature-modal-title">Draw E-Signature</h3>
+            <canvas id="signaturePadModalCanvas" width="450" height="180" class="signature-modal-canvas"></canvas>
+            <div class="signature-modal-btn-container">
+                <button type="button" id="clearModalSignaturePad" class="signature-modal-btn">Clear</button>
+                <button type="button" id="doneModalSignaturePad" class="signature-modal-done-btn">Done</button>
+            </div>
+    </div>
+</div>
+<script>
+    console.log('enrollment form script loaded');
+    
+    // ============= SECURITY: Track form load time =============
+    const formLoadTime = Date.now();
+    
+    // Simple signature pad logic
+    const canvas = document.getElementById('signaturePad');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+
+    canvas.addEventListener('mousedown', function(e) {
+        drawing = true;
+        ctx.beginPath();
+        ctx.moveTo(e.offsetX, e.offsetY);
+    });
+    canvas.addEventListener('mousemove', function(e) {
+        if (drawing) {
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.strokeStyle = "#0056b3";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+    });
+    canvas.addEventListener('mouseup', function(e) {
+        drawing = false;
+    });
+    canvas.addEventListener('mouseleave', function(e) {
+        drawing = false;
+    });
+
+    function clearSignaturePad() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Modal logic
+    const maximizeBtn = document.getElementById('maximizeSignaturePad');
+    const modal = document.getElementById('signaturePadModal');
+    const modalCanvas = document.getElementById('signaturePadModalCanvas');
+    const modalCtx = modalCanvas.getContext('2d');
+    let modalDrawing = false;
+
+    // Copy signature from modal to main canvas
+    function copyModalToMainCanvas() {
+        const dataURL = modalCanvas.toDataURL();
+        const img = new window.Image();
+        img.onload = function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        };
+        img.src = dataURL;
+    }
+
+    // Modal drawing events
+    modalCanvas.addEventListener('mousedown', function(e) {
+        modalDrawing = true;
+        modalCtx.beginPath();
+        modalCtx.moveTo(e.offsetX, e.offsetY);
+    });
+    modalCanvas.addEventListener('mousemove', function(e) {
+        if (modalDrawing) {
+            modalCtx.lineTo(e.offsetX, e.offsetY);
+            modalCtx.strokeStyle = "#0056b3";
+            modalCtx.lineWidth = 2;
+            modalCtx.stroke();
+        }
+    });
+    modalCanvas.addEventListener('mouseup', function(e) {
+        modalDrawing = false;
+    });
+    modalCanvas.addEventListener('mouseleave', function(e) {
+        modalDrawing = false;
+    });
+
+    // Maximize button event
+    maximizeBtn.addEventListener('click', function() {
+        // Copy current signature to modal
+        modalCtx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+        const dataURL = canvas.toDataURL();
+        const img = new window.Image();
+        img.onload = function() {
+            modalCtx.drawImage(img, 0, 0, modalCanvas.width, modalCanvas.height);
+        };
+        img.src = dataURL;
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    });
+
+    // Done button event
+    document.getElementById('doneModalSignaturePad').addEventListener('click', function() {
+        copyModalToMainCanvas();
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    });
+
+    // Clear button event in modal
+    document.getElementById('clearModalSignaturePad').addEventListener('click', function() {
+        modalCtx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+    });
+
+    // X/Cancel button event
+    document.getElementById('closeSignaturePadModal').addEventListener('click', function() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    });
+
+    // Utility: clear previous input error highlights
+    function clearInputErrors() {
+        document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    }
+
+    function markErrorInput(id) {
+        if (!id) return;
+        const el = document.getElementById(id);
+        if (el) {
+            el.classList.add('input-error');
+            el.setAttribute('aria-invalid', 'true');
+        }
+    }
+
+    // Remove highlight as user edits
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+            el.addEventListener('input', () => el.classList.remove('input-error'));
+            el.addEventListener('change', () => el.classList.remove('input-error'));
+        });
+    });
+
+    // Form submission handler
+    document.getElementById('enrollmentForm').addEventListener('submit', async function(e) {
+        // Prevent native submit
+        e.preventDefault();
+
+        // Clear any prior errors
+        clearInputErrors();
+
+        // ============= SECURITY: Check submission time =============
+        const submitTime = Date.now();
+        const timeTaken = (submitTime - formLoadTime) / 1000; // seconds
+        if (timeTaken < 5) {
+            alert('Please take your time filling out the form properly.');
+            return;
+        }
+
+        // Basic client-side validation so the user always gets feedback
+        function showErr(msg, focusId) {
+            alert(msg);
+            if (focusId) {
+                const el = document.getElementById(focusId);
+                if (el) el.focus();
+            }
+            // Visually mark the input as error
+            markErrorInput(focusId);
+        }
+
+        // Required fields to check
+        const required = [
+            { id: 'gmail', name: 'Gmail address' },
+            { id: 'lastName', name: "Learner's last name" },
+            { id: 'givenName', name: "Learner's given name" },
+            { id: 'birthday', name: 'Birthdate' },
+            { id: 'age', name: 'Age' },
+            { id: 'gradeLevel', name: 'Grade level' }
+        ];
+
+        for (const r of required) {
+            const v = document.getElementById(r.id) ? document.getElementById(r.id).value.trim() : '';
+            if (!v) {
+                showErr(`${r.name} is required.`, r.id);
+                return;
+            }
+        }
+
+        // Ensure sex radio selected
+        if (!document.querySelector('input[name="sex"]:checked')) {
+            showErr('Please select sex.');
+            return;
+        }
+        
+        // Additional client-side validation for contact number (PH format)
+        const contact = (document.getElementById('contactNumber')?.value || '').trim();
+        if (contact && !/^(09\d{9}|(?:\+?63)9\d{9})$/.test(contact)) {
+            showErr('Error: Valid Philippine phone number is required (e.g., 09123456789)', 'contactNumber');
+            return;
+        }
+
+        // Basic Gmail check (optional)
+        const gmailVal = (document.getElementById('gmail')?.value || '').trim();
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(gmailVal) || !gmailVal.toLowerCase().endsWith('@gmail.com')) {
+            showErr('Please enter a valid Gmail address (e.g., yourname@gmail.com).', 'gmail');
+            return;
+        }
+
+        // Get signature data
+        const signatureData = canvas.toDataURL('image/png');
+
+        // Safe getter for optional fields
+        function val(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+
+    // Create FormData
+        const formData = new FormData();
+
+        // Add all form fields (use val() to avoid missing-element errors)
+        formData.append('formLoadTime', formLoadTime);
+        formData.append('submitTime', submitTime);
+        formData.append('gmail', val('gmail'));
+        formData.append('schoolYear', val('schoolYear'));
+        formData.append('lrn', val('lrn'));
+        formData.append('gradeLevel', val('gradeLevel'));
+        formData.append('lastName', val('lastName'));
+        formData.append('givenName', val('givenName'));
+        formData.append('middleName', val('middleName'));
+        formData.append('extName', val('extName'));
+        formData.append('birthday', val('birthday'));
+        formData.append('age', val('age'));
+        formData.append('sex', (function(){const el = document.querySelector('input[name="sex"]:checked'); return el? el.value: '';})());
+    formData.append('religion', val('religion'));
+    // Address parts (server composes current_address)
+    formData.append('barangay', val('barangay'));
+    formData.append('municipality', val('municipality'));
+    formData.append('province', val('province'));
+    formData.append('country', val('country'));
+    formData.append('zipCode', val('zipCode'));
+
+    // Parent/Guardian name parts (server composes full names)
+    // Father
+    formData.append('fatherLastName', val('fatherLastName'));
+    formData.append('fatherGivenName', val('fatherGivenName'));
+    formData.append('fatherMiddleName', val('fatherMiddleName'));
+    formData.append('fatherExtName', val('fatherExtName'));
+    // Mother
+    formData.append('motherLastName', val('motherLastName'));
+    formData.append('motherGivenName', val('motherGivenName'));
+    formData.append('motherMiddleName', val('motherMiddleName'));
+    formData.append('motherExtName', val('motherExtName'));
+    // Guardian
+    formData.append('guardianLastName', val('guardianLastName'));
+    formData.append('guardianGivenName', val('guardianGivenName'));
+    formData.append('guardianMiddleName', val('guardianMiddleName'));
+    formData.append('guardianExtName', val('guardianExtName'));
+
+    // IP Community / PWD radios and specify fields
+    formData.append('ipCommunity', (function(){const el = document.querySelector('input[name="ipCommunity"]:checked'); return el? el.value: '';})());
+    formData.append('ipCommunitySpecify', val('ipCommunitySpecify'));
+    formData.append('pwd', (function(){const el = document.querySelector('input[name="pwd"]:checked'); return el? el.value: '';})());
+    formData.append('pwdSpecify', val('pwdSpecify'));
+
+        formData.append('contactNumber', val('contactNumber'));
+        formData.append('lastGradeLevel', val('lastGradeLevel'));
+        formData.append('lastSchoolYear', val('lastSchoolYear'));
+        formData.append('lastSchoolAttended', val('lastSchoolAttended'));
+        formData.append('schoolId', val('schoolId'));
+        // printed name input id is signaturePrintedName
+        formData.append('printedName', val('signaturePrintedName'));
+    // Date signed (server also accepts 'date')
+    formData.append('dateSigned', val('dateSigned'));
+        formData.append('signatureData', signatureData);
+        
+        try {
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            
+            const response = await fetch('/submit-enrollment', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Show success message with token and link to status page
+                alert(`Enrollment request submitted successfully!\n\nYour Request Token: ${result.token}\n\nYou can check your request status anytime at:\nhttp://localhost:3000/check-status/${result.token}`);
+                window.location.href = `/check-status/${result.token}`;
+            } else {
+                const msg = result.message || 'Failed to submit enrollment request';
+                alert('Error: ' + msg);
+
+                // Try to infer which field the error refers to and highlight it
+                const m = String(msg).toLowerCase();
+                const mappings = [
+                    { re: /phone|contact/i, id: 'contactNumber' },
+                    { re: /gmail|email/i, id: 'gmail' },
+                    { re: /lrn/i, id: 'lrn' },
+                    { re: /age/i, id: 'age' },
+                    { re: /birth|date of birth|birthdate/i, id: 'birthday' },
+                    { re: /grade/i, id: 'gradeLevel' },
+                    { re: /name|last name|given name/i, id: 'lastName' } // fallback to lastName
+                ];
+                for (const map of mappings) {
+                    if (map.re.test(m)) { markErrorInput(map.id); break; }
+                }
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Early Registration';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while submitting the enrollment request');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Early Registration';
+        }
+    });
+
+    // Dropdown functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropdowns = document.querySelectorAll('.dropdown');
+        
+        dropdowns.forEach(dropdown => {
+            const toggle = dropdown.querySelector('a');
+            
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                dropdown.classList.toggle('active');
+                
+                // Close other dropdowns
+                dropdowns.forEach(other => {
+                    if (other !== dropdown) {
+                        other.classList.remove('active');
+                    }
+                });
+            });
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.remove('active');
+                });
+            }
+        });
+    });
+</script>
+    <script src="/js/toast.js"></script>
+</body>
+</html>

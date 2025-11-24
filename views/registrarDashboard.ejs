@@ -1,0 +1,1609 @@
+<!-- http://localhost:3000/registrar -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background:#ffffff; color:#222; }
+        .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 250px; background: #dc2626; color: #fff; padding: 22px 20px 20px; box-shadow: 2px 0 14px rgba(0,0,0,0.12); display: flex; flex-direction: column; gap: 18px; z-index: 1000; }
+        .sidebar .brand { display: flex; align-items: center; gap: 12px; }
+        .sidebar .brand img { width: 46px; height: 46px; border-radius: 50%; background: #fff; padding: 6px; }
+        .sidebar .school-name-text { font-size: 16px; font-weight: 700; line-height: 1.2; color:#ffffff; }
+        .sidebar .nav { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .sidebar .nav a { color: #fff; text-decoration: none; padding: 11px 14px; border-radius: 10px; background: rgba(255,255,255,0.10); font-weight: 600; letter-spacing: .3px; transition: background .18s, transform .18s; }
+        .sidebar .nav a:hover { background: rgba(255,255,255,0.22); transform: translateX(3px); }
+        .sidebar .nav a.active { background: #fff; color: #dc2626; font-weight: 700; }
+        .sidebar .spacer { flex: 1; }
+        .sidebar .logout-btn { display: inline-block; color: #fff; text-decoration: none; padding: 12px 14px; border-radius: 10px; background: #b91c1c; font-weight: 700; text-align: center; transition: background .18s; }
+        .sidebar .logout-btn:hover { background: #991b1b; }
+        main { max-width: 1200px; margin: 40px 24px 80px 290px; }
+        /* Dashboard stat cards */
+        .page-wrap { background: #fff; border-radius: 18px; box-shadow: 0 6px 24px rgba(0,0,0,0.08); padding: 24px; border:1px solid #f1f1f1; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 24px; align-items: stretch; }
+        .card-stat { background:linear-gradient(180deg, #ffffff 0%, #fff7f7 100%); border:1px solid #ececec; border-radius:16px; padding:18px 18px 18px 16px; min-height:120px; position:relative; box-shadow:0 2px 10px rgba(0,0,0,0.04); transition: box-shadow .22s, transform .22s; }
+        .card-stat::before { content:""; position:absolute; left:0; top:0; bottom:0; width:5px; background:#dc2626; border-top-left-radius:16px; border-bottom-left-radius:16px; }
+        .card-stat:hover { box-shadow:0 10px 26px rgba(0,0,0,0.12); transform:translateY(-2px); z-index:2; }
+        .stat { display:flex; align-items:center; gap:14px; }
+        .stat-icon { width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; background:#fee2e2; color:#dc2626; flex:0 0 48px; transition: transform .22s; }
+        .card-stat:hover .stat-icon { transform: scale(1.06); }
+        .stat-body h3 { line-height:1.25; margin:0 0 6px 0; font-weight:700; color:#333; font-size:15px; }
+        .stat-value { font-size:30px; font-weight:800; color:#dc2626; }
+        .dashboard-title { 
+            font-weight: 700;
+        }
+        .form-section { 
+            background: #fff; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 2rem; 
+            margin-bottom: 2rem; 
+        }
+        .table-section { 
+            background: #fff; 
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+            padding: 2rem; 
+        }
+        /* Style for action buttons */
+        .btn-action {
+            padding: .25rem .5rem;
+            font-size: .875rem;
+        }
+        /* Make table columns compact */
+        .table th, .table td {
+            vertical-align: middle;
+            font-size: 0.9em;
+        }
+        /* Style for the new select/specify groups */
+        .specify-group {
+            margin-bottom: 1.5rem;
+            padding-top: 0.5rem;
+        }
+        .specify-input-field {
+            margin-top: 0.5rem;
+        }
+        
+        /* Input shadow styles */
+        .form-control, .form-select {
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08); 
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08), 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        /* Validation styles (applied dynamically) */
+        .validation-error {
+            border-color: #dc2626 !important;
+            box-shadow: 0 0 0 0.15rem rgba(220,38,38,0.12) !important;
+        }
+        .validation-message { margin-top: 0.35rem; }
+        #formAlert { margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <img src="/pictures/SchoolLogo-removebg-preview.png" alt="School Logo">
+            <span class="school-name-text">Mainaga San Francisco Integrated School</span>
+        </div>
+        <nav class="nav" id="drawerTabs">
+            <a href="#dashboardHome" class="active">📊 Dashboard</a>
+            <a href="#currentRegistrations">🧾 Current Registrations</a>
+            <a href="#requestList">✅ List of Requests</a>
+            <a href="#historyArchive">📚 History of Requests</a>
+            <a href="/registrar/analytics">🔒 Security</a>
+        </nav>
+        <div class="spacer"></div>
+        <a class="logout-btn" href="#" onclick="confirmLogout()">Logout</a>
+    </aside>
+
+    <main>
+        <div class="page-wrap mb-4 tab-content-section" id="dashboardHome">
+            <!-- Header Section -->
+            <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                <div>
+                    <h1 class="dashboard-title mb-1" style="font-size: 32px; font-weight: 700; color: #dc2626;">Registrar Dashboard</h1>
+                    <p class="text-muted mb-0" style="font-size: 15px;">School Year 2025 - 2026 | Overview & Statistics</p>
+                </div>
+                <div class="text-end">
+                    <div class="text-muted small" style="font-size: 13px;">Last Updated</div>
+                    <div class="fw-semibold" style="font-size: 14px; color: #333;" id="lastUpdated">
+                        <%= new Date().toLocaleString('en-PH', { 
+                            month: 'short', day: 'numeric', year: 'numeric', 
+                            hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila' 
+                        }) %>
+                    </div>
+                </div>
+            </div>
+
+            <% 
+                const _requests = (typeof requests !== 'undefined' && requests) ? requests : []; 
+                const _history = (typeof history !== 'undefined' && history) ? history : []; 
+                const pendingCount = _requests.length; 
+                const approvedCount = _history.filter(h => h.status === 'approved').length; 
+                const rejectedCount = _history.filter(h => h.status !== 'approved').length; 
+                const totalRequests = pendingCount + _history.length; 
+                const today = new Date();
+                const todayRequests = _requests.filter(r => {
+                    try { const d = new Date(r.created_at); return d.getFullYear()===today.getFullYear() && d.getMonth()===today.getMonth() && d.getDate()===today.getDate(); } catch(_) { return false; }
+                }).length;
+            %>
+
+            <!-- Server-provided JSON (safe injection) -->
+            <script id="server_requests" type="application/json"><%= JSON.stringify(_requests || []) %></script>
+            <script id="server_history" type="application/json"><%= JSON.stringify(_history || []) %></script>
+
+            <!-- Statistics Grid -->
+            <div class="row g-4 mb-4">
+                <!-- Total Requests Card -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card-stat h-100">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div>
+                                <div class="text-muted small fw-semibold mb-1" style="font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">Total Requests</div>
+                                <div class="stat-value mb-0" style="font-size: 36px; line-height: 1;" id="val_total"><%= totalRequests %></div>
+                                <div class="small mt-2" id="trend_total"></div>
+                            </div>
+                            <div class="stat-icon" style="width: 56px; height: 56px; font-size: 26px;">📨</div>
+                        </div>
+                        <div class="text-muted small">All enrollment submissions</div>
+                    </div>
+                </div>
+
+                <!-- Pending Card -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card-stat h-100">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div>
+                                <div class="text-muted small fw-semibold mb-1" style="font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">Pending Review</div>
+                                <div class="stat-value mb-0" style="font-size: 36px; line-height: 1; color: #f59e0b;" id="val_pending"><%= pendingCount %></div>
+                                <div class="small mt-2" id="trend_pending"></div>
+                            </div>
+                            <div class="stat-icon" style="width: 56px; height: 56px; font-size: 26px; background: #fef3c7; color: #f59e0b;">⏳</div>
+                        </div>
+                        <div class="text-muted small">Awaiting action</div>
+                    </div>
+                </div>
+
+                <!-- Approved Card -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card-stat h-100">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div>
+                                <div class="text-muted small fw-semibold mb-1" style="font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">Approved</div>
+                                <div class="stat-value mb-0" style="font-size: 36px; line-height: 1; color: #10b981;" id="val_approved"><%= approvedCount %></div>
+                                <div class="small mt-2" id="trend_approved"></div>
+                            </div>
+                            <div class="stat-icon" style="width: 56px; height: 56px; font-size: 26px; background: #d1fae5; color: #10b981;">✅</div>
+                        </div>
+                        <div class="text-muted small">Successfully processed</div>
+                    </div>
+                </div>
+
+                <!-- Rejected Card -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card-stat h-100">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div>
+                                <div class="text-muted small fw-semibold mb-1" style="font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;">Rejected</div>
+                                <div class="stat-value mb-0" style="font-size: 36px; line-height: 1; color: #ef4444;" id="val_rejected"><%= rejectedCount %></div>
+                                <div class="small mt-2" id="trend_rejected"></div>
+                            </div>
+                            <div class="stat-icon" style="width: 56px; height: 56px; font-size: 26px; background: #fee2e2; color: #ef4444;">❌</div>
+                        </div>
+                        <div class="text-muted small">Not accepted</div>
+                    </div>
+                </div>
+
+                <!-- Today's Submissions Card removed as requested -->
+
+                <!-- Quick Actions Card -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card-stat h-100" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); border: none;">
+                        <div class="d-flex flex-column h-100 justify-content-between">
+                            <div class="text-white mb-3">
+                                <div class="fw-bold mb-1" style="font-size: 15px;">Quick Actions</div>
+                                <div style="font-size: 13px; opacity: 0.9;">Navigate to sections</div>
+                            </div>
+                            <div class="d-flex flex-column gap-2">
+                                <a href="#currentRegistrations" class="btn btn-light btn-sm text-dark fw-semibold" style="font-size: 13px;">
+                                    <i class="bi bi-plus-circle me-1"></i> Add Registration
+                                </a>
+                                <a href="#requestList" class="btn btn-light btn-sm text-dark fw-semibold" style="font-size: 13px;">
+                                    <i class="bi bi-list-check me-1"></i> View Requests
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Cards Row -->
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm" style="background: #fff7ed;">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="fs-1">💡</div>
+                                <div>
+                                    <div class="fw-bold text-dark mb-1">Pending Actions</div>
+                                    <div class="small text-muted">You have <strong><%= pendingCount %></strong> request(s) waiting for review</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm" style="background: #f0fdf4;">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="fs-1">📊</div>
+                                <div>
+                                    <div class="fw-bold text-dark mb-1">Processing Rate</div>
+                                    <div class="small text-muted">
+                                        <strong><%= totalRequests > 0 ? Math.round((approvedCount / totalRequests) * 100) : 0 %>%</strong> approval rate this school year
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="currentRegistrations" class="tab-content-section" style="display:none;">
+        <div class="form-section mb-4" style="border-top: 6px solid #dc2626;">
+            <h4 class="mb-3 text-dark">Manually Add New Early Registration Record</h4>
+            <form id="enrollmentForm">
+                <!-- Alert for validation messages -->
+                <div id="formAlert" class="alert alert-danger d-none" role="alert"></div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label text-dark">Gmail Address Used for Registration</label>
+                        <input type="email" class="form-control" name="gmail" required placeholder="Enter Gmail address">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label text-dark">School Year</label>
+                        <input type="text" class="form-control" name="schoolYear" value="2025 - 2026" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-dark">LRN</label>
+                        <input type="text" class="form-control" name="lrn" placeholder="If applicable">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-dark">Grade Level to Enroll</label>
+                        <input type="text" class="form-control" name="gradeLevel" required>
+                    </div>
+                </div>
+                <hr>
+                <h5 class="mb-3 text-dark">3. Learner's Personal Information</h5>
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label class="form-label text-dark">Last Name</label>
+                        <input type="text" class="form-control" name="lastName" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-dark">First Name</label>
+                        <input type="text" class="form-control" name="givenName" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-dark">Middle Name</label>
+                        <input type="text" class="form-control" name="middleName">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label text-dark">Ext. Name (if any)</label>
+                        <input type="text" class="form-control" name="extName">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label text-dark">Birthday</label>
+                        <input type="date" class="form-control" name="birthday" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-dark">Age</label>
+                        <input type="number" class="form-control" name="age" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-dark">Sex</label>
+                        <select class="form-select" name="sex" required>
+                            <option value="">Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-dark">Religion</label>
+                        <input type="text" class="form-control" name="religion">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-dark">Current Address (Street, Barangay, City, Province)</label>
+                        <input type="text" class="form-control" name="address" required>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-dark fw-bold">Belonging to IP Community?</label>
+                        <div class="d-flex gap-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="ipCommunity" id="ipNo" value="No" required>
+                                <label class="form-check-label text-dark" for="ipNo">No</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="ipCommunity" id="ipYes" value="Yes">
+                                <label class="form-check-label text-dark" for="ipYes">Yes</label>
+                            </div>
+                        </div>
+                        <input type="text" class="form-control mt-2" name="ipCommunitySpecify" placeholder="If Yes, specify IP Community">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-dark fw-bold">Person with Disability (PWD)?</label>
+                        <div class="d-flex gap-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="pwd" id="pwdNo" value="No" required>
+                                <label class="form-check-label text-dark" for="pwdNo">No</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="pwd" id="pwdYes" value="Yes">
+                                <label class="form-check-label text-dark" for="pwdYes">Yes</label>
+                            </div>
+                        </div>
+                        <input type="text" class="form-control mt-2" name="pwdSpecify" placeholder="If Yes, specify disability">
+                    </div>
+                </div>
+                <hr>
+                <h5 class="mb-3 text-dark">Parent/Guardian Information</h5>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label text-dark">Father's Name</label>
+                        <input type="text" class="form-control" name="fatherName">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-dark">Mother's Maiden Name</label>
+                        <input type="text" class="form-control" name="motherName">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label text-dark">Legal Guardian's Name</label>
+                        <input type="text" class="form-control" name="guardianName">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-dark">Contact Number</label>
+                        <input type="text" class="form-control" name="contactNumber">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-dark">Date</label>
+                        <input type="date" class="form-control" name="date" required>
+                    </div>
+                </div>
+                <hr>
+                <h5 class="mb-3 text-dark">Signature</h5>
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label class="form-label text-dark">Printed Name</label>
+                            <input type="text" class="form-control" name="printedName" placeholder="Type Printed Name Here" required>
+                        </div>
+                    </div>
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-dark">Upload E-Signature (Image)</label>
+                        <input type="file" class="form-control" name="signatureImage" accept="image/*">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-dark">Or draw your e-signature below:</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <canvas id="signaturePad" width="300" height="80" style="background:#f8f9fa; border:2px solid #dc2626; border-radius:8px;"></canvas>
+                            <button type="button" id="maximizeSignaturePad" class="btn btn-outline-danger btn-sm" title="Maximize">
+                                <i class="bi bi-arrows-fullscreen"></i>
+                            </button>
+                        </div>
+                        <button type="button" onclick="clearSignaturePad()" class="btn btn-danger btn-sm mt-2">Clear</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-danger w-100 fw-bold">Add New Registration Record</button>
+            </form>
+        </div>
+        
+        <div class="table-section">
+            <h4 class="mb-3">Early Registration Records (2025 - 2026)</h4>
+            <div class="table-responsive">
+                <!-- Filters: Year, Grade, Search -->
+                <div class="d-flex gap-2 align-items-center mb-3">
+                    <label class="small fw-semibold mb-0">Filter:</label>
+                    <select id="filterSY" class="form-select form-select-sm" style="width:auto;">
+                        <option value="">All Years</option>
+                    </select>
+                    <select id="filterGrade" class="form-select form-select-sm" style="width:auto;">
+                        <option value="">All Grades</option>
+                    </select>
+                    <div class="input-group input-group-sm" style="width:340px">
+                        <input id="filterSearch" class="form-control" placeholder="Search LRN or Learner name" />
+                        <button id="filterSearchBtn" class="btn btn-outline-secondary">Search</button>
+                    </div>
+                    <button id="filterClearBtn" class="btn btn-sm btn-outline-secondary">Clear</button>
+                </div>
+
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>SY</th>
+                            <th>Grade</th>
+                            <th>Learner Name</th>
+                            <th>LRN</th>
+                            <th>Contact No.</th>
+                            <th>Reg. Date/Time</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="enrollmentTableBody">
+                        <% if (typeof registrations !== 'undefined' && registrations.length > 0) { %>
+                            <% registrations.forEach(function(reg) { %>
+                                <tr data-school-year="<%= reg.school_year %>" data-grade="<%= reg.grade_level %>" data-learner="<%= (reg.learner_name||'').toLowerCase() %>" data-lrn="<%= (reg.lrn||'').toString().toLowerCase() %>">
+                                    <td><%= reg.school_year %></td>
+                                    <td><%= reg.grade_level %></td>
+                                    <td><%= reg.learner_name %></td>
+                                    <td><%= reg.lrn || 'N/A' %></td>
+                                    <td><%= reg.contact_number || 'N/A' %></td>
+                                                                        <td>
+                                                                                <%= reg.created_at
+                                                                                        ? new Date(reg.created_at).toLocaleString('en-PH', {
+                                                                                                year: 'numeric', month: '2-digit', day: '2-digit',
+                                                                                                hour: '2-digit', minute: '2-digit', second: '2-digit',
+                                                                                                hour12: true, timeZone: 'Asia/Manila'
+                                                                                            })
+                                                                                        : (reg.registration_date
+                                                                                                ? new Date(reg.registration_date).toLocaleString('en-PH', {
+                                                                                                        year: 'numeric', month: '2-digit', day: '2-digit',
+                                                                                                        timeZone: 'Asia/Manila'
+                                                                                                    })
+                                                                                                : 'N/A')
+                                                                                %>
+                                                                        </td>
+                                        <td>
+                                            <a class="btn btn-info btn-action" href="/registration/<%= reg.id %>">View</a>
+                                        </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="7" class="text-center">No registration records found</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="requestList" class="tab-content-section" style="display: none;">
+        <h2 class="dashboard-title mb-4">List of Pending Registration Requests</h2>
+        <div class="table-section">
+            <div class="table-responsive">
+                <!-- Request List filters: Grade + Search -->
+                <div class="d-flex gap-2 align-items-center mb-3">
+                    <label class="small fw-semibold mb-0">Filter:</label>
+                    <select id="requestListFilterGrade" class="form-select form-select-sm" style="width:auto;">
+                        <option value="">All Grades</option>
+                    </select>
+                    <div class="input-group input-group-sm" style="width:340px">
+                        <input id="requestListFilterSearch" class="form-control" placeholder="Search Token, LRN or Learner name" />
+                        <button id="requestListFilterSearchBtn" class="btn btn-outline-secondary">Search</button>
+                    </div>
+                    <button id="requestListFilterClearBtn" class="btn btn-sm btn-outline-secondary">Clear</button>
+                </div>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Learner Name</th>
+                            <th>Grade Level</th>
+                            <th>Email</th>
+                            <th>Contact No.</th>
+                            <th>Submitted At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (typeof requests !== 'undefined' && requests.length > 0) { %>
+                            <% requests.forEach(function(req) { %>
+                                <tr data-grade="<%= req.grade_level %>" data-learner="<%= (req.learner_name||'').toLowerCase() %>" data-token="<%= (req.request_token||'').toLowerCase() %>" data-lrn="<%= (req.lrn||'').toString().toLowerCase() %>">
+                                    <td><code><%= req.request_token %></code></td>
+                                    <td><%= req.learner_name %></td>
+                                    <td><%= req.grade_level %></td>
+                                    <td><%= req.gmail_address %></td>
+                                    <td><%= req.contact_number || 'N/A' %></td>
+                                    <td><%= new Date(req.created_at).toLocaleString('en-PH', {
+                                        year: 'numeric', month: '2-digit', day: '2-digit',
+                                        hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila'
+                                    }) %></td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="openFillDetails('<%= req.id %>')">View/Fill Details</button>
+                                            <button class="btn btn-sm btn-success" onclick="approveRequest('<%= req.id %>')">Approve</button>
+                                            <button class="btn btn-sm btn-danger" onclick="rejectRequest('<%= req.id %>')">Reject</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="7" class="text-center">No pending requests</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="historyArchive" class="tab-content-section" style="display: none;">
+        <h2 class="dashboard-title mb-4">Registration Request History</h2>
+        <div class="table-section">
+            <div class="table-responsive">
+                <!-- History filters: Grade + Search -->
+                <div class="d-flex gap-2 align-items-center mb-3">
+                    <label class="small fw-semibold mb-0">Filter:</label>
+                    <select id="historyFilterGrade" class="form-select form-select-sm" style="width:auto;">
+                        <option value="">All Grades</option>
+                    </select>
+                    <div class="input-group input-group-sm" style="width:340px">
+                        <input id="historyFilterSearch" class="form-control" placeholder="Search Token, LRN or Learner name" />
+                        <button id="historyFilterSearchBtn" class="btn btn-outline-secondary">Search</button>
+                    </div>
+                    <button id="historyFilterClearBtn" class="btn btn-sm btn-outline-secondary">Clear</button>
+                </div>
+
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Learner Name</th>
+                            <th>Grade Level</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Reviewed At</th>
+                            <th>Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (typeof history !== 'undefined' && history.length > 0) { %>
+                            <% history.forEach(function(h) { %>
+                                <tr data-grade="<%= h.grade_level %>" data-learner="<%= (h.learner_name||'').toLowerCase() %>" data-token="<%= (h.request_token||'').toLowerCase() %>" data-lrn="<%= (h.lrn||'').toString().toLowerCase() %>">
+                                    <td><code><%= h.request_token %></code></td>
+                                    <td><%= h.learner_name %></td>
+                                    <td><%= h.grade_level %></td>
+                                    <td><%= h.gmail_address %></td>
+                                    <td>
+                                        <% if (h.status === 'approved') { %>
+                                            <span class="badge bg-success">Approved</span>
+                                        <% } else { %>
+                                            <span class="badge bg-danger">Rejected</span>
+                                        <% } %>
+                                    </td>
+                                    <td><%= h.reviewed_at ? new Date(h.reviewed_at).toLocaleString('en-PH', {
+                                        year: 'numeric', month: '2-digit', day: '2-digit',
+                                        hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila'
+                                    }) : 'N/A' %></td>
+                                    <td><%= h.rejection_reason || '-' %></td>
+                                </tr>
+                            <% }) %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="7" class="text-center">No history records</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        </div>
+
+    </main>
+<!-- Signature Pad Modal -->
+<div class="modal fade" id="signaturePadModal" tabindex="-1" aria-labelledby="signaturePadModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 16px;">
+      <div class="modal-header" style="border-bottom: 1px solid #dc2626;">
+    <h5 class="modal-title text-dark" id="signaturePadModalLabel">Draw E-Signature</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeSignaturePadModal"></button>
+      </div>
+      <div class="modal-body" style="padding: 2rem 1.5rem;">
+        <div class="d-flex justify-content-center mb-3">
+          <canvas id="signaturePadModalCanvas" width="480" height="180"
+            style="background:#f8f9fa; border:2px solid #dc2626; border-radius:12px; box-shadow:0 2px 8px rgba(220,38,38,0.08);"></canvas>
+        </div>
+        <div class="d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-danger btn-sm px-4" id="clearModalSignaturePad">Clear</button>
+          <button type="button" class="btn btn-outline-danger btn-sm px-4" id="doneModalSignaturePad">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-labelledby="logoutConfirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 16px;">
+      <div class="modal-header" style="border-bottom: 1px solid #dc2626;">
+    <h5 class="modal-title text-dark" id="logoutConfirmModalLabel">Confirm Logout</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="padding: 2rem 1.5rem;">
+        <div class="text-center">
+          <i class="bi bi-question-circle-fill text-warning" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+          <h6 class="mb-3">Are you sure you want to log out?</h6>
+          <p class="text-muted">You will be redirected to the registrar login page.</p>
+        </div>
+      </div>
+      <div class="modal-footer" style="border-top: 1px solid #dee2e6; padding: 1rem 1.5rem;">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" onclick="proceedLogout()">Yes, Log Out</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- View/Fill Missing Details Modal -->
+<div class="modal fade" id="fillDetailsModal" tabindex="-1" aria-labelledby="fillDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content" style="border-radius: 16px;">
+      <div class="modal-header" style="border-bottom: 1px solid #dc2626; background: #fff;">
+    <h5 class="modal-title text-dark fw-bold" id="fillDetailsModalLabel">
+          <i class="bi bi-card-checklist me-2"></i>Enrollment Request Details
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="background: #f8f9fa; padding: 1.5rem;">
+        <input type="hidden" id="fillRequestId">
+        
+        <!-- Request Info Card -->
+        <div class="card mb-3 shadow-sm">
+          <div class="card-header bg-danger text-white fw-bold">
+            <i class="bi bi-info-circle me-2"></i>Request Information
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label text-muted small">Request Token</label>
+                <div class="fw-bold" id="view_request_token">-</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label text-muted small">Gmail Address</label>
+                <div class="fw-semibold" id="view_gmail_address">-</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label text-muted small">Submitted On</label>
+                <div class="fw-semibold" id="view_created_at">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Learner Info Card -->
+        <div class="card mb-3 shadow-sm">
+          <div class="card-header bg-danger text-white fw-bold">
+            <i class="bi bi-person me-2"></i>Learner Information
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-3">
+                <label class="form-label text-muted small">School Year</label>
+                <div class="fw-semibold" id="view_school_year">-</div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label text-muted small">Grade Level</label>
+                <div class="fw-semibold" id="view_grade_level">-</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label text-muted small">LRN</label>
+                <div class="fw-semibold" id="view_lrn">-</div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label text-muted small">Last Name</label>
+                <div class="fw-semibold" id="view_last_name">-</div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label text-muted small">First Name</label>
+                <div class="fw-semibold" id="view_first_name">-</div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label text-muted small">Middle Name</label>
+                <div class="fw-semibold" id="view_middle_name">-</div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label text-muted small">Ext. Name</label>
+                <div class="fw-semibold" id="view_ext_name">-</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label text-muted small">Birthday</label>
+                <div class="fw-semibold" id="view_birthday">-</div>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label text-muted small">Age</label>
+                <div class="fw-semibold" id="view_age">-</div>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label text-muted small">Sex</label>
+                <div class="fw-semibold" id="view_sex">-</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label text-muted small">Printed Name</label>
+                <div class="fw-semibold" id="view_printed_name">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address & Additional Info (read-only + editable) -->
+        <div class="card mb-3 shadow-sm">
+          <div class="card-header bg-danger text-white fw-bold">
+            <i class="bi bi-geo-alt me-2"></i>Address & Additional Information
+          </div>
+          <div class="card-body">
+            <form id="fillDetailsForm">
+              <div class="row g-3">
+                <div class="col-md-12">
+                  <label class="form-label fw-semibold">Current Address</label>
+                  <input type="text" class="form-control" id="current_address" placeholder="Street, Barangay, City, Province">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Religion</label>
+                  <input type="text" class="form-control" id="religion_fill">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Contact Number</label>
+                  <input type="text" class="form-control" id="contact_number" placeholder="e.g., 09XXXXXXXXX">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Belonging to IP Community?</label>
+                  <select class="form-select" id="ip_community">
+                    <option value="">Select</option>
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                  </select>
+                  <input type="text" class="form-control mt-2" id="ip_community_specify" placeholder="If Yes, specify IP Community">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Person with Disability (PWD)?</label>
+                  <select class="form-select" id="pwd_fill">
+                    <option value="">Select</option>
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                  </select>
+                  <input type="text" class="form-control mt-2" id="pwd_specify" placeholder="If Yes, specify disability">
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Parent/Guardian Info (editable) -->
+        <div class="card mb-3 shadow-sm">
+          <div class="card-header bg-danger text-white fw-bold">
+            <i class="bi bi-people me-2"></i>Parent / Guardian Information
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Father's Name</label>
+                <input type="text" class="form-control" id="father_name" placeholder="Last, First Middle Suffix">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Mother's Maiden Name</label>
+                <input type="text" class="form-control" id="mother_name" placeholder="Last, First Middle Suffix">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Legal Guardian's Name</label>
+                <input type="text" class="form-control" id="guardian_name" placeholder="Last, First Middle Suffix">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Signature Preview -->
+        <div class="card shadow-sm">
+          <div class="card-header bg-danger text-white fw-bold">
+            <i class="bi bi-pen me-2"></i>E-Signature
+          </div>
+          <div class="card-body text-center">
+            <div id="signature_preview_container" style="display: none;">
+              <img id="signature_preview" src="" alt="E-Signature" style="max-width: 300px; border: 1px solid #ddd; border-radius: 8px; padding: 0.5rem; background: #f8f9fa;">
+            </div>
+            <div id="signature_no_preview" class="text-muted">No signature uploaded</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer" style="border-top: 1px solid #dee2e6; background: #fff;">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger" id="saveFillDetails">
+          <i class="bi bi-save me-2"></i>Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>(function(){try{
+    // Read server-provided JSON from safe script blocks
+    const __requestsData = (function(){ try { const el = document.getElementById('server_requests'); return el ? JSON.parse(el.textContent) : []; } catch(e){ console.error('parse server_requests', e); return []; } })();
+    const __historyData = (function(){ try { const el = document.getElementById('server_history'); return el ? JSON.parse(el.textContent) : []; } catch(e){ console.error('parse server_history', e); return []; } })();
+
+    // Format a small trend element: arrow + percent
+    function renderTrend(containerId, current, previous, labelText = 'vs prior period') {
+        const el = document.getElementById(containerId);
+        if (!el) return;
+        if ((!previous || previous === 0) && (!current || current === 0)) {
+            el.innerHTML = `<span style="color:#6b7280">— no change</span>`;
+            return;
+        }
+        let pct = 0;
+        if (!previous || previous === 0) pct = 100;
+        else pct = Math.round(((current - previous) / previous) * 100);
+
+        const up = pct > 0;
+        const neutral = pct === 0;
+        const color = neutral ? '#6b7280' : (up ? '#059669' : '#dc2626');
+        const arrow = neutral ? '—' : (up ? '▲' : '▼');
+        el.innerHTML = `<span style="color:${color}; font-weight:700;">${arrow} ${Math.abs(pct)}%</span> <span style="color:#6b7280">${labelText}</span>`;
+    }
+
+    // Create a Year-only filter UI and wire events
+    (function createYearFilterUI(){
+        try {
+            const container = document.createElement('div');
+            container.style.display = 'flex';
+            container.style.gap = '8px';
+            container.style.alignItems = 'center';
+            container.style.marginBottom = '12px';
+            container.id = 'yearFilterPanel';
+
+            container.innerHTML = `
+                <label style="font-weight:600; margin-right:6px;">Year:</label>
+                <select id="filter_year" style="padding:6px; border:1px solid #d1d5db; border-radius:4px;"></select>
+                <button id="filter_apply" type="button" style="padding:6px 10px; background:#2563eb; color:white; border-radius:4px; border:none;">Apply</button>
+                <button id="filter_clear" type="button" style="padding:6px 10px; background:#e5e7eb; color:#111827; border-radius:4px; border:none;">Clear</button>
+            `;
+
+            // Insert below the dashboard header if available, otherwise at top of main content
+            const headerDiv = document.querySelector('#dashboardHome .d-flex.justify-content-between') || document.querySelector('.page-wrap .d-flex.justify-content-between');
+            if (headerDiv && headerDiv.parentNode) {
+                headerDiv.insertAdjacentElement('afterend', container);
+            } else {
+                const main = document.querySelector('#main') || document.querySelector('.container') || document.body;
+                main.insertBefore(container, main.firstChild);
+            }
+
+            // Populate year options from available data (created_at / reviewed_at fields)
+            const yearSet = new Set();
+            try {
+                const gatherYear = (dStr) => {
+                    if (!dStr) return;
+                    const d = new Date(dStr);
+                    if (!isNaN(d)) yearSet.add(d.getFullYear());
+                };
+                __requestsData.forEach(r => gatherYear(r.created_at || r.createdAt || r.created));
+                __historyData.forEach(h => {
+                    gatherYear(h.created_at || h.createdAt || h.created);
+                    gatherYear(h.reviewed_at || h.reviewedAt || h.updated_at || h.updatedAt);
+                });
+            } catch(e) { /* ignore */ }
+
+            const years = Array.from(yearSet).sort((a,b)=>b-a);
+            const sel = container.querySelector('#filter_year');
+            if (sel) {
+                const allOpt = document.createElement('option'); allOpt.value = ''; allOpt.textContent = 'All'; sel.appendChild(allOpt);
+                if (years.length === 0) {
+                    // fallback: provide recent years
+                    const fallback = [2025,2024,2023,2022];
+                    fallback.forEach(y => { const o=document.createElement('option'); o.value=y; o.textContent=y; sel.appendChild(o); });
+                } else {
+                    years.forEach(y => { const o=document.createElement('option'); o.value=y; o.textContent=y; sel.appendChild(o); });
+                }
+            }
+
+            const _applyBtn = document.getElementById('filter_apply');
+            const _clearBtn = document.getElementById('filter_clear');
+            if (_applyBtn) _applyBtn.addEventListener('click', () => {
+                const year = (document.getElementById('filter_year') || {}).value || null;
+                if (year) computeAndRenderTrendsByYear(parseInt(year,10)); else computeAndRenderTrends();
+            });
+            if (_clearBtn) _clearBtn.addEventListener('click', () => {
+                const f = document.getElementById('filter_year'); if (f) f.value = '';
+                computeAndRenderTrends();
+            });
+        } catch (err) {
+            console.warn('Could not render year filter UI', err);
+        }
+    })();
+
+    // --- Request List table filtering UI (pending requests) ---
+    (function initRequestListFilters(){
+        try {
+            const container = document.getElementById('requestList');
+            if (!container) return;
+            const table = container.querySelector('table.table');
+            if (!table) return;
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            const gradeSelect = document.getElementById('requestListFilterGrade');
+            const searchInput = document.getElementById('requestListFilterSearch');
+            const searchBtn = document.getElementById('requestListFilterSearchBtn');
+            const clearBtn = document.getElementById('requestListFilterClearBtn');
+
+            const grades = new Set();
+            rows.forEach(r => { const g = (r.dataset.grade||'').toString(); if (g) grades.add(g); });
+            Array.from(grades).sort().forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g; gradeSelect.appendChild(o); });
+
+            function applyReqFilters(){
+                const grade = (gradeSelect.value||'').toString();
+                const term = (searchInput.value||'').toString().trim().toLowerCase();
+                rows.forEach(r => {
+                    const rgrade = (r.dataset.grade||'').toString();
+                    const rlearner = (r.dataset.learner||'').toString();
+                    const rtoken = (r.dataset.token||'').toString();
+                    const rlrn = (r.dataset.lrn||'').toString();
+                    let visible = true;
+                    if (grade && rgrade !== grade) visible = false;
+                    if (term) {
+                        if (!(rlearner.includes(term) || rtoken.includes(term) || rlrn.includes(term))) visible = false;
+                    }
+                    r.style.display = visible ? '' : 'none';
+                });
+            }
+
+            gradeSelect.addEventListener('change', applyReqFilters);
+            searchBtn.addEventListener('click', (e)=>{ e.preventDefault(); applyReqFilters(); });
+            searchInput.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') { e.preventDefault(); applyReqFilters(); } });
+            clearBtn.addEventListener('click', (e)=>{ e.preventDefault(); gradeSelect.value=''; searchInput.value=''; applyReqFilters(); });
+        } catch (err) { console.warn('Request list filter init failed', err); }
+    })();
+
+    // Main trend computation function; optional ISO date strings for from/to filter
+    function computeAndRenderTrends(filterFromISO, filterToISO){
+        try {
+            const MS_DAY = 24*60*60*1000;
+            let now = new Date();
+
+            let recentStart, recentEnd;
+            if (filterFromISO || filterToISO) {
+                recentStart = filterFromISO ? new Date(filterFromISO) : new Date(0);
+                // if no to provided, use end of day of from or now
+                recentEnd = filterToISO ? new Date(filterToISO + 'T23:59:59') : now;
+            } else {
+                recentEnd = now;
+                recentStart = new Date(now.getTime() - (7 * MS_DAY));
+            }
+
+            const prevStart = new Date(recentStart.getTime() - (7 * MS_DAY));
+            const prevEnd = new Date(recentStart.getTime() - 1);
+
+            function toDateObj(r, fields) {
+                for (const f of fields) {
+                    if (r[f]) return new Date(r[f]);
+                }
+                return null;
+            }
+
+            function countInRange(arr, fields, start, end) {
+                return arr.reduce((acc, r) => {
+                    const d = toDateObj(r, fields);
+                    if (!d || isNaN(d)) return acc;
+                    if (d >= start && d <= end) return acc + 1;
+                    return acc;
+                }, 0);
+            }
+
+            // Total requests: compare created_at across both arrays
+            const totalRecent = countInRange(__requestsData.concat(__historyData), ['created_at','createdAt','created'], recentStart, recentEnd);
+            const totalPrev = countInRange(__requestsData.concat(__historyData), ['created_at','createdAt','created'], prevStart, prevEnd);
+            renderTrend('trend_total', totalRecent, totalPrev, 'vs prior 7d');
+
+            // Pending: from requests set (created_at)
+            const pendingRecent = countInRange(__requestsData, ['created_at','createdAt','created'], recentStart, recentEnd);
+            const pendingPrev = countInRange(__requestsData, ['created_at','createdAt','created'], prevStart, prevEnd);
+            renderTrend('trend_pending', pendingRecent, pendingPrev, 'vs prior 7d');
+
+            // Approved: use reviewed_at or reviewedAt in history
+            const approvedRecent = countInRange(__historyData.filter(h => h.status === 'approved'), ['reviewed_at','reviewedAt','updated_at'], recentStart, recentEnd);
+            const approvedPrev = countInRange(__historyData.filter(h => h.status === 'approved'), ['reviewed_at','reviewedAt','updated_at'], prevStart, prevEnd);
+            renderTrend('trend_approved', approvedRecent, approvedPrev, 'vs prior 7d');
+
+            // Rejected: history where status != approved
+            const rejectedRecent = countInRange(__historyData.filter(h => h.status !== 'approved'), ['reviewed_at','reviewedAt','updated_at'], recentStart, recentEnd);
+            const rejectedPrev = countInRange(__historyData.filter(h => h.status !== 'approved'), ['reviewed_at','reviewedAt','updated_at'], prevStart, prevEnd);
+            renderTrend('trend_rejected', rejectedRecent, rejectedPrev, 'vs prior 7d');
+
+            // Today: compare today vs yesterday (use created_at)
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const todayEnd = new Date(todayStart.getTime() + MS_DAY - 1);
+            const yesterdayStart = new Date(todayStart.getTime() - MS_DAY);
+            const yesterdayEnd = new Date(todayStart.getTime() - 1);
+            const todayCount = countInRange(__requestsData.concat(__historyData), ['created_at','createdAt','created'], todayStart, todayEnd);
+            const yesterdayCount = countInRange(__requestsData.concat(__historyData), ['created_at','createdAt','created'], yesterdayStart, yesterdayEnd);
+            renderTrend('trend_today', todayCount, yesterdayCount, 'vs yesterday');
+
+        } catch (err) {
+            console.error('Trend compute error', err);
+        }
+    }
+
+    // Initial render with defaults
+    computeAndRenderTrends();
+
+    // Helper to compute trends for a full calendar year
+    function computeAndRenderTrendsByYear(year){
+        if (!year) { computeAndRenderTrends(); return; }
+        const from = new Date(year, 0, 1).toISOString().slice(0,10);
+        const to = new Date(year, 11, 31).toISOString().slice(0,10);
+        computeAndRenderTrends(from, to);
+    }
+        // --- TAB SWITCHING LOGIC (hash-based, matches sidebar) ---
+        function showTab(tabId) {
+            // Hide all content sections
+            document.querySelectorAll('.tab-content-section').forEach(el => { el.style.display = 'none'; });
+            const target = document.getElementById(tabId);
+            if (target) target.style.display = '';
+            // Update active state in sidebar
+            document.querySelectorAll('#drawerTabs a').forEach(a => {
+                const href = a.getAttribute('href');
+                if (href && href.startsWith('#')) {
+                    if (href === `#${tabId}`) a.classList.add('active'); else a.classList.remove('active');
+                }
+            });
+            // Sync URL hash
+            if (location.hash !== `#${tabId}`) history.replaceState(null, '', `#${tabId}`);
+        }
+
+        // Initialize from hash or default to dashboard
+        (function initTabs(){
+            const hash = location.hash?.replace('#','') || 'dashboardHome';
+            showTab(hash);
+            // Bind clicks for in-page links in sidebar
+            document.querySelectorAll('#drawerTabs a[href^="#"]').forEach(a => {
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const id = a.getAttribute('href').slice(1);
+                    showTab(id);
+                });
+            });
+            // Respond to back/forward
+            window.addEventListener('hashchange', () => {
+                const h = location.hash.replace('#','');
+                if (h) showTab(h);
+            });
+        })();
+
+    // --- Enrollment table filtering UI ---
+    (function initEnrollmentFilters(){
+        try {
+            const tableBody = document.getElementById('enrollmentTableBody');
+            if (!tableBody) return;
+
+            const rows = Array.from(tableBody.querySelectorAll('tr'));
+            const sySelect = document.getElementById('filterSY');
+            const gradeSelect = document.getElementById('filterGrade');
+            const searchInput = document.getElementById('filterSearch');
+            const searchBtn = document.getElementById('filterSearchBtn');
+            const clearBtn = document.getElementById('filterClearBtn');
+
+            const years = new Set();
+            const grades = new Set();
+
+            rows.forEach(r => {
+                const sy = (r.dataset.schoolYear || '').toString();
+                const g = (r.dataset.grade || '').toString();
+                if (sy) years.add(sy);
+                if (g) grades.add(g);
+            });
+
+            Array.from(years).sort().forEach(y => {
+                const o = document.createElement('option'); o.value = y; o.textContent = y; sySelect.appendChild(o);
+            });
+            Array.from(grades).sort().forEach(g => {
+                const o = document.createElement('option'); o.value = g; o.textContent = g; gradeSelect.appendChild(o);
+            });
+
+            function applyFilters() {
+                const sy = (sySelect.value || '').toString();
+                const grade = (gradeSelect.value || '').toString();
+                const term = (searchInput.value || '').toString().trim().toLowerCase();
+
+                rows.forEach(r => {
+                    // skip template/no-data row which may not have dataset
+                    const rsy = (r.dataset.schoolYear||'').toString();
+                    const rgrade = (r.dataset.grade||'').toString();
+                    const rlearner = (r.dataset.learner||'').toString();
+                    const rlrn = (r.dataset.lrn||'').toString();
+
+                    let visible = true;
+                    if (sy && rsy !== sy) visible = false;
+                    if (grade && rgrade !== grade) visible = false;
+                    if (term) {
+                        if (!(rlrn.includes(term) || rlearner.includes(term))) visible = false;
+                    }
+
+                    r.style.display = visible ? '' : 'none';
+                });
+            }
+
+            sySelect.addEventListener('change', applyFilters);
+            gradeSelect.addEventListener('change', applyFilters);
+            searchBtn.addEventListener('click', (e) => { e.preventDefault(); applyFilters(); });
+            searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applyFilters(); } });
+            clearBtn.addEventListener('click', (e) => { e.preventDefault(); sySelect.value=''; gradeSelect.value=''; searchInput.value=''; applyFilters(); });
+        } catch (err) { console.warn('Enrollment filter init failed', err); }
+    })();
+
+    // --- History table filtering UI ---
+    (function initHistoryFilters(){
+        try {
+            const table = document.querySelector('#historyArchive table.table');
+            if (!table) return;
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const gradeSelect = document.getElementById('historyFilterGrade');
+            const searchInput = document.getElementById('historyFilterSearch');
+            const searchBtn = document.getElementById('historyFilterSearchBtn');
+            const clearBtn = document.getElementById('historyFilterClearBtn');
+
+            const grades = new Set();
+            rows.forEach(r => { const g = (r.dataset.grade||'').toString(); if (g) grades.add(g); });
+            Array.from(grades).sort().forEach(g => { const o = document.createElement('option'); o.value=g; o.textContent=g; gradeSelect.appendChild(o); });
+
+            function applyHistoryFilters(){
+                const grade = (gradeSelect.value||'').toString();
+                const term = (searchInput.value||'').toString().trim().toLowerCase();
+                rows.forEach(r => {
+                    const rgrade = (r.dataset.grade||'').toString();
+                    const rlearner = (r.dataset.learner||'').toString();
+                    const rtoken = (r.dataset.token||'').toString();
+                    const rlrn = (r.dataset.lrn||'').toString();
+                    let visible = true;
+                    if (grade && rgrade !== grade) visible = false;
+                    if (term) {
+                        if (!(rlearner.includes(term) || rtoken.includes(term) || rlrn.includes(term))) visible = false;
+                    }
+                    r.style.display = visible ? '' : 'none';
+                });
+            }
+
+            gradeSelect.addEventListener('change', applyHistoryFilters);
+            searchBtn.addEventListener('click', (e)=>{ e.preventDefault(); applyHistoryFilters(); });
+            searchInput.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') { e.preventDefault(); applyHistoryFilters(); } });
+            clearBtn.addEventListener('click', (e)=>{ e.preventDefault(); gradeSelect.value=''; searchInput.value=''; applyHistoryFilters(); });
+        } catch (err) { console.warn('History filter init failed', err); }
+    })();
+
+    // --- FORM SUBMISSION LOGIC (for the current tab) ---
+    document.getElementById('enrollmentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const form = e.target;
+
+        // Clear previous validation state
+        function clearValidation() {
+            form.querySelectorAll('.validation-error').forEach(el => el.classList.remove('validation-error'));
+            form.querySelectorAll('.validation-message').forEach(m => m.remove());
+            const alert = document.getElementById('formAlert');
+            if (alert) { alert.classList.add('d-none'); alert.innerHTML = ''; }
+        }
+
+        clearValidation();
+
+        // Fields to validate: selector and friendly name
+        const requiredFields = [
+            { selector: '[name="gmail"]', name: 'Gmail Address' },
+            { selector: '[name="schoolYear"]', name: 'School Year' },
+            { selector: '[name="gradeLevel"]', name: 'Grade Level' },
+            { selector: '[name="lastName"]', name: 'Last Name' },
+            { selector: '[name="givenName"]', name: 'First Name' },
+            { selector: '[name="birthday"]', name: 'Birthday' },
+            { selector: '[name="age"]', name: 'Age' },
+            { selector: '[name="sex"]', name: 'Sex' },
+            { selector: '[name="address"]', name: 'Current Address' },
+            { selector: '[name="printedName"]', name: 'Printed Name' },
+            { selector: '[name="date"]', name: 'Date' }
+        ];
+
+        const missing = [];
+        requiredFields.forEach(f => {
+            const el = form.querySelector(f.selector);
+            if (!el) return; // skip if element not present
+            const val = (el.type === 'checkbox' || el.type === 'radio') ? (el.checked ? el.value : '') : (el.value || '').toString().trim();
+            if (!val) {
+                missing.push(f.name);
+                el.classList.add('validation-error');
+                // insert message
+                const msg = document.createElement('div');
+                msg.className = 'validation-message text-danger small';
+                msg.textContent = f.name + ' is required.';
+                if (el.parentNode) el.parentNode.insertBefore(msg, el.nextSibling);
+            }
+        });
+
+        if (missing.length > 0) {
+            const alert = document.getElementById('formAlert');
+            if (alert) {
+                alert.innerHTML = '<strong>Please fix the following fields:</strong><ul style="margin-bottom:0; margin-top:.5rem">' + missing.map(m => '<li>' + m + '</li>').join('') + '</ul>';
+                alert.classList.remove('d-none');
+            } else {
+                alert('Missing required fields: ' + missing.join(', '));
+            }
+            // focus first invalid
+            const firstInvalid = form.querySelector('.validation-error');
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalid.focus({ preventScroll: true });
+            }
+            return; // stop submission
+        }
+
+        // Passed validation - prepare and submit
+        const formData = new FormData(form);
+        // Add signature canvas data if exists
+        const signatureCanvas = document.getElementById('signaturePad');
+        if (signatureCanvas) {
+            const signatureDataURL = signatureCanvas.toDataURL();
+            if (signatureDataURL && signatureDataURL !== 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==') {
+                formData.append('signatureData', signatureDataURL);
+            }
+        }
+
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn ? submitBtn.textContent : '';
+        if (submitBtn) { submitBtn.textContent = 'Adding...'; submitBtn.disabled = true; }
+
+        // Submit to server
+        fetch('/add-registration', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // show a non-blocking pop-out toast if available, otherwise fall back to the in-page alert
+                try {
+                    showToast(data.message || 'Registration added successfully!', 'success');
+                } catch (e) {
+                    const a = document.getElementById('formAlert');
+                    if (a) { a.className = 'alert alert-success'; a.textContent = 'Registration added successfully! Redirecting...'; a.classList.remove('d-none'); }
+                }
+                setTimeout(() => window.location.reload(), 900);
+            } else {
+                try { showToast('Error: ' + (data.message || 'Failed to add registration'), 'error'); } catch (e) {
+                    const a = document.getElementById('formAlert');
+                    if (a) { a.className = 'alert alert-danger'; a.textContent = 'Error: ' + (data.message || 'Failed to add registration'); a.classList.remove('d-none'); }
+                    else {
+                        // Create a temporary in-page alert instead of a blocking alert()
+                        try {
+                            const form = document.getElementById('enrollmentForm') || document.querySelector('form');
+                            const temp = document.createElement('div');
+                            temp.className = 'alert alert-danger';
+                            temp.textContent = 'Error: ' + (data.message || 'Failed to add registration');
+                            temp.style.marginBottom = '1rem';
+                            if (form && form.parentNode) form.parentNode.insertBefore(temp, form);
+                            else document.body.insertBefore(temp, document.body.firstChild);
+                            setTimeout(() => { try { temp.remove(); } catch(_){} }, 6000);
+                        } catch(_) {
+                            console.error('Registration error:', data.message || 'Failed to add registration');
+                        }
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const a = document.getElementById('formAlert');
+            if (a) { a.className = 'alert alert-danger'; a.textContent = 'An error occurred while adding the registration.'; a.classList.remove('d-none'); }
+            else alert('An error occurred while adding the registration.');
+        })
+        .finally(() => {
+            // Reset button state
+            if (submitBtn) { submitBtn.textContent = originalText; submitBtn.disabled = false; }
+        });
+    });
+
+    // View registration function
+    function viewRegistration(id) {
+        alert('View functionality will be implemented soon for registration ID: ' + id);
+    }
+
+    // --- Signature Pad Logic ---
+    const canvas = document.getElementById('signaturePad');
+    let ctx = null;
+    let drawing = false;
+    if (canvas) {
+        ctx = canvas.getContext('2d');
+        canvas.addEventListener('mousedown', function(e) {
+            drawing = true;
+            if (ctx) { ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); }
+        });
+        canvas.addEventListener('mousemove', function(e) {
+            if (drawing && ctx) {
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.strokeStyle = "#dc2626";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        });
+        canvas.addEventListener('mouseup', function() { drawing = false; });
+        canvas.addEventListener('mouseleave', function() { drawing = false; });
+    }
+
+    function clearSignaturePad() {
+        if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // --- Modal Signature Pad Logic ---
+    const maximizeBtn = document.getElementById('maximizeSignaturePad');
+    const modalElement = document.getElementById('signaturePadModal');
+    const modalCanvas = document.getElementById('signaturePadModalCanvas');
+    let modalCtx = null;
+    let modalDrawing = false;
+    let signatureModal = null;
+
+    if (modalCanvas) {
+        modalCtx = modalCanvas.getContext('2d');
+    }
+    if (modalElement && typeof bootstrap !== 'undefined') {
+        try { signatureModal = new bootstrap.Modal(modalElement); } catch (e) { signatureModal = null; }
+    }
+
+    // Copy signature from main canvas to modal canvas
+    if (maximizeBtn && modalCtx && canvas && signatureModal) {
+        maximizeBtn.addEventListener('click', function() {
+            modalCtx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+            const dataURL = canvas.toDataURL();
+            const img = new window.Image();
+            img.onload = function() {
+                modalCtx.drawImage(img, 0, 0, modalCanvas.width, modalCanvas.height);
+            };
+            img.src = dataURL;
+            signatureModal.show();
+        });
+    }
+
+    // Modal drawing events
+    if (modalCanvas && modalCtx) {
+        modalCanvas.addEventListener('mousedown', function(e) {
+            modalDrawing = true;
+            if (modalCtx) { modalCtx.beginPath(); modalCtx.moveTo(e.offsetX, e.offsetY); }
+        });
+        modalCanvas.addEventListener('mousemove', function(e) {
+            if (modalDrawing && modalCtx) {
+                modalCtx.lineTo(e.offsetX, e.offsetY);
+                modalCtx.strokeStyle = "#dc2626";
+                modalCtx.lineWidth = 2;
+                modalCtx.stroke();
+            }
+        });
+        modalCanvas.addEventListener('mouseup', function() { modalDrawing = false; });
+        modalCanvas.addEventListener('mouseleave', function() { modalDrawing = false; });
+    }
+
+    function clearModalSignaturePad() {
+        if (modalCtx && modalCanvas) modalCtx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+    }
+
+    // Copy signature from modal canvas to main canvas
+    const doneModalBtn = document.getElementById('doneModalSignaturePad');
+    if (doneModalBtn && modalCanvas && canvas && ctx && signatureModal) {
+        doneModalBtn.addEventListener('click', function() {
+            const dataURL = modalCanvas.toDataURL();
+            const img = new window.Image();
+            img.onload = function() {
+                if (ctx && canvas) { ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.drawImage(img, 0, 0, canvas.width, canvas.height); }
+            };
+            img.src = dataURL;
+            signatureModal.hide();
+        });
+    }
+
+    const clearModalBtn = document.getElementById('clearModalSignaturePad');
+    if (clearModalBtn) clearModalBtn.addEventListener('click', clearModalSignaturePad);
+
+    // Close modal button
+    const closeModalBtn = document.getElementById('closeSignaturePadModal');
+    if (closeModalBtn && signatureModal) {
+        closeModalBtn.addEventListener('click', function() { signatureModal.hide(); });
+    }
+
+    // --- LOGOUT CONFIRMATION LOGIC ---
+    function confirmLogout() {
+        const logoutModal = new bootstrap.Modal(document.getElementById('logoutConfirmModal'));
+        logoutModal.show();
+    }
+
+    function proceedLogout() {
+        window.location.href = '/logout-registrar';
+    }
+
+    // Enrollment request functions
+    const fillDetailsModal = new bootstrap.Modal(document.getElementById('fillDetailsModal'));
+
+    function openFillDetails(requestId) {
+        // Reset form
+        document.getElementById('fillDetailsForm').reset();
+        document.getElementById('fillRequestId').value = requestId;
+        // Load data
+        fetch(`/api/enrollment-request/${requestId}`)
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) throw new Error(data.error || 'Failed to load request');
+                const req = data.request;
+                
+                // Read-only Request Info
+                document.getElementById('view_request_token').textContent = req.request_token || '-';
+                document.getElementById('view_gmail_address').textContent = req.gmail_address || '-';
+                if (req.created_at) {
+                    document.getElementById('view_created_at').textContent = new Date(req.created_at).toLocaleString('en-PH', {
+                        year: 'numeric', month: 'long', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila'
+                    });
+                } else {
+                    document.getElementById('view_created_at').textContent = '-';
+                }
+
+                // Read-only Learner Info
+                document.getElementById('view_school_year').textContent = req.school_year || '-';
+                document.getElementById('view_grade_level').textContent = req.grade_level || '-';
+                document.getElementById('view_lrn').textContent = req.lrn || 'N/A';
+                document.getElementById('view_last_name').textContent = req.last_name || '-';
+                document.getElementById('view_first_name').textContent = req.first_name || '-';
+                document.getElementById('view_middle_name').textContent = req.middle_name || '-';
+                document.getElementById('view_ext_name').textContent = req.ext_name || '-';
+                if (req.birthday) {
+                    document.getElementById('view_birthday').textContent = new Date(req.birthday).toLocaleDateString('en-PH', {
+                        year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Asia/Manila'
+                    });
+                } else {
+                    document.getElementById('view_birthday').textContent = '-';
+                }
+                document.getElementById('view_age').textContent = req.age || '-';
+                document.getElementById('view_sex').textContent = req.sex || '-';
+                document.getElementById('view_printed_name').textContent = req.printed_name || '-';
+
+                // Editable fields
+                document.getElementById('father_name').value = req.father_name || '';
+                document.getElementById('mother_name').value = req.mother_name || '';
+                document.getElementById('guardian_name').value = req.guardian_name || '';
+                document.getElementById('contact_number').value = req.contact_number || '';
+                document.getElementById('current_address').value = req.current_address || '';
+                document.getElementById('religion_fill').value = req.religion || '';
+                document.getElementById('ip_community').value = req.ip_community || '';
+                document.getElementById('ip_community_specify').value = req.ip_community_specify || '';
+                document.getElementById('pwd_fill').value = req.pwd || '';
+                document.getElementById('pwd_specify').value = req.pwd_specify || '';
+
+                // Signature preview
+                if (req.signature_image_path) {
+                    document.getElementById('signature_preview').src = req.signature_image_path;
+                    document.getElementById('signature_preview_container').style.display = 'block';
+                    document.getElementById('signature_no_preview').style.display = 'none';
+                } else {
+                    document.getElementById('signature_preview_container').style.display = 'none';
+                    document.getElementById('signature_no_preview').style.display = 'block';
+                }
+
+                fillDetailsModal.show();
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Unable to load request details.');
+            });
+    }
+
+    document.getElementById('saveFillDetails').addEventListener('click', function() {
+        const requestId = document.getElementById('fillRequestId').value;
+        const payload = {
+            father_name: document.getElementById('father_name').value.trim(),
+            mother_name: document.getElementById('mother_name').value.trim(),
+            guardian_name: document.getElementById('guardian_name').value.trim(),
+            contact_number: document.getElementById('contact_number').value.trim(),
+            current_address: document.getElementById('current_address').value.trim(),
+            religion: document.getElementById('religion_fill').value.trim(),
+            ip_community: document.getElementById('ip_community').value,
+            ip_community_specify: document.getElementById('ip_community_specify').value.trim(),
+            pwd: document.getElementById('pwd_fill').value,
+            pwd_specify: document.getElementById('pwd_specify').value.trim()
+        };
+        fetch(`/update-request/${requestId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                alert('Details saved.');
+                fillDetailsModal.hide();
+                location.reload();
+            } else {
+                alert('Error: ' + (data.message || 'Failed to save changes'));
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('An error occurred while saving changes.');
+        });
+    });
+    function approveRequest(requestId) {
+        if (confirm('Are you sure you want to approve this registration request?')) {
+            fetch(`/approve-request/${requestId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Registration request approved successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to approve request'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while approving the request');
+            });
+        }
+    }
+
+    function rejectRequest(requestId) {
+        const reason = prompt('Please provide a reason for rejection:');
+        if (reason && reason.trim() !== '') {
+            fetch(`/reject-request/${requestId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reason: reason.trim() })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Registration request rejected');
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to reject request'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while rejecting the request');
+            });
+        } else if (reason !== null) {
+            alert('Rejection reason is required');
+        }
+    }
+    // Expose functions globally so inline `onclick` handlers in the table can call them
+    // (The script runs inside an IIFE; assign to window explicitly.)
+    try {
+        window.openFillDetails = openFillDetails;
+        window.approveRequest = approveRequest;
+        window.rejectRequest = rejectRequest;
+        window.viewRegistration = viewRegistration;
+    } catch (e) {
+        // ignore if window not available (very unlikely in browser)
+    }
+}catch(err){console.error('Registrar dashboard script error:', err);} })();</script>
+    <script src="/js/toast.js"></script>
+</body>
+</html>

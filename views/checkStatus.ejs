@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Check Enrollment Status</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #f8f9fa; }
+    .status-card { background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 2rem; max-width: 720px; margin: 5vh auto; }
+    .status-badge { font-size: 1rem; padding: 0.35rem 1rem; border-radius: 50rem; }
+    .pending { background-color: #ffc107; color: #000; }
+    .approved { background-color: #28a745; color: #fff; }
+    .rejected { background-color: #dc3545; color: #fff; }
+    .token-row { display:flex; align-items:center; gap:.5rem; }
+    .token-box { font-weight:700; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; background:#f8f9fa; border:1px solid #e9ecef; border-radius:.5rem; padding:.3rem .5rem; }
+    .copy-btn { --bs-btn-padding-y: .25rem; --bs-btn-padding-x: .6rem; --bs-btn-font-size: .875rem; }
+  </style>
+  <!-- http://localhost:3000/check-status/:token -->
+  <!-- http://localhost:3000/check-status -->
+</head>
+<body>
+  <div class="container">
+    <div class="status-card">
+      <% if (error) { %>
+        <div class="alert alert-danger"><%= error %></div>
+        <div class="text-center mt-3">
+          <a href="/check-status" class="btn btn-primary">Back to Status Lookup</a>
+          <a href="/enrollment.html" class="btn btn-link">Go to Enrollment</a>
+        </div>
+      <% } else { %>
+        <h2 class="mb-3">Enrollment Status</h2>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <div class="text-muted small">Token</div>
+            <div class="token-row">
+              <code id="statusToken" class="token-box"><%= request.request_token %></code>
+              <button id="copyTokenBtn" class="btn btn-outline-secondary btn-sm copy-btn" type="button" title="Copy token">Copy</button>
+            </div>
+          </div>
+          <div>
+            <span class="status-badge <%= request.status %>"><%= request.status.toUpperCase() %></span>
+          </div>
+        </div>
+
+        <div class="alert alert-info py-2" role="alert">
+          <strong>Reminder:</strong> Save your token. You’ll need it to check your enrollment status later.
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <div class="text-muted small">Learner Name</div>
+            <div class="fw-semibold"><%= request.learner_name %></div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-muted small">Grade Level</div>
+            <div class="fw-semibold"><%= request.grade_level %></div>
+          </div>
+          <div class="col-md-3">
+            <div class="text-muted small">Email</div>
+            <div class="fw-semibold"><%= request.gmail_address %></div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <div class="text-muted small">Submitted On</div>
+          <div class="fw-semibold"><%= new Date(request.created_at).toLocaleString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila' }) %></div>
+        </div>
+
+        <% if (request.status === 'approved') { %>
+          <div class="alert alert-success">
+            <strong>Approved!</strong> Your enrollment has been approved.
+            <% if (request.reviewed_at) { %>
+              <br><small>Approved on: <%= new Date(request.reviewed_at).toLocaleString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila' }) %></small>
+            <% } %>
+          </div>
+        <% } else if (request.status === 'rejected') { %>
+          <div class="alert alert-danger">
+            <strong>Rejected.</strong>
+            <% if (request.rejection_reason) { %>
+              <br>Reason: <%= request.rejection_reason %>
+            <% } %>
+            <% if (request.reviewed_at) { %>
+              <br><small>Reviewed on: <%= new Date(request.reviewed_at).toLocaleString('en-PH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Manila' }) %></small>
+            <% } %>
+          </div>
+        <% } else { %>
+          <div class="alert alert-warning">
+            <strong>Pending.</strong> Your request is still under review.
+          </div>
+        <% } %>
+
+        <div class="text-center mt-4">
+          <a href="/check-status" class="btn btn-outline-primary">Check another token</a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const btn = document.getElementById('copyTokenBtn');
+      const el = document.getElementById('statusToken');
+      if (btn && el) {
+        btn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(el.textContent.trim());
+            const old = btn.textContent; btn.textContent = 'Copied!';
+            btn.classList.remove('btn-outline-secondary');
+            btn.classList.add('btn-success');
+            setTimeout(() => { btn.textContent = old; btn.classList.add('btn-outline-secondary'); btn.classList.remove('btn-success'); }, 1200);
+          } catch (e) {
+            // Fallback for older browsers
+            const range = document.createRange();
+            range.selectNode(el);
+            const sel = window.getSelection();
+            sel.removeAllRanges(); sel.addRange(range);
+            document.execCommand('copy');
+            sel.removeAllRanges();
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

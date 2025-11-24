@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guidance Analytics</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/guidance.css">
+  <style>
+    body { background:#ffffff; color:#222; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 250px; background: #dc2626; color: #fff; padding: 22px 20px 20px; box-shadow: 2px 0 14px rgba(0,0,0,0.12); display: flex; flex-direction: column; gap: 18px; }
+    .sidebar .brand { display: flex; align-items: center; gap: 12px; }
+    .sidebar .brand img { width: 46px; height: 46px; border-radius: 50%; background: #fff; padding: 6px; }
+  .sidebar .school-name-text { font-size: 16px; font-weight: 700; line-height: 1.2; color:#ffffff; }
+    .sidebar .nav { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+    .sidebar .nav a { color: #fff; text-decoration: none; padding: 11px 14px; border-radius: 10px; background: rgba(255,255,255,0.10); font-weight: 600; letter-spacing: .3px; transition: background .18s, transform .18s; }
+    .sidebar .nav a:hover { background: rgba(255,255,255,0.22); transform: translateX(3px); }
+    .sidebar .nav a.active { background: #fff; color: #dc2626; font-weight: 700; }
+    .sidebar .spacer { flex: 1; }
+    .sidebar .logout-btn { display: inline-block; color: #fff; text-decoration: none; padding: 12px 14px; border-radius: 10px; background: #b91c1c; font-weight: 700; text-align: center; transition: background .18s; }
+    .sidebar .logout-btn:hover { background: #991b1b; }
+    main { max-width: 1200px; margin: 40px 24px 40px 290px; }
+    .page-wrap { background: #fff; border-radius: 18px; box-shadow: 0 6px 24px rgba(0,0,0,0.08); padding: 24px; border:1px solid #f1f1f1; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 24px; align-items: stretch; }
+  .card { background:linear-gradient(180deg, #ffffff 0%, #fff7f7 100%); border:1px solid #ececec; border-radius:16px; padding:18px 18px 18px 16px; min-height:120px; position:relative; box-shadow:0 2px 10px rgba(0,0,0,0.04); transition: box-shadow .22s, transform .22s; }
+  .card::before { content:""; position:absolute; left:0; top:0; bottom:0; width:5px; background:#dc2626; border-top-left-radius:16px; border-bottom-left-radius:16px; }
+  .card:hover { box-shadow:0 10px 26px rgba(0,0,0,0.12); transform:translateY(-2px); z-index:2; }
+  .stat { display:flex; align-items:center; gap:14px; }
+  .stat-icon { width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; background:#fee2e2; color:#dc2626; flex:0 0 48px; transition: transform .22s; }
+  .card:hover .stat-icon { transform: scale(1.06); }
+  .stat-body h3 { line-height:1.25; margin:0 0 6px 0; font-weight:700; color:#333; font-size:15px; }
+  .stat-value { font-size:30px; font-weight:800; color:#dc2626; }
+    .card h3 { margin: 0 0 8px; font-size: 16px; color:#333; }
+    .big { font-size: 28px; font-weight: 700; color:#dc2626; }
+    .filters { display:flex; gap:10px; flex-wrap:wrap; margin: 16px 0; }
+    .filters input, .filters select { padding:10px 12px; border:1px solid #ddd; border-radius:8px; }
+    .btn { padding:10px 14px; border:0; border-radius:10px; background:#dc2626; color:#fff; cursor:pointer; }
+    .btn.secondary { background:#b91c1c; }
+    .btn.danger { background:#ef4444; }
+    table { width:100%; border-collapse: collapse; }
+  th, td { padding:10px 12px; border-bottom:1px solid #eee; font-size:14px; word-break: break-word; overflow-wrap: anywhere; }
+    th { background:#dc2626; text-align:left; color:#fff; }
+    .section { margin-top: 24px; }
+    .inline { display:flex; align-items:center; gap:10px; }
+    .muted { color:#666; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="/pictures/SchoolLogo-removebg-preview.png" alt="School Logo">
+      <span class="school-name-text">Mainaga San Francisco Integrated School</span>
+    </div>
+    <nav class="nav">
+      <a href="/guidance/dashboard">📋 Dashboard</a>
+  <a href="/guidance/document-requests">� Document Requests</a>
+  <a href="/guidance/behavior-analytics">� Behavior Analytics</a>
+        <a href="/guidance/recommendations">💡 Recommendations</a>
+      <a href="/guidance/sent-messages">📋 Sent Messages</a>
+      <a href="/guidance/behavior-archive">📦 Archived Reports</a>
+      <a href="/guidance/analytics" class="active">🔒 Security</a>
+    </nav>
+    <div class="spacer"></div>
+    <a class="logout-btn" href="/guidance/logout">Logout</a>
+  </aside>
+  <main>
+  <div class="page-wrap">
+    <h1>Guidance Security</h1>
+
+    <!-- Stats removed: keeping page minimal (filters + logs). Rate limiting is enforced server-side via middleware. -->
+
+    <div class="section">
+      <h2>Filters</h2>
+      <div class="filters" id="filters">
+        <input type="text" id="filterEmail" placeholder="Filter by Email">
+        <input type="text" id="filterIP" placeholder="Filter by IP">
+        <label class="muted" for="filterDateFrom" style="align-self:center; margin-left:6px;">From</label>
+        <input type="date" id="filterDateFrom" title="Start date" />
+        <label class="muted" for="filterDateTo" style="align-self:center;">To</label>
+        <input type="date" id="filterDateTo" title="End date" />
+        <select id="filterStatus" title="Filter by Status">
+          <option value="">All</option>
+          <option value="success">Success</option>
+          <option value="validation_failed">Validation Failed</option>
+        </select>
+        <button class="btn secondary" id="applyFiltersBtn">Apply</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="inline" style="justify-content: space-between;">
+        <h2>Recent Logs</h2>
+        <div class="inline">
+          <label class="muted">Limit</label>
+          <select id="limitSelect"><option>50</option><option selected>100</option><option>200</option></select>
+          <button class="btn secondary" id="refreshLogsBtn">Refresh</button>
+        </div>
+      </div>
+      <div class="card" style="overflow:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th><th>Status</th><th>Email</th><th>IP</th><th>Type</th><th>Token</th>
+            </tr>
+          </thead>
+          <tbody id="logsTbody">
+            <tr><td colspan="6" class="muted">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+  </div>
+  </main>
+
+  <script>
+    window.ANALYTICS_TYPE = 'document_request';
+  </script>
+  <script src="/views/admin-analytics.js"></script>
+</body>
+</html>

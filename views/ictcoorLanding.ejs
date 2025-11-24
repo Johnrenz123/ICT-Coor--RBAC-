@@ -1,0 +1,3818 @@
+q<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICT Coordinator Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Professional Red and White Theme */
+        :root {
+            --primary-red: #DC2626;
+            --light-red: #FEF2F2;
+            --accent-red: #F87171;
+            --white: #FFFFFF;
+            --gray-50: #F9FAFB;
+            --gray-100: #F3F4F6;
+            --gray-600: #4B5563;
+            --gray-700: #374151;
+            --gray-800: #1F2937;
+            --gray-900: #111827;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        background-color: var(--gray-50);
+        color: var(--gray-900);
+        line-height: 1.6;
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* --- Additional variables used in the stylesheet --- */
+    :root {
+        --dark-red: #B91C1C;
+        --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        --gray-200: #e5e7eb;
+        --success-color: #10B981;
+        --warning-color: #F59E0B;
+    }
+
+    /* --- Professional Sidebar --- */
+    .sidebar {
+        width: 80px;
+        background: linear-gradient(180deg, var(--primary-red) 0%, var(--dark-red) 100%);
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100vh;
+        box-shadow: var(--shadow-lg);
+        z-index: 1000;
+        transition: width 0.3s ease-in-out;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar.expanded {
+        width: 280px;
+    }
+
+    .sidebar-header {
+        padding: 24px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .sidebar-header h2 {
+        color: var(--white);
+        font-size: 16px;
+        font-weight: 700;
+        text-align: center;
+        margin: 0;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        white-space: nowrap;
+        letter-spacing: 0.5px;
+    }
+
+    .sidebar.expanded .sidebar-header h2 {
+        opacity: 1;
+    }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 16px 0;
+            margin: 0;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 4px;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--white);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-radius: 0;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .sidebar-nav a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--white);
+            transform: scaleY(0);
+            transition: transform 0.2s ease;
+        }
+
+        .sidebar-nav a:hover::before,
+        .sidebar-nav a.active::before {
+            transform: scaleY(1);
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: rgba(255, 255, 255, 0.1);
+            padding-left: 24px;
+        }
+
+        .sidebar-nav .icon {
+            font-size: 20px;
+            width: 40px;
+            display: flex;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav .text {
+            margin-left: 12px;
+            font-weight: 500;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .sidebar.expanded .text {
+            opacity: 1;
+        }
+
+        /* --- Professional Main Content --- */
+        .main-content {
+            flex: 1;
+            margin-left: 80px;
+            padding: 0;
+            transition: margin-left 0.3s ease-in-out;
+            min-height: 100vh;
+        }
+
+        .sidebar.expanded ~ .main-content {
+            margin-left: 280px;
+        }
+
+        .header {
+            background: var(--white);
+            padding: 24px 32px;
+            box-shadow: var(--shadow-sm);
+            border-bottom: 1px solid var(--gray-200);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--gray-900);
+            display: flex;
+            align-items: center;
+        }
+
+        .school-logo {
+            height: 40px;
+            width: 40px;
+            margin-right: 12px;
+            border-radius: 50%;
+            object-fit: contain;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header h1::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--primary-red);
+            margin-right: 12px;
+        }
+
+        .menu-toggle {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 8px;
+            border: none;
+            background: none;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            background: var(--gray-100);
+            border-radius: 4px;
+        }
+
+        .menu-line {
+            width: 24px;
+            height: 3px;
+            background: var(--gray-700);
+            margin: 2px 0;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .menu-toggle.active .menu-line:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .menu-toggle.active .menu-line:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active .menu-line:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        .content-area {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+        
+        /* New Styles for different content sections */
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+
+        /* --- Professional Dashboard Cards --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-100);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-red) 0%, var(--accent-red) 100%);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--light-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--primary-red);
+        }
+
+        .stat-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray-600);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 8px 0 0 0;
+            line-height: 1;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .stat-change.positive {
+            color: #059669;
+        }
+
+        .stat-change.negative {
+            color: #DC2626;
+        }
+
+        /* --- Professional Table Section --- */
+        .section-overview {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-100);
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--gray-200);
+            background: var(--gray-50);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: var(--primary-red);
+            margin-right: 12px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th {
+            background: var(--gray-50);
+            padding: 16px 24px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .data-table td {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--gray-100);
+            color: var(--gray-900);
+        }
+
+        .data-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--gray-50);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+        .table-actions button { margin-right: 0; }
+
+        /* Compact, neutral action buttons (no red) */
+        .action-btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid var(--gray-200);
+            background: #f8fafc; /* light neutral */
+            color: #111827;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .action-btn .fas { margin-right: 6px; }
+        .action-btn:hover:not(:disabled) { background: #eef2f7; border-color: var(--gray-300); }
+        .action-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .action-btn.action-view { background: #eef2ff; color: #3949ab; border-color: #c7d2fe; }
+        .action-btn.action-view:hover:not(:disabled) { background: #e0e7ff; }
+
+    .action-btn.action-edit { background: #e8f5e9; color: #2e7d32; border-color: #c8e6c9; }
+    .action-btn.action-edit:hover:not(:disabled) { background: #dcedc8; }
+
+    /* Assign (Teacher Adviser) */
+    .action-btn.action-assign { background: #7c3aed; color: #ffffff; border-color: #c4b5fd; }
+    .action-btn.action-assign:hover:not(:disabled) { background: #6d28d9; }
+    .action-btn.action-reassign { background: #0ea5e9; color: #ffffff; border-color: #bae6fd; }
+    .action-btn.action-reassign:hover:not(:disabled) { background: #0284c7; }
+
+        .action-btn.action-toggle { background: #f5f5f5; color: #424242; border-color: #e0e0e0; }
+        .action-btn.action-toggle:hover:not(:disabled) { background: #eeeeee; }
+
+        .action-btn.action-delete { background: #fff8e1; color: #ef6c00; border-color: #ffe0b2; }
+        .action-btn.action-delete:hover:not(:disabled) { background: #ffecb3; }
+
+        /* --- Gender Distribution Indicators --- */
+        .gender-distribution {
+            display: flex;
+            gap: 8px;
+        }
+
+        .gender-bar {
+            height: 4px;
+            border-radius: 2px;
+            flex-grow: 1;
+        }
+
+        .male-bar {
+            background: var(--primary-red);
+        }
+
+        .female-bar {
+            background: var(--accent-red);
+        }
+
+        /* --- Modal Styles --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            margin: 15% auto;
+            padding: 32px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: var(--shadow-xl);
+            text-align: center;
+            animation: modalSlideIn 0.3s ease;
+            position: relative;
+        }
+        
+        .modal-content.form {
+            text-align: left;
+        }
+        
+        .modal-content.form input,
+        .modal-content.form select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            margin-top: 8px;
+            margin-bottom: 16px;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Center the teacher modal vertically when opened */
+        #teacherModal {
+            align-items: center;
+            justify-content: center;
+        }
+
+        #teacherModal .modal-content {
+            margin: 20px auto;
+        }
+
+        /* Center the teacher VIEW modal vertically when opened */
+        #teacherViewModal {
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Professional details grid for view modal */
+        .teacher-details-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .teacher-fullname {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #e8fff1;
+            color: #0f8a4b;
+            border: 1px solid #b6f0cf;
+        }
+
+        .status-inactive {
+            background: #fff1f0;
+            color: #b32025;
+            border: 1px solid #f5c2c0;
+        }
+
+        .teacher-details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px 20px;
+        }
+
+        .detail-item {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+
+        .detail-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            color: var(--gray-900);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .teacher-details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin: 0 0 16px 0;
+        }
+
+        .modal-message {
+            font-size: 16px;
+            color: var(--gray-600);
+            margin-bottom: 24px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cancel {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .btn-cancel:hover {
+            background: var(--gray-200);
+        }
+
+        .btn-confirm {
+            background: var(--primary-red);
+            color: var(--white);
+        }
+
+        .btn-confirm:hover {
+            background: var(--dark-red);
+        }
+        
+        /* Close (X) button for modals */
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            font-size: 22px;
+            line-height: 1;
+            color: var(--gray-600);
+            cursor: pointer;
+        }
+        .modal-close:hover { color: var(--gray-900); }
+        
+        .btn-edit {
+            background: #2563EB;
+            color: var(--white);
+        }
+        
+        .btn-delete {
+            background: var(--dark-red);
+            color: var(--white);
+        }
+        
+        .btn-add-account {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            background: var(--primary-red);
+            color: var(--white);
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar.expanded ~ .main-content {
+                margin-left: 0;
+            }
+
+            .content-area {
+                padding: 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 12px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>ICT System</h2>
+        </div>
+        <ul class="sidebar-nav">
+            <li>
+                <a href="#" id="dashboard-link" data-content-id="dashboard-content" class="active">
+                    <span class="icon"><i class="fas fa-chart-pie"></i></span>
+                    <span class="text">Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="teachers-link" data-content-id="teachers-content">
+                    <span class="icon"><i class="fas fa-chalkboard-teacher"></i></span>
+                    <span class="text">Teachers</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="students-link" data-content-id="students-content">
+                    <span class="icon"><i class="fas fa-user-graduate"></i></span>
+                    <span class="text">Students</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="unassigned-link" data-content-id="unassigned-content">
+                    <span class="icon"><i class="fas fa-user-clock"></i></span>
+                    <span class="text">Unassigned Students</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="sections-link" data-content-id="sections-content">
+                    <span class="icon"><i class="fas fa-users"></i></span>
+                    <span class="text">Sections</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="#" id="settings-link" data-content-id="settings-content">
+                    <span class="icon"><i class="fas fa-cog"></i></span>
+                    <span class="text">Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="logout-link" onclick="confirmLogout(event)">
+                    <span class="icon"><i class="fas fa-sign-out-alt"></i></span>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    
+
+    <div class="main-content">
+        <header class="header">
+            <div class="header-content">
+                <button class="menu-toggle" onclick="toggleSidebar()">
+                    <div class="menu-line"></div>
+                    <div class="menu-line"></div>
+                    <div class="menu-line"></div>
+                </button>
+                <h1>
+                    <img src="pictures/SchoolLogo-removebg-preview.png" alt="School Logo" class="school-logo" />
+                    <span id="page-title">ICT Coordinator Dashboard</span>
+                </h1>
+            </div>
+        </header>
+
+        <div class="content-area">
+            <!-- Dashboard Content Section -->
+            <div id="dashboard-content" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <h3 class="stat-title">Total Teachers</h3>
+                                <div class="stat-value" id="total-teachers">0</div>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                        </div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span style="margin-left: 4px;">+5% from last month</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <h3 class="stat-title">Total Students</h3>
+                                <div class="stat-value" id="total-students">0</div>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                        </div>
+                        <div class="stat-change" id="students-delta" style="display:none"></div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <h3 class="stat-title">Avg. Class Size</h3>
+                                <div class="stat-value" id="avg-class-size">0</div>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                        </div>
+                        <div class="stat-change" id="avgclass-delta" style="display:none"></div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="stats-grid" style="margin-top: 16px; grid-template-columns: 2fr 1fr; gap: 16px;">
+                    <div class="card" style="padding: 16px; border-radius: 12px; background: var(--white); box-shadow: var(--shadow-md);">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                            <h3 class="stat-title" style="margin-bottom: 8px;">Enrollment Trend</h3>
+                            <div style="min-width:1px;"></div>
+                        </div>
+                        <!-- Snapshot overlay controls removed per request -->
+                        <div style="height: 240px;">
+                            <canvas id="enrollmentTrendChart"></canvas>
+                        </div>
+                        <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
+                            <button id="toggleInterpretationBtn" type="button" class="btn btn-cancel" style="padding:8px 12px; font-size:13px;" onclick="toggleInterpretation()">Show insights</button>
+                        </div>
+                        <div id="chartInterpretation" style="margin-top:12px; padding:12px; background: #fff; border-radius:8px; border:1px solid var(--gray-100); color:var(--gray-800); font-size:14px; display:none;"></div>
+                    </div>
+                    <div class="card" style="padding: 16px; border-radius: 12px; background: var(--white); box-shadow: var(--shadow-md);">
+                        <h3 class="stat-title" style="margin-bottom: 8px;">Gender Distribution</h3>
+                        <div style="height: 240px;">
+                            <canvas id="genderDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-overview">
+                    <div class="section-header">
+                        <h2 class="section-title">Sections Overview</h2>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Section</th>
+                                    <th>Total Students</th>
+                                    <th>Girls</th>
+                                    <th>Boys</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sections-overview-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teachers Management Content Section -->
+            <div id="teachers-content" class="content-section">
+                <div class="section-overview">
+                    <div class="section-header">
+                        <h2 class="section-title">Teachers List</h2>
+                        <div style="margin-left: auto; display: flex; align-items: center; gap: 12px;">
+                            <label style="font-size: 13px; user-select: none; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                <input type="checkbox" id="showArchivedTeachersCheckbox" onchange="filterTeachers()" style="width: 18px; height: 18px; cursor: pointer;">
+                                <i class="fas fa-archive" style="color: var(--warning-color);"></i> Show Archived
+                            </label>
+                            <button class="btn-add-account" onclick="openCreateTeacherModal()">
+                                <i class="fas fa-plus"></i> Add Account
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Contact</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="teachers-table-body">
+                                <!-- Teacher data will be populated here by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Students Management Content Section -->
+            <div id="students-content" class="content-section">
+                <div class="section-overview">
+                    <div class="section-header">
+                        <h2 class="section-title">Student Management</h2>
+                    </div>
+                    <!-- Search toolbar with archive checkbox -->
+                    <div style="padding: 16px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                        <input id="searchName" type="text" placeholder="Search by name" 
+                               style="padding: 10px 12px; border: 1px solid var(--gray-300); border-radius: 8px; min-width: 240px;">
+                        <input id="searchLRN" type="text" placeholder="Search by LRN" 
+                               style="padding: 10px 12px; border: 1px solid var(--gray-300); border-radius: 8px; min-width: 180px;">
+
+                        <!-- Section filter added: choose a section, then click Filter to apply -->
+                        <select id="sectionFilter" style="padding: 10px 12px; border: 1px solid var(--gray-300); border-radius: 8px; min-width: 220px;">
+                            <option value="">All sections</option>
+                        </select>
+                        <button id="applySectionFilterBtn" type="button" class="btn btn-confirm" style="height:38px; padding: 8px 12px;" onclick="applySectionFilter()">Filter</button>
+
+                        <button id="clearSearchBtn" class="btn btn-cancel" type="button">Clear</button>
+                        <div style="margin-left: auto; display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--gray-50); border-radius: 8px; border: 1px solid var(--gray-300);">
+                            <input type="checkbox" id="showArchivedCheckbox" onchange="filterStudents()" 
+                                   style="width: 18px; height: 18px; cursor: pointer;">
+                            <label for="showArchivedCheckbox" style="cursor: pointer; font-size: 14px; user-select: none;">
+                                <i class="fas fa-archive" style="margin-right: 4px; color: var(--warning-color);"></i>
+                                Show Archived Students
+                            </label>
+                        </div>
+                    </div>
+                    <div class="table-container" id="activeStudentsTable">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>LRN</th>
+                                    <th>Name</th>
+                                    <th>Grade Level</th>
+                                    <th>Sex</th>
+                                    <th>Age</th>
+                                    <th>Contact</th>
+                                    <th>Assigned Section</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-table-body">
+                                <% if (typeof students !== 'undefined' && students.length > 0) { %>
+                                    <% students.forEach(function(student) { %>
+                                        <tr>
+                                            <td><%= student.lrn || 'N/A' %></td>
+                                            <td><%= student.full_name %></td>
+                                            <td><%= student.grade_level %></td>
+                                            <td><%= student.sex %></td>
+                                            <td><%= student.age %></td>
+                                            <td><%= student.contact_number || 'N/A' %></td>
+                                            <td>
+                                                <% if (student.assigned_section) { %>
+                                                    <span class="badge" style="background: var(--primary-red); color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px;"><%= student.assigned_section %></span>
+                                                <% } else { %>
+                                                    <span class="text-muted" style="font-size: 12px;">Not assigned</span>
+                                                <% } %>
+                                            </td>
+                                            <td class="table-actions">
+                                                <button class="btn btn-edit" 
+                                                    data-student-id="<%= student.enrollment_id %>" 
+                                                    onclick="openStudentDetails(this.dataset.studentId)">
+                                                    <i class="fas fa-eye"></i> View
+                                                </button>
+                                                <% if (student.enrollment_status === 'pending' || !student.assigned_section) { %>
+                                                    <button class="btn btn-confirm" 
+                                                        data-student-id="<%= student.enrollment_id %>" 
+                                                        data-student-name="<%= student.full_name %>" 
+                                                        data-current-section="<%= student.assigned_section || '' %>"
+                                                        onclick="openAssignSectionModal(this.dataset.studentId, this.dataset.studentName, this.dataset.currentSection)">
+                                                        <i class="fas fa-users"></i> Assign
+                                                    </button>
+                                                <% } else { %>
+                                                    <button class="action-btn action-reassign" 
+                                                        data-student-id="<%= student.enrollment_id %>" 
+                                                        data-student-name="<%= student.full_name %>"
+                                                        data-current-section="<%= student.assigned_section || '' %>"
+                                                        type="button" onclick="openReassignModal(this.dataset.studentId, this.dataset.studentName, '', this.dataset.currentSection)">
+                                                        <i class="fas fa-exchange-alt"></i> Reassign
+                                                    </button>
+
+                                                    <button class="action-btn action-delete" 
+                                                        data-student-id="<%= student.enrollment_id %>" 
+                                                        data-student-name="<%= student.full_name %>"
+                                                        onclick="openConfirmRemoveFromSectionModal(this.dataset.studentId, this.dataset.studentName, '')">
+                                                        <i class="fas fa-user-minus"></i> Remove
+                                                    </button>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                <% } else { %>
+                                    <tr id="students-empty-row">
+                                        <td colspan="8" class="text-center" style="padding: 2rem; color: var(--gray-500);">No enrolled students found</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Unassigned Students Content Section -->
+            <div id="unassigned-content" class="content-section">
+                <div class="section-overview">
+                    <div class="section-header">
+                        <h2 class="section-title">Unassigned Students</h2>
+                        <span id="unassigned-count" class="badge" style="background: #ff9800; color: white; padding: 6px 14px; border-radius: 12px; font-size: 14px;">0</span>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>LRN</th>
+                                    <th>Name</th>
+                                    <th>Grade Level</th>
+                                    <th>Sex</th>
+                                    <th>Age</th>
+                                    <th>Contact</th>
+                                    <th>Enrollment Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="unassigned-students-table-body">
+                                <tr>
+                                    <td colspan="8" style="text-align: center; padding: 20px; color: #666;">Loading unassigned students...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sections Management Content Section -->
+            <div id="sections-content" class="content-section">
+                <div class="section-overview">
+                    <div class="section-header" style="align-items:center; gap:12px;">
+                        <h2 class="section-title">School Sections Management</h2>
+                        <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+                            <input id="snapshotNameInput" type="text" placeholder="Snapshot name (e.g., 2025-2026)" style="padding:8px 10px; border:1px solid var(--gray-300); border-radius:8px; min-width:180px;" />
+                            <button class="btn btn-confirm" onclick="saveSectionsSnapshot()" title="Save current counts as snapshot"><i class="fas fa-save"></i> Save As</button>
+                            <button class="btn btn-cancel" id="resetSectionsBtn" onclick="resetAllSections()" title="Reset all sections (unassign students)"><i class="fas fa-undo-alt"></i> Reset All</button>
+                            <button class="btn-add-account" onclick="openAddSectionModal()">
+                                <i class="fas fa-plus"></i> Add New Section
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Grade Level</th>
+                                    <th>Section Name</th>
+                                    <th>Max Capacity</th>
+                                    <th>Current Count</th>
+                                    <th>Adviser</th>
+                                    <th>Room</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sections-table-body">
+                                <tr>
+                                    <td colspan="8" class="text-center" style="padding: 2rem;">Loading sections...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Content Section -->
+            <div id="settings-content" class="content-section">
+                <div class="section-overview">
+                    <div class="section-header">
+                        <h2 class="section-title">Settings</h2>
+                    </div>
+                    <div style="padding: 24px;">
+                            <p>Select a role to manage accounts:</p>
+                            <div style="display: flex; gap: 16px; margin-top: 12px; align-items:center;">
+                                <button class="btn btn-confirm" style="min-width: 160px;" onclick="window.location.href='/registraracc'">
+                                    <i class="fas fa-user-tie"></i> Registrar Account
+                                </button>
+                                <button class="btn btn-confirm" style="min-width: 160px;" onclick="window.location.href='/guidanceacc'">
+                                    <i class="fas fa-user-shield"></i> Guidance Account
+                                </button>
+                                <div style="margin-left: auto; display:flex; gap:8px; align-items:center;">
+                                    <button class="btn btn-confirm" onclick="openSnapshotsModal()"><i class="fas fa-folder-open"></i> School Year Snapshots</button>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Section Snapshots Modal -->
+    <div id="sectionSnapshotsModal" class="modal">
+        <div class="modal-content form" style="max-width:1000px; width:95%;">
+            <button type="button" class="modal-close" aria-label="Close" onclick="closeModal('sectionSnapshotsModal')">&times;</button>
+            <h3 class="modal-title">School Year Snapshots</h3>
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
+                <div style="flex:1 1 auto;"></div>
+                <input type="hidden" id="snapshotFilterSelect" value="all">
+                <div style="position:relative; margin-left:auto;">
+                    <button id="snapshotFilterBtn" type="button" class="btn" style="padding:8px 10px; border-radius:8px; background:#ffffff; border:1px solid var(--gray-300); font-size:13px;" onclick="toggleSnapshotFilterMenu(event)">Filter: All ▾</button>
+                    <div id="snapshotFilterMenu" style="display:none; position:absolute; right:0; top:calc(100% + 6px); background:#fff; border:1px solid var(--gray-200); border-radius:8px; box-shadow:var(--shadow-md); min-width:160px; z-index:3000;">
+                        <button type="button" class="action-btn" style="display:block; width:100%; text-align:left; padding:8px 12px; border-radius:0; border:none; background:transparent;" onclick="setSnapshotFilter('all','All')">All</button>
+                        <button type="button" class="action-btn" style="display:block; width:100%; text-align:left; padding:8px 12px; border-radius:0; border:none; background:transparent;" onclick="setSnapshotFilter('active','Active')">Active</button>
+                        <button type="button" class="action-btn" style="display:block; width:100%; text-align:left; padding:8px 12px; border-radius:0; border:none; background:transparent;" onclick="setSnapshotFilter('archived','Archived')">Archived</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container" style="max-height:60vh; overflow:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Snapshot Name</th>
+                            <th>Created At</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="snapshots-table-body">
+                        <tr><td colspan="4" style="padding:20px; text-align:center; color:#666;">Loading snapshots...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Snapshot items view modal -->
+    <div id="snapshotItemsModal" class="modal">
+        <div class="modal-content" style="max-width:900px; width:95%;">
+            <button type="button" class="modal-close" aria-label="Close" onclick="closeModal('snapshotItemsModal')">&times;</button>
+            <h3 class="modal-title" id="snapshotItemsModalTitle">Snapshot Items</h3>
+            <div class="table-container" style="max-height:60vh; overflow:auto; margin-top:8px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Grade Level</th>
+                            <th>Section Name</th>
+                            <th>Current Count</th>
+                            <th>Adviser</th>
+                        </tr>
+                    </thead>
+                    <tbody id="snapshot-items-body">
+                        <tr><td colspan="4" style="padding:20px; text-align:center; color:#666;">No items</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">Confirm Logout</h3>
+            <p class="modal-message">Are you sure you want to log out?</p>
+            <div class="modal-buttons">
+                <button class="btn btn-cancel" onclick="closeModal('logoutModal')">Cancel</button>
+                <button class="btn btn-confirm" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create/Edit Teacher Modal -->
+    <div id="teacherModal" class="modal">
+        <div class="modal-content form" style="max-width: 900px; width: 95%; max-height: 90vh; overflow-y: auto;">
+            <h3 class="modal-title" id="teacherModalTitle">Create Teacher Account</h3>
+            <form id="teacherForm">
+                <input type="hidden" id="teacherId" name="id">
+                
+                <h4 style="margin-top: 20px; margin-bottom: 12px; color: var(--primary-dark); border-bottom: 2px solid var(--gray-200); padding-bottom: 8px;">
+                    <i class="fas fa-user"></i> Personal Information
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                    <div>
+                        <label for="teacherFirstName">First Name <span style="color: red;">*</span></label>
+                        <input type="text" id="teacherFirstName" name="first_name" required>
+                    </div>
+                    <div>
+                        <label for="teacherMiddleName">Middle Name</label>
+                        <input type="text" id="teacherMiddleName" name="middle_name">
+                    </div>
+                    <div>
+                        <label for="teacherLastName">Last Name <span style="color: red;">*</span></label>
+                        <input type="text" id="teacherLastName" name="last_name" required>
+                    </div>
+                    <div>
+                        <label for="teacherExtName">Extension Name</label>
+                        <select id="teacherExtName" name="ext_name">
+                            <option value="">None</option>
+                            <option value="Jr.">Jr.</option>
+                            <option value="Sr.">Sr.</option>
+                            <option value="II">II</option>
+                            <option value="III">III</option>
+                            <option value="IV">IV</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="teacherBirthday">Birthday</label>
+                        <input type="date" id="teacherBirthday" name="birthday">
+                    </div>
+                    <div>
+                        <label for="teacherSex">Sex</label>
+                        <select id="teacherSex" name="sex">
+                            <option value="">Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <h4 style="margin-top: 20px; margin-bottom: 12px; color: var(--primary-dark); border-bottom: 2px solid var(--gray-200); padding-bottom: 8px;">
+                    <i class="fas fa-address-book"></i> Contact Information
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                    <div>
+                        <label for="teacherEmail">Email Address</label>
+                        <input type="email" id="teacherEmail" name="email">
+                    </div>
+                    <div>
+                        <label for="teacherContact">Contact Number</label>
+                        <input type="tel" id="teacherContact" name="contact_number">
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <label for="teacherAddress">Address</label>
+                        <textarea id="teacherAddress" name="address" rows="2" style="width: 100%; padding: 10px; border: 1px solid var(--gray-300); border-radius: 8px;"></textarea>
+                    </div>
+                </div>
+                
+                <h4 style="margin-top: 20px; margin-bottom: 12px; color: var(--primary-dark); border-bottom: 2px solid var(--gray-200); padding-bottom: 8px;">
+                    <i class="fas fa-briefcase"></i> Employment Details
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                    <div>
+                        <label for="teacherPosition">Position</label>
+                        <input type="text" id="teacherPosition" name="position" placeholder="e.g., Teacher I, Teacher II">
+                    </div>
+                    <div>
+                        <label for="teacherSpecialization">Specialization</label>
+                        <input type="text" id="teacherSpecialization" name="specialization" placeholder="e.g., Mathematics, English">
+                    </div>
+                    <div>
+                        <label for="teacherDateHired">Date Hired</label>
+                        <input type="date" id="teacherDateHired" name="date_hired">
+                    </div>
+                </div>
+                
+                <h4 style="margin-top: 20px; margin-bottom: 12px; color: var(--primary-dark); border-bottom: 2px solid var(--gray-200); padding-bottom: 8px;">
+                    <i class="fas fa-key"></i> Login Credentials
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                    <div>
+                        <label for="teacherUsername">Username <span style="color: red;">*</span></label>
+                        <input type="text" id="teacherUsername" name="username" required>
+                    </div>
+                    <div id="password-field">
+                        <label for="teacherPassword">Password <span style="color: red;" id="passwordRequired">*</span></label>
+                        <input type="password" id="teacherPassword" name="password">
+                        <small id="passwordHint" style="color: var(--gray-500); display: none;">Leave blank to keep current password</small>
+                    </div>
+                </div>
+                
+                <div class="modal-buttons" style="justify-content: flex-end; margin-top: 24px;">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('teacherModal')">Cancel</button>
+                    <button type="submit" class="btn btn-confirm" id="saveTeacherBtn">Create Teacher</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Teacher Details Modal -->
+    <div id="teacherViewModal" class="modal">
+        <div class="modal-content form" style="max-width: 900px; width: 95%; max-height: 90vh; overflow-y: auto;">
+            <div class="teacher-details-header">
+                <h3 class="modal-title" style="margin: 0;">Teacher Details</h3>
+                <span id="tvStatusBadge" class="status-badge status-active">
+                    <i class="fas fa-check-circle"></i> Active
+                </span>
+            </div>
+
+            <div class="teacher-fullname" id="tvFullName">Full Name</div>
+            <div style="color: var(--gray-600); margin-bottom: 14px;">
+                <span id="tvUsername">@username</span>
+                <span style="margin: 0 8px; color: var(--gray-300);">|</span>
+                <span id="tvEmployeeId">Employee ID: —</span>
+            </div>
+
+            <h4 style="margin-top: 12px; margin-bottom: 10px; color: var(--primary-dark); border-bottom: 2px solid var(--gray-200); padding-bottom: 6px;">
+                <i class="fas fa-user"></i> Personal Information
+            </h4>
+            <div class="teacher-details-grid">
+                <div class="detail-item"><span class="detail-label">Birthday</span><span id="tvBirthday" class="detail-value">—</span></div>
+                <div class="detail-item"><span class="detail-label">Sex</span><span id="tvSex" class="detail-value">—</span></div>
+                <div class="detail-item" style="grid-column: 1 / -1;"><span class="detail-label">Address</span><span id="tvAddress" class="detail-value">—</span></div>
+            </div>
+
+            <h4 style="margin-top: 16px; margin-bottom: 10px; color: var(--primary-dark); border-bottom: 2px solid var(--gray-200); padding-bottom: 6px;">
+                <i class="fas fa-address-book"></i> Contact Information
+            </h4>
+            <div class="teacher-details-grid">
+                <div class="detail-item"><span class="detail-label">Email</span><span id="tvEmail" class="detail-value">—</span></div>
+                <div class="detail-item"><span class="detail-label">Contact Number</span><span id="tvContact" class="detail-value">—</span></div>
+            </div>
+
+            <h4 style="margin-top: 16px; margin-bottom: 10px; color: var(--primary-dark); border-bottom: 2px solid var(--gray-200); padding-bottom: 6px;">
+                <i class="fas fa-briefcase"></i> Employment Details
+            </h4>
+            <div class="teacher-details-grid">
+                <div class="detail-item"><span class="detail-label">Department</span><span id="tvDepartment" class="detail-value">—</span></div>
+                <div class="detail-item"><span class="detail-label">Position</span><span id="tvPosition" class="detail-value">—</span></div>
+                <div class="detail-item"><span class="detail-label">Specialization</span><span id="tvSpecialization" class="detail-value">—</span></div>
+                <div class="detail-item"><span class="detail-label">Date Hired</span><span id="tvDateHired" class="detail-value">—</span></div>
+            </div>
+
+            <div class="modal-buttons" style="justify-content: flex-end; margin-top: 20px;">
+                <button type="button" class="btn btn-cancel" onclick="closeModal('teacherViewModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign Teacher to Section Modal -->
+    <div id="assignTeacherSectionModal" class="modal">
+        <div class="modal-content form">
+            <h3 class="modal-title">Assign Teacher as Section Adviser</h3>
+            <form id="assignTeacherSectionForm">
+                <input type="hidden" id="assignTeacherId">
+                <div>
+                    <label>Teacher Name</label>
+                    <input type="text" id="assignTeacherName" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>Section <span style="color: var(--danger-color);">*</span></label>
+                    <select id="assignTeacherSection" required>
+                        <option value="">Select Section</option>
+                    </select>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('assignTeacherSectionModal')">Cancel</button>
+                    <button type="submit" class="btn btn-confirm">Assign Teacher</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">Confirm Deletion</h3>
+            <p class="modal-message">Are you sure you want to delete this teacher account?</p>
+            <div class="modal-buttons">
+                <button class="btn btn-cancel" onclick="closeModal('deleteModal')">Cancel</button>
+                <button class="btn btn-confirm btn-delete" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assign Section Modal -->
+    <div id="assignSectionModal" class="modal">
+        <div class="modal-content form">
+            <h3 class="modal-title">Assign Student to Section</h3>
+            <form id="assignSectionForm">
+                <input type="hidden" id="assignStudentId">
+                <div>
+                    <label>Student Name</label>
+                    <input type="text" id="assignStudentName" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label for="assignSection">Select Section</label>
+                    <select id="assignSection" name="section" required>
+                        <option value="">-- Select Section --</option>
+                        <!-- Options will be loaded dynamically from /api/sections -->
+                    </select>
+                </div>
+                <div class="modal-buttons" style="justify-content: flex-end; margin-top: 24px;">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('assignSectionModal')">Cancel</button>
+                    <button type="submit" class="btn btn-confirm">Assign Section</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Student Details Modal -->
+    <div id="studentDetailsModal" class="modal">
+        <div class="modal-content form" style="max-width: 900px; width: 95%; max-height: 85vh; overflow-y: auto; margin: 5vh auto;">
+            <button type="button" class="modal-close" aria-label="Close" onclick="closeModal('studentDetailsModal')">&times;</button>
+            <h3 class="modal-title">Student Details</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div>
+                    <label>Full Name</label>
+                    <input type="text" id="sdFullName" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>School Year</label>
+                    <input type="text" id="sdSY" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>LRN</label>
+                    <input type="text" id="sdLRN" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>Grade Level</label>
+                    <input type="text" id="sdGrade" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>Sex</label>
+                    <input type="text" id="sdSex" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>Age</label>
+                    <input type="text" id="sdAge" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>Email</label>
+                    <input type="text" id="sdGmail" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>Contact Number</label>
+                    <input type="text" id="sdContact" readonly style="background: var(--gray-100);">
+                </div>
+                <div style="grid-column: span 2;">
+                    <label>Address</label>
+                    <input type="text" id="sdAddress" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>IP Community</label>
+                    <input type="text" id="sdIP" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>IP Specify</label>
+                    <input type="text" id="sdIPSpec" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>PWD</label>
+                    <input type="text" id="sdPWD" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>PWD Specify</label>
+                    <input type="text" id="sdPWDSpec" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>Father's Name</label>
+                    <input type="text" id="sdFather" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>Mother's Name</label>
+                    <input type="text" id="sdMother" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>Guardian's Name</label>
+                    <input type="text" id="sdGuardian" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>Assigned Section</label>
+                    <input type="text" id="sdAssigned" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>Religion</label>
+                    <input type="text" id="sdReligion" readonly style="background: var(--gray-100);">
+                </div>
+                <div>
+                    <label>Registration Date</label>
+                    <input type="text" id="sdRegDate" readonly style="background: var(--gray-100);">
+                </div>
+                <div style="grid-column: span 2;">
+                    <label>Printed Name</label>
+                    <input type="text" id="sdPrintedName" readonly style="background: var(--gray-100);">
+                </div>
+                <div style="grid-column: span 2;">
+                    <label>Signature</label>
+                    <div style="border: 1px solid var(--gray-300); border-radius: 8px; padding: 12px; height: 160px; display: flex; align-items: center; justify-content: center; background: var(--gray-50);">
+                        <img id="sdSignature" alt="Signature" style="max-height: 140px; max-width: 100%; display: none;" />
+                        <span id="sdSignatureNone" style="color: var(--gray-500);">No signature on file</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-buttons" style="justify-content: flex-end; margin-top: 24px;">
+                <button type="button" class="btn btn-cancel" onclick="closeModal('studentDetailsModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Section Modal -->
+    <div id="sectionModal" class="modal">
+        <div class="modal-content form" style="max-width: 600px; width: 90%; max-height: 85vh; overflow-y: auto; margin: 5vh auto;">
+            <button type="button" class="modal-close" aria-label="Close" onclick="closeModal('sectionModal')">&times;</button>
+            <h3 class="modal-title" id="sectionModalTitle">Add New Section</h3>
+            <form id="sectionForm">
+                <input type="hidden" id="sectionId">
+                <div>
+                    <label for="sectionGradeLevel">Grade Level <span style="color: red;">*</span></label>
+                    <select id="sectionGradeLevel" required>
+                        <option value="">-- Select Grade Level --</option>
+                        <option value="Kindergarten">Kindergarten</option>
+                        <option value="Grade 1">Grade 1</option>
+                        <option value="Grade 2">Grade 2</option>
+                        <option value="Grade 3">Grade 3</option>
+                        <option value="Grade 4">Grade 4</option>
+                        <option value="Grade 5">Grade 5</option>
+                        <option value="Grade 6">Grade 6</option>
+                        <option value="Grade 7">Grade 7</option>
+                        <option value="Grade 8">Grade 8</option>
+                        <option value="Grade 9">Grade 9</option>
+                        <option value="Grade 10">Grade 10</option>
+                        <option value="Non-Graded">Non-Graded</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="sectionName">Section Name <span style="color: red;">*</span></label>
+                    <input type="text" id="sectionName" placeholder="e.g., rosal, sampaguita" required>
+                    <small style="color: var(--gray-500);">Enter only the section name without grade level</small>
+                </div>
+                <div>
+                    <label for="sectionMaxCapacity">Max Capacity</label>
+                    <input type="number" id="sectionMaxCapacity" min="1" max="100" value="40" placeholder="40">
+                </div>
+                <div>
+                    <label for="sectionAdviserSelect">Adviser</label>
+                    <select id="sectionAdviserSelect">
+                        <option value="">-- None --</option>
+                    </select>
+                    <input type="hidden" id="sectionIdForAdviser">
+                    <div style="margin-top: 8px; display: flex; gap: 8px;">
+                        <button type="button" class="btn btn-cancel" onclick="triggerRemoveAdviser()"><i class="fas fa-user-slash"></i> Remove Adviser</button>
+                    </div>
+                </div>
+                <div>
+                    <label for="sectionRoom">Room Number</label>
+                    <input type="text" id="sectionRoom" placeholder="e.g., 101">
+                </div>
+                <!-- Students list for this section (visible when editing) -->
+                <div id="sectionModalStudents" style="margin-top:18px;">
+                    <h4 style="margin-bottom:8px;">Students in this Section</h4>
+                    <div id="sectionModalStudentsContainer" style="border:1px solid var(--gray-200); border-radius:8px; padding:12px; max-height:240px; overflow:auto; background:var(--gray-50);">
+                        <table class="data-table" style="width:100%; border-collapse: collapse; font-size:13px;">
+                            <thead>
+                                <tr>
+                                    <th style="padding:8px; text-align:left;">LRN</th>
+                                    <th style="padding:8px; text-align:left;">Name</th>
+                                    <th style="padding:8px; text-align:left;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sectionModalStudentsTable">
+                                <tr><td colspan="3" style="padding:12px; color:var(--gray-600);">No students loaded. Open the modal for an existing section to see enrolled students.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-buttons" style="justify-content: flex-end; margin-top: 24px;">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('sectionModal')">Cancel</button>
+                    <button type="submit" class="btn btn-confirm">Save Section</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Section Students Modal -->
+    <div id="sectionStudentsModal" class="modal">
+        <div class="modal-content" style="max-width: 900px; max-height: 85vh; overflow-y: auto; margin: 5vh auto;">
+            <button type="button" class="modal-close" aria-label="Close" onclick="closeModal('sectionStudentsModal')">&times;</button>
+            <h3 class="modal-title" id="sectionStudentsModalTitle">Section Students</h3>
+            
+            <!-- Statistics Bar -->
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-around; text-align: center;">
+                    <div>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--primary-red);" id="totalStudentsCount">0</div>
+                        <div style="font-size: 14px; color: #666;">Total Students</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 24px; font-weight: bold; color: #2196F3;" id="maleStudentsCount">0</div>
+                        <div style="font-size: 14px; color: #666;">Male</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 24px; font-weight: bold; color: #E91E63;" id="femaleStudentsCount">0</div>
+                        <div style="font-size: 14px; color: #666;">Female</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Students Table -->
+            <div class="table-container" style="max-height: 50vh; overflow-y: auto;">
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>LRN</th>
+                            <th>Name</th>
+                            <th>Sex</th>
+                            <th>Age</th>
+                            <th>Contact</th>
+                            <th>Enrollment Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="section-students-table-body">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 20px; color: #666;">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-actions" style="margin-top: 20px;">
+                <button type="button" class="btn btn-cancel" onclick="closeModal('sectionStudentsModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reassign Section Modal -->
+    <div id="reassignSectionModal" class="modal">
+        <div class="modal-content" style="max-width: 500px; margin: 10vh auto;">
+            <button type="button" class="modal-close" aria-label="Close" onclick="closeModal('reassignSectionModal')">&times;</button>
+            <h3 class="modal-title">Reassign Student to New Section</h3>
+            <form id="reassignForm">
+                <input type="hidden" id="reassignStudentId">
+                <input type="hidden" id="reassignCurrentSectionId">
+                
+                <div style="margin-bottom: 16px; padding: 12px; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #0284c7;">
+                    <strong id="reassignStudentName" style="color: #0c4a6e;"></strong>
+                    <div style="font-size: 13px; color: #475569; margin-top: 4px;">
+                        Current Section: <span id="reassignCurrentSection"></span>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="reassignNewSection">New Section</label>
+                    <select id="reassignNewSection" required>
+                        <option value="">-- Select New Section --</option>
+                <!-- Confirm Remove From Section Modal -->
+                    </select>
+                </div>
+
+                <div class="modal-buttons" style="justify-content: flex-end; margin-top: 24px;">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal('reassignSectionModal')">Cancel</button>
+                    <button type="submit" class="btn btn-confirm">Confirm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast container for nicer notifications (used to replace native alert()) -->
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true" style="pointer-events: none;"></div>
+
+    <!-- Generic confirmation modal (replaces native confirm()) -->
+    <div id="genericConfirmModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width:520px; margin:10vh auto;">
+            <button type="button" class="modal-close" aria-label="Close" onclick="closeModal('genericConfirmModal')">&times;</button>
+            <h3 class="modal-title" id="genericConfirmTitle">Confirm action</h3>
+            <p class="modal-message" id="genericConfirmMessage">Are you sure?</p>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-cancel" onclick="closeModal('genericConfirmModal')">Cancel</button>
+                <button type="button" class="btn btn-confirm" id="genericConfirmBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm remove-from-section modal (moved out of select to avoid broken DOM) -->
+    <div id="confirmRemoveFromSectionModal" class="modal" style="display:none;">
+        <div class="modal-content" style="max-width:520px; margin:10vh auto;">
+            <button type="button" class="modal-close" aria-label="Close" onclick="closeModal('confirmRemoveFromSectionModal')">&times;</button>
+            <h3 class="modal-title">Remove Student from Section</h3>
+            <p class="modal-message" id="removeFromSectionMessage">Are you sure you want to remove this student from the section? The student will be moved to Unassigned Students.</p>
+            <input type="hidden" id="removeFromSectionStudentId">
+            <input type="hidden" id="removeFromSectionSectionId">
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-cancel" onclick="closeModal('confirmRemoveFromSectionModal')">Cancel</button>
+                <button type="button" class="btn btn-confirm" id="confirmRemoveFromSectionBtn">Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 12px; }
+        .toast { pointer-events: auto; display: flex; align-items: center; gap: 12px; min-width: 260px; max-width: 420px; padding: 12px 16px; border-radius: 10px; box-shadow: 0 6px 18px rgba(0,0,0,0.12); color: #fff; font-weight: 600; }
+        .toast-success { background: #059669; }
+        .toast-error { background: #DC2626; }
+        .toast-info { background: #111827; }
+        .toast-close { background: transparent; border: none; color: rgba(255,255,255,0.9); font-size: 18px; cursor: pointer; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Lightweight toast helper used across this page.
+        function showToast(message, type = 'success', timeout = 4500) {
+            try {
+                const container = document.getElementById('toastContainer');
+                if (!container) return window.alert(message);
+
+                const toast = document.createElement('div');
+                toast.className = 'toast toast-' + (type || 'info');
+
+                const content = document.createElement('div');
+                content.style.flex = '1';
+                content.style.wordBreak = 'break-word';
+                content.textContent = message;
+
+                const closeBtn = document.createElement('button');
+                closeBtn.className = 'toast-close';
+                closeBtn.setAttribute('aria-label', 'Close');
+                closeBtn.innerHTML = '\u00D7';
+                closeBtn.onclick = () => {
+                    if (toast && toast.parentNode) toast.parentNode.removeChild(toast);
+                };
+
+                toast.appendChild(content);
+                toast.appendChild(closeBtn);
+                container.appendChild(toast);
+
+                // Auto remove after timeout
+                setTimeout(() => {
+                    if (toast && toast.parentNode) toast.parentNode.removeChild(toast);
+                }, timeout);
+            } catch (e) {
+                console.error('Toast error', e);
+                try { window.alert(message); } catch (e) {}
+            }
+        }
+
+        // Override window.alert to keep existing code working while providing a professional toast UI
+        (function() {
+            const nativeAlert = window.alert.bind(window);
+            window.alert = function(msg) {
+                // If msg contains 'Error' or starts with 'Error:' show an error toast
+                const asString = String(msg || '');
+                const lowered = asString.toLowerCase();
+                if (lowered.startsWith('error') || lowered.includes('failed') || lowered.includes('an error')) {
+                    showToast(asString, 'error');
+                } else {
+                    showToast(asString, 'success');
+                }
+                // keep native behavior in dev if needed by uncommenting
+                // nativeAlert(msg);
+            };
+        })();
+        // --- Navigation Logic ---
+        function showContent(contentId) {
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(contentId).classList.add('active');
+            
+            // Update page title
+            const pageTitle = document.getElementById('page-title');
+            if (contentId === 'dashboard-content') {
+                pageTitle.innerText = 'ICT Coordinator Dashboard';
+                loadDashboard();
+            } else if (contentId === 'teachers-content') {
+                pageTitle.innerText = 'Teachers Management';
+                loadTeachers(); // Load teachers from API whenever the teachers tab is clicked
+            } else if (contentId === 'students-content') {
+                pageTitle.innerText = 'Students Management';
+            } else if (contentId === 'sections-content') {
+                pageTitle.innerText = 'Sections Management';
+            } else if (contentId === 'settings-content') {
+                pageTitle.innerText = 'Settings';
+            }
+            
+            // Update active link in sidebar
+            const links = document.querySelectorAll('.sidebar-nav a');
+            links.forEach(link => link.classList.remove('active'));
+            document.querySelector(`[data-content-id="${contentId}"]`).classList.add('active');
+        }
+
+        // Add a single event listener to the sidebar for better performance
+        document.querySelector('.sidebar-nav').addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (link && link.dataset.contentId) {
+                e.preventDefault();
+                showContent(link.dataset.contentId);
+            }
+        });
+        
+        // --- Modal & CRUD Logic ---
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            // Use flex for modals that should be centered vertically (teacher modals and snapshots modal)
+            const useFlex = (modalId === 'teacherModal' || modalId === 'teacherViewModal' || modalId === 'sectionSnapshotsModal');
+            modal.style.display = useFlex ? 'flex' : 'block';
+            if (useFlex) {
+                modal.style.alignItems = 'center';
+                modal.style.justifyContent = 'center';
+            } else {
+                modal.style.alignItems = '';
+                modal.style.justifyContent = '';
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Generic confirm modal helper. Usage:
+        // openGenericConfirmModal(title, message, async () => { /* onConfirm work */ });
+        function openGenericConfirmModal(title, message, onConfirm) {
+            const modalId = 'genericConfirmModal';
+            const titleEl = document.getElementById('genericConfirmTitle');
+            const msgEl = document.getElementById('genericConfirmMessage');
+            const confirmBtn = document.getElementById('genericConfirmBtn');
+
+            if (titleEl) titleEl.textContent = title || 'Confirm action';
+            if (msgEl) msgEl.textContent = message || 'Are you sure you want to continue?';
+
+            if (confirmBtn) {
+                confirmBtn.onclick = async () => {
+                    try {
+                        await onConfirm();
+                    } catch (err) {
+                        console.error('Error in confirm handler:', err);
+                        try { showToast('An error occurred', 'error'); } catch (e) { alert('An error occurred'); }
+                    }
+                    closeModal(modalId);
+                };
+            }
+
+            openModal(modalId);
+        }
+
+        function confirmLogout(event) {
+            event.preventDefault();
+            openModal('logoutModal');
+        }
+        
+        function logout() {
+            // Redirect to logout route for ICT Coordinator
+            window.location.href = '/logout-ictcoor';
+        }
+
+        // ======================== TEACHERS MANAGEMENT ========================
+        
+        // Load teachers from API (and sections to know adviser assignments)
+        async function loadTeachers() {
+            try {
+                const [teachersRes, sectionsRes] = await Promise.all([
+                    fetch('/api/teachers'),
+                    fetch('/api/sections/all')
+                ]);
+
+                const [teachersData, sectionsData] = await Promise.all([
+                    teachersRes.json(),
+                    sectionsRes.json()
+                ]);
+
+                if (!teachersData.success) {
+                    console.error('Error loading teachers:', teachersData.message);
+                    return;
+                }
+
+                // Build a Set of adviser full names from sections (any state)
+                const adviserSet = new Set();
+                if (sectionsData && sectionsData.success && Array.isArray(sectionsData.sections)) {
+                    sectionsData.sections.forEach(s => {
+                        if (s.adviser_name) {
+                            adviserSet.add(String(s.adviser_name).replace(/\s+/g, ' ').trim());
+                        }
+                    });
+                }
+
+                renderTeachersTable(teachersData.teachers, adviserSet);
+                const totalEl = document.getElementById('total-teachers');
+                if (totalEl) totalEl.innerText = teachersData.teachers.length;
+            } catch (error) {
+                console.error('Error fetching teachers/sections:', error);
+            }
+        }
+
+        // Render teachers table
+        function renderTeachersTable(teachers, adviserSet = new Set()) {
+            const tableBody = document.getElementById('teachers-table-body');
+            const showArchived = document.getElementById('showArchivedTeachersCheckbox')?.checked || false;
+            tableBody.innerHTML = '';
+
+            if (!teachers || teachers.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem; color: var(--gray-500);">No teachers found</td></tr>';
+                return;
+            }
+
+            // Filter teachers: show active or archived based on checkbox state
+            const filtered = teachers.filter(t => {
+                const isArchived = t.is_archived === true || t.is_archived === 1 || t.is_archived === '1';
+                return showArchived ? isArchived : !isArchived;
+            });
+
+            if (filtered.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem; color: var(--gray-500);">' + (showArchived ? 'No archived teachers found' : 'No teachers found') + '</td></tr>';
+                return;
+            }
+
+            filtered.forEach(teacher => {
+                const fullName = (teacher.full_name && teacher.full_name.trim().length > 0)
+                    ? teacher.full_name
+                    : [teacher.first_name, teacher.middle_name, teacher.last_name, teacher.ext_name]
+                        .filter(Boolean)
+                        .join(' ')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                const isAdviser = adviserSet.has(fullName);
+                const isArchived = teacher.is_archived === true || teacher.is_archived === 1 || teacher.is_archived === '1';
+                const row = document.createElement('tr');
+                
+                // Build action buttons based on archived state
+                let actionButtons = `
+                    <button class="action-btn action-view" onclick="viewTeacherDetails(${teacher.id})" title="View details">
+                        <i class="fas fa-eye"></i> View
+                    </button>`;
+                
+                if (isArchived) {
+                    // Show archived teacher actions: Recover and Permanently Delete
+                    actionButtons += `
+                        <button class="action-btn action-confirm" onclick="recoverTeacher(${teacher.id}, '${fullName.replace(/'/g, "\\'")}');" title="Recover teacher">
+                            <i class="fas fa-undo"></i> Recover
+                        </button>
+                        <button class="action-btn action-delete" onclick="permanentlyDeleteTeacher(${teacher.id}, '${fullName.replace(/'/g, "\\'")}');" title="Permanently delete teacher">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>`;
+                } else {
+                    // Show active teacher actions: Edit, Assign/Reassign, Archive
+                    actionButtons += `
+                        <button class="action-btn action-edit" onclick="openEditTeacherModal(${teacher.id})" title="Edit teacher">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button type="button" class="action-btn ${isAdviser ? 'action-reassign' : 'action-assign'}" onclick="openAssignTeacherModal(${teacher.id}, '${fullName.replace(/'/g, "\\'")}');" title="${isAdviser ? 'Reassign to another section' : 'Assign to section'}">
+                            <i class="fas fa-chalkboard-teacher"></i> ${isAdviser ? 'Reassign' : 'Assign'}
+                        </button>
+                        <button class="action-btn action-delete" onclick="archiveTeacher(${teacher.id}, '${fullName.replace(/'/g, "\\'")}');" title="Archive teacher">
+                            <i class="fas fa-archive"></i> Archive
+                        </button>`;
+                }
+                
+                row.innerHTML = `
+                    <td><strong>${fullName || '—'}</strong></td>
+                    <td>${teacher.email || 'N/A'}</td>
+                    <td>${teacher.contact_number || 'N/A'}</td>
+                    <td class="table-actions">${actionButtons}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Open create teacher modal
+        function openCreateTeacherModal() {
+            const modalTitle = document.getElementById('teacherModalTitle');
+            const teacherForm = document.getElementById('teacherForm');
+            const saveBtn = document.getElementById('saveTeacherBtn');
+            const passwordField = document.getElementById('teacherPassword');
+            const passwordRequired = document.getElementById('passwordRequired');
+            const passwordHint = document.getElementById('passwordHint');
+
+            modalTitle.innerText = 'Create Teacher Account';
+            teacherForm.reset();
+            document.getElementById('teacherId').value = '';
+            saveBtn.innerText = 'Create Teacher';
+            passwordField.required = true;
+            passwordRequired.style.display = 'inline';
+            passwordHint.style.display = 'none';
+            
+            openModal('teacherModal');
+        }
+
+        // Open edit teacher modal
+        async function openEditTeacherModal(id) {
+            try {
+                const response = await fetch(`/api/teachers/${id}`);
+                const data = await response.json();
+                
+                if (!data.success) {
+                    alert('Error loading teacher: ' + (data.message || 'Unknown error'));
+                    return;
+                }
+
+                const teacher = data.teacher;
+                const modalTitle = document.getElementById('teacherModalTitle');
+                const saveBtn = document.getElementById('saveTeacherBtn');
+                const passwordField = document.getElementById('teacherPassword');
+                const passwordRequired = document.getElementById('passwordRequired');
+                const passwordHint = document.getElementById('passwordHint');
+
+                modalTitle.innerText = 'Edit Teacher Account';
+                document.getElementById('teacherId').value = teacher.id;
+                document.getElementById('teacherFirstName').value = teacher.first_name || '';
+                document.getElementById('teacherMiddleName').value = teacher.middle_name || '';
+                document.getElementById('teacherLastName').value = teacher.last_name || '';
+                document.getElementById('teacherExtName').value = teacher.ext_name || '';
+                document.getElementById('teacherBirthday').value = teacher.birthday ? teacher.birthday.split('T')[0] : '';
+                document.getElementById('teacherSex').value = teacher.sex || '';
+                document.getElementById('teacherEmail').value = teacher.email || '';
+                document.getElementById('teacherContact').value = teacher.contact_number || '';
+                document.getElementById('teacherAddress').value = teacher.address || '';
+                document.getElementById('teacherPosition').value = teacher.position || '';
+                document.getElementById('teacherSpecialization').value = teacher.specialization || '';
+                document.getElementById('teacherDateHired').value = teacher.date_hired ? teacher.date_hired.split('T')[0] : '';
+                document.getElementById('teacherUsername').value = teacher.username || '';
+                
+                saveBtn.innerText = 'Update Teacher';
+                passwordField.required = false;
+                passwordField.value = '';
+                passwordRequired.style.display = 'none';
+                passwordHint.style.display = 'block';
+                
+                openModal('teacherModal');
+            } catch (error) {
+                console.error('Error fetching teacher:', error);
+                alert('Failed to load teacher details.');
+            }
+        }
+
+        // Handle teacher form submission
+        document.getElementById('teacherForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const teacherId = document.getElementById('teacherId').value;
+            const isEdit = teacherId !== '';
+            
+            const formData = {
+                username: document.getElementById('teacherUsername').value,
+                password: document.getElementById('teacherPassword').value,
+                first_name: document.getElementById('teacherFirstName').value,
+                middle_name: document.getElementById('teacherMiddleName').value,
+                last_name: document.getElementById('teacherLastName').value,
+                ext_name: document.getElementById('teacherExtName').value,
+                birthday: document.getElementById('teacherBirthday').value,
+                sex: document.getElementById('teacherSex').value,
+                email: document.getElementById('teacherEmail').value,
+                contact_number: document.getElementById('teacherContact').value,
+                address: document.getElementById('teacherAddress').value,
+                position: document.getElementById('teacherPosition').value,
+                specialization: document.getElementById('teacherSpecialization').value,
+                date_hired: document.getElementById('teacherDateHired').value
+            };
+
+            try {
+                const url = isEdit ? `/api/teachers/${teacherId}` : '/api/teachers';
+                const method = isEdit ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(data.message);
+                    closeModal('teacherModal');
+                    loadTeachers(); // Reload the table
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to save teacher'));
+                }
+            } catch (error) {
+                console.error('Error saving teacher:', error);
+                alert('An error occurred while saving the teacher.');
+            }
+        });
+
+        // View teacher details in a professional modal
+        async function viewTeacherDetails(id) {
+            try {
+                const response = await fetch(`/api/teachers/${id}`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    alert('Error: ' + (data.message || 'Failed to load teacher'));
+                    return;
+                }
+
+                const t = data.teacher;
+                // Full name
+                const fullName = [t.first_name, t.middle_name, t.last_name, t.ext_name].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+                document.getElementById('tvFullName').innerText = fullName || '—';
+                document.getElementById('tvUsername').innerText = t.username ? '@' + t.username : '—';
+                document.getElementById('tvEmployeeId').innerText = 'Employee ID: ' + (t.employee_id || '—');
+
+                // Personal
+                document.getElementById('tvBirthday').innerText = t.birthday ? new Date(t.birthday).toLocaleDateString() : '—';
+                document.getElementById('tvSex').innerText = t.sex || '—';
+                document.getElementById('tvAddress').innerText = t.address || '—';
+
+                // Contact
+                document.getElementById('tvEmail').innerText = t.email || '—';
+                document.getElementById('tvContact').innerText = t.contact_number || '—';
+
+                // Employment
+                document.getElementById('tvDepartment').innerText = t.department || '—';
+                document.getElementById('tvPosition').innerText = t.position || '—';
+                document.getElementById('tvSpecialization').innerText = t.specialization || '—';
+                document.getElementById('tvDateHired').innerText = t.date_hired ? new Date(t.date_hired).toLocaleDateString() : '—';
+
+                // Status badge
+                const badge = document.getElementById('tvStatusBadge');
+                badge.innerHTML = t.is_active ? '<i class="fas fa-check-circle"></i> Active' : '<i class="fas fa-ban"></i> Inactive';
+                badge.classList.remove('status-active', 'status-inactive');
+                badge.classList.add(t.is_active ? 'status-active' : 'status-inactive');
+
+                // Open the modal centered
+                openModal('teacherViewModal');
+            } catch (error) {
+                console.error('Error viewing teacher:', error);
+                alert('Failed to load teacher details.');
+            }
+        }
+
+        // Toggle teacher active status
+        async function toggleTeacherStatus(id, name, currentStatus) {
+            const action = currentStatus ? 'deactivate' : 'activate';
+            openGenericConfirmModal(
+                `${action.charAt(0).toUpperCase() + action.slice(1)} teacher`,
+                `Are you sure you want to ${action} ${name}?`,
+                async () => {
+                    try {
+                        const response = await fetch(`/api/teachers/${id}/toggle`, { method: 'PUT' });
+                        const data = await response.json();
+                        if (data.success) {
+                            alert(data.message);
+                            loadTeachers();
+                        } else {
+                            alert('Error: ' + (data.message || 'Failed to toggle teacher status'));
+                        }
+                    } catch (error) {
+                        console.error('Error toggling teacher status:', error);
+                        alert('An error occurred while changing teacher status.');
+                    }
+                }
+            );
+        }
+
+        // Open delete confirmation modal
+        let pendingDeleteTeacherId = null;
+        // Archive teacher (soft delete)
+        function openDeleteTeacherModal(id, name) {
+            pendingDeleteTeacherId = id;
+            const msg = document.querySelector('#deleteModal .modal-message');
+            if (msg) {
+                msg.textContent = `Are you sure you want to delete ${name}?`;
+            }
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            if (confirmBtn) {
+                confirmBtn.onclick = async () => {
+                    await deleteTeacher(pendingDeleteTeacherId);
+                    closeModal('deleteModal');
+                };
+            }
+            openModal('deleteModal');
+        }
+
+        // Delete teacher
+        async function deleteTeacher(id) {
+            try {
+                const response = await fetch(`/api/teachers/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(data.message);
+                    loadTeachers();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to delete teacher'));
+                }
+            } catch (error) {
+                console.error('Error deleting teacher:', error);
+                alert('An error occurred while deleting the teacher.');
+            }
+        }
+
+        // Filter teachers based on archived checkbox
+        function filterTeachers() {
+            loadTeachers();
+        }
+
+        // Archive teacher (soft delete)
+        function archiveTeacher(id, name) {
+            openGenericConfirmModal('Archive teacher', `Archive ${name}? They will be moved to the archived list.`, async () => {
+                try {
+                    const res = await fetch(`/api/teachers/${id}/archive`, { method: 'PUT' });
+                    const data = await res.json();
+                    if (data.success) {
+                        try { showToast(data.message || 'Teacher archived', 'success'); } catch (e) { alert(data.message || 'Teacher archived'); }
+                        loadTeachers();
+                    } else {
+                        alert('Error: ' + (data.message || 'Failed to archive teacher'));
+                    }
+                } catch (err) {
+                    console.error('Archive teacher error:', err);
+                    alert('An error occurred while archiving the teacher.');
+                }
+            });
+        }
+
+        // Recover archived teacher
+        function recoverTeacher(id, name) {
+            openGenericConfirmModal('Recover teacher', `Recover ${name}? They will be moved back to active teachers.`, async () => {
+                try {
+                    const res = await fetch(`/api/teachers/${id}/recover`, { method: 'PUT' });
+                    const data = await res.json();
+                    if (data.success) {
+                        try { showToast(data.message || 'Teacher recovered', 'success'); } catch (e) { alert(data.message || 'Teacher recovered'); }
+                        loadTeachers();
+                    } else {
+                        alert('Error: ' + (data.message || 'Failed to recover teacher'));
+                    }
+                } catch (err) {
+                    console.error('Recover teacher error:', err);
+                    alert('An error occurred while recovering the teacher.');
+                }
+            });
+        }
+
+        // Permanently delete archived teacher (hard delete)
+        function permanentlyDeleteTeacher(id, name) {
+            openGenericConfirmModal('Permanently delete teacher', `Delete ${name} permanently? This action cannot be undone.`, async () => {
+                try {
+                    const res = await fetch(`/api/teachers/${id}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if (data.success) {
+                        try { showToast(data.message || 'Teacher permanently deleted', 'success'); } catch (e) { alert(data.message || 'Teacher permanently deleted'); }
+                        loadTeachers();
+                    } else {
+                        alert('Error: ' + (data.message || 'Failed to delete teacher'));
+                    }
+                } catch (err) {
+                    console.error('Delete teacher error:', err);
+                    alert('An error occurred while deleting the teacher.');
+                }
+            });
+        }
+
+        // Open assign teacher to section modal
+        async function openAssignTeacherModal(teacherId, teacherName) {
+            document.getElementById('assignTeacherId').value = teacherId;
+            document.getElementById('assignTeacherName').value = teacherName;
+
+            // Open the modal immediately and show loading state
+            const select = document.getElementById('assignTeacherSection');
+            select.innerHTML = '<option value="" disabled selected>Loading sections…</option>';
+            openModal('assignTeacherSectionModal');
+
+            try {
+                // Fetch sections dynamically from API
+                const response = await fetch('/api/sections');
+                const data = await response.json();
+                
+                if (!data.success) {
+                    alert('Error loading sections: ' + (data.message || 'Unknown error'));
+                    return;
+                }
+
+                // Populate with sections from database
+                select.innerHTML = '<option value="">-- Select Section --</option>';
+                data.sections.forEach(section => {
+                    const opt = document.createElement('option');
+                    opt.value = section.id;
+                    let optText = section.section_name;
+                    if (section.adviser_name) {
+                        optText += ` (Current Adviser: ${section.adviser_name})`;
+                    }
+                    opt.textContent = optText;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                console.error('Error fetching sections:', err);
+                alert('Failed to load sections. Please try again.');
+            }
+        }
+
+        // Handle assign teacher to section form submission
+        document.getElementById('assignTeacherSectionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const teacherId = document.getElementById('assignTeacherId').value;
+            const sectionId = document.getElementById('assignTeacherSection').value;
+
+            if (!sectionId) {
+                alert('Please select a section.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/teachers/${teacherId}/assign-section`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sectionId: parseInt(sectionId) })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(data.message);
+                    closeModal('assignTeacherSectionModal');
+                    loadTeachers(); // Refresh teachers list
+                    if (typeof loadSections === 'function') {
+                        loadSections(); // Refresh sections table to update Adviser column
+                    }
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to assign teacher to section'));
+                }
+            } catch (error) {
+                console.error('Error assigning teacher to section:', error);
+                alert('An error occurred while assigning teacher to section.');
+            }
+        });
+
+        // ======================== END TEACHERS MANAGEMENT ========================
+        
+        // --- Section Assignment Logic ---
+        function openAssignSectionModal(studentId, studentName, currentSection) {
+            document.getElementById('assignStudentId').value = studentId;
+            document.getElementById('assignStudentName').value = studentName;
+            
+            // Fetch sections dynamically from API
+            fetch('/api/sections')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert('Error loading sections: ' + (data.message || 'Unknown error'));
+                        return;
+                    }
+                    
+                    const select = document.getElementById('assignSection');
+                    // Clear existing options except the first
+                    select.innerHTML = '<option value="">-- Select Section --</option>';
+                    
+                    // Populate with sections from database
+                    data.sections.forEach(section => {
+                        const opt = document.createElement('option');
+                        opt.value = section.id; // Use section ID now
+                        opt.textContent = `${section.section_name} (${section.available_slots}/${section.max_capacity} available)`;
+                        
+                        // Disable if section is full
+                        if (section.available_slots <= 0) {
+                            opt.disabled = true;
+                            opt.textContent += ' - FULL';
+                        }
+                        
+                        select.appendChild(opt);
+                    });
+                    
+                    // Set current section if available (note: we don't auto-select by name anymore)
+                    // The value is now section ID, so we'd need to match by name if needed
+                    // For now, leave it blank to force selection
+                    
+                    openModal('assignSectionModal');
+                })
+                .catch(err => {
+                    console.error('Error fetching sections:', err);
+                    alert('Failed to load sections. Please try again.');
+                });
+        }
+
+        document.getElementById('assignSectionForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const studentId = document.getElementById('assignStudentId').value;
+            const section = document.getElementById('assignSection').value;
+
+            fetch(`/assign-section/${studentId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ section })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Section assigned successfully!');
+                    closeModal('assignSectionModal');
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to assign section'));
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                alert('An error occurred while assigning section.');
+            });
+        });
+
+        // --- Student Details Logic ---
+        function openStudentDetails(studentId) {
+            fetch(`/api/student/${studentId}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert('Error: ' + (data.message || 'Failed to fetch details'));
+                        return;
+                    }
+                    const s = data.student;
+                    // Basic and personal
+                    document.getElementById('sdFullName').value = s.full_name || '';
+                    document.getElementById('sdSY').value = s.school_year || '';
+                    document.getElementById('sdLRN').value = s.lrn || 'N/A';
+                    document.getElementById('sdGrade').value = s.grade_level || '';
+                    document.getElementById('sdSex').value = s.sex || '';
+                    document.getElementById('sdAge').value = s.age != null ? s.age : '';
+                    document.getElementById('sdGmail').value = s.gmail_address || '';
+                    document.getElementById('sdReligion').value = s.religion || '';
+                    // Contact & address
+                    document.getElementById('sdContact').value = s.contact_number || '';
+                    document.getElementById('sdAddress').value = s.current_address || '';
+                    // IP/PWD
+                    document.getElementById('sdIP').value = s.ip_community || '';
+                    document.getElementById('sdIPSpec').value = s.ip_community_specify || '';
+                    document.getElementById('sdPWD').value = s.pwd || '';
+                    document.getElementById('sdPWDSpec').value = s.pwd_specify || '';
+                    // Parents/Guardian
+                    document.getElementById('sdFather').value = s.father_name || '';
+                    document.getElementById('sdMother').value = s.mother_name || '';
+                    document.getElementById('sdGuardian').value = s.guardian_name || '';
+                    // Other
+                    document.getElementById('sdAssigned').value = s.assigned_section || '';
+                    // Printed Name
+                    const printedNameEl = document.getElementById('sdPrintedName');
+                    if (printedNameEl) printedNameEl.value = s.printed_name || '';
+                    let regDate = '';
+                    try {
+                        if (s.registration_date) {
+                            regDate = new Date(s.registration_date).toLocaleDateString('en-PH', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                        }
+                    } catch (e) {}
+                    document.getElementById('sdRegDate').value = regDate || '';
+                    // Signature
+                    const sigImg = document.getElementById('sdSignature');
+                    const sigNone = document.getElementById('sdSignatureNone');
+                    if (s.signature_image_path) {
+                        sigImg.src = s.signature_image_path;
+                        sigImg.style.display = 'block';
+                        sigNone.style.display = 'none';
+                    } else {
+                        sigImg.style.display = 'none';
+                        sigNone.style.display = 'inline';
+                    }
+
+                    openModal('studentDetailsModal');
+                })
+                .catch(err => {
+                    console.error('Error fetching student:', err);
+                    alert('An error occurred while fetching student details.');
+                });
+        }
+        
+        // --- Students Table Search/Filter ---
+        function applyStudentFilters() {
+            const qName = (document.getElementById('searchName')?.value || '').trim().toLowerCase();
+            const qLRN = (document.getElementById('searchLRN')?.value || '').trim().toLowerCase();
+            const rows = document.querySelectorAll('#students-table-body tr');
+            let visible = 0;
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length < 2) return; // skip message rows
+                const lrn = (cells[0].textContent || '').toLowerCase();
+                const name = (cells[1].textContent || '').toLowerCase();
+                const matchName = !qName || name.includes(qName);
+                const matchLRN = !qLRN || lrn.includes(qLRN);
+                const show = matchName && matchLRN;
+                row.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+            const emptyRow = document.getElementById('students-empty-row');
+            if (emptyRow) emptyRow.style.display = visible === 0 ? '' : 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const nameInput = document.getElementById('searchName');
+            const lrnInput = document.getElementById('searchLRN');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (nameInput) nameInput.addEventListener('input', applyStudentFilters);
+            if (lrnInput) lrnInput.addEventListener('input', applyStudentFilters);
+            if (clearBtn) clearBtn.addEventListener('click', () => {
+                if (nameInput) nameInput.value = '';
+                if (lrnInput) lrnInput.value = '';
+                // Also reset section filter
+                const sec = document.getElementById('sectionFilter');
+                if (sec) sec.value = '';
+                applyStudentFilters();
+                filterStudents();
+            });
+        });
+        
+        // --- Section Management Functions ---
+        function loadSections() {
+            fetch('/api/sections/all')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) {
+                        alert('Error loading sections: ' + (data.message || 'Unknown error'));
+                        return;
+                    }
+                    
+                    const tbody = document.getElementById('sections-table-body');
+                    tbody.innerHTML = '';
+                    
+                    if (data.sections.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="8" class="text-center" style="padding: 2rem;">No sections found. Click "Add New Section" to create one.</td></tr>';
+                        return;
+                    }
+                    
+                    data.sections.forEach(section => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${section.grade_level}</td>
+                            <td>${section.section_name}</td>
+                            <td>${section.max_capacity || 40}</td>
+                            <td>${section.current_count || 0}</td>
+                            <td>${section.adviser_name || '-'}</td>
+                            <td>${section.room_number || '-'}</td>
+                            <td>
+                                ${section.is_active
+                                    ? '<span class="badge" style="background: var(--primary-red); color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px;">Active</span>'
+                                    : '<span class="badge" style="background: var(--gray-400); color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px;">Inactive</span>'}
+                            </td>
+                            <td class="table-actions">
+                                <a href="/sections/${section.id}/view" class="action-btn action-view" title="View students in this section">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+
+                                <div class="action-dropdown" style="position:relative; display:inline-block;">
+                                    <button type="button" class="action-btn action-edit js-dropdown-toggle" aria-haspopup="true" aria-expanded="false" onclick="toggleActionMenu(this)">
+                                        <i class="fas fa-edit"></i> Edit <i class="fas fa-caret-down" style="margin-left:6px; font-size:10px;"></i>
+                                    </button>
+                                    <div class="action-dropdown-menu" style="display:none; position:absolute; right:0; top:44px; min-width:160px; background:#fff; border:1px solid var(--gray-200); box-shadow:var(--shadow-lg); border-radius:8px; padding:8px; z-index:1500;">
+                                        <button type="button" class="action-btn" style="display:block; width:100%; text-align:left; margin-bottom:6px;" onclick="openEditSectionModal(${section.id}, '${section.section_name}', '${section.grade_level}', ${section.max_capacity}, '${section.adviser_name || ''}', '${section.room_number || ''}', ${section.is_active})">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button type="button" class="action-btn action-toggle" style="display:block; width:100%; text-align:left;" onclick="toggleSectionStatus(${section.id}, '${section.section_name}', ${section.is_active})">
+                                            <i class="fas fa-${section.is_active ? 'ban' : 'check'}"></i> ${section.is_active ? 'Deactivate' : 'Activate'}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button class="action-btn action-delete" title="Permanently delete this section" onclick="permanentDeleteSection(${section.id}, '${section.section_name}')" ${section.current_count > 0 ? 'disabled title="Cannot delete section with enrolled students"' : ''}>
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                })
+                .catch(err => {
+                    console.error('Error loading sections:', err);
+                    alert('Failed to load sections. Please refresh the page.');
+                });
+        }
+
+        // Toggle action dropdown menu under Edit button
+        function toggleActionMenu(btn) {
+            try {
+                const menu = btn.parentElement.querySelector('.action-dropdown-menu');
+                if (!menu) return;
+                const isOpen = btn.getAttribute('aria-expanded') === 'true';
+                // Close other menus
+                document.querySelectorAll('.action-dropdown-menu').forEach(m => {
+                    if (m !== menu) m.style.display = 'none';
+                });
+                document.querySelectorAll('.js-dropdown-toggle').forEach(b => b.setAttribute('aria-expanded', 'false'));
+
+                if (isOpen) {
+                    menu.style.display = 'none';
+                    btn.setAttribute('aria-expanded', 'false');
+                } else {
+                    menu.style.display = 'block';
+                    btn.setAttribute('aria-expanded', 'true');
+                }
+            } catch (e) { console.error('toggleActionMenu error', e); }
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest || !e.target.closest('.action-dropdown')) {
+                document.querySelectorAll('.action-dropdown-menu').forEach(m => m.style.display = 'none');
+                document.querySelectorAll('.js-dropdown-toggle').forEach(b => b.setAttribute('aria-expanded', 'false'));
+            }
+        });
+
+        // Save snapshot of current section counts (client helper)
+        async function saveSectionsSnapshot() {
+            const nameInput = document.getElementById('snapshotNameInput');
+            const name = nameInput ? nameInput.value.trim() : '';
+            if (!name) {
+                alert('Please enter a snapshot name (e.g., 2025-2026)');
+                return;
+            }
+
+            openGenericConfirmModal(
+                'Save snapshot',
+                `Save current section counts as snapshot "${escapeHtml(name)}"?`,
+                async () => {
+                    try {
+                        const res = await fetch('/api/sections/snapshots', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ name })
+                        });
+                        const data = await res.json();
+                        if (data && data.success) {
+                            try { showToast(data.message || 'Snapshot saved', 'success'); } catch (e) { alert(data.message || 'Snapshot saved'); }
+                            // Refresh dashboard/sections
+                            try { loadSections(); } catch (e) {}
+                            try { loadDashboard(); } catch (e) {}
+                        } else {
+                            alert('Error: ' + (data.message || 'Failed to save snapshot'));
+                        }
+                    } catch (err) {
+                        console.error('Error saving snapshot:', err);
+                        alert('An error occurred while saving snapshot.');
+                    }
+                }
+            );
+        }
+
+        // Reset all sections (unassign students). Optionally saves snapshot using provided name.
+        async function resetAllSections() {
+            const nameInput = document.getElementById('snapshotNameInput');
+            const name = nameInput ? nameInput.value.trim() : '';
+
+            const confirmMsg = name ? `This will unassign all students from their sections and save a snapshot named "${escapeHtml(name)}". Continue?` : 'This will unassign all students from their sections (move them to Unassigned). Continue?';
+
+            openGenericConfirmModal(
+                'Reset all sections',
+                confirmMsg,
+                async () => {
+                    try {
+                        const res = await fetch('/api/sections/reset', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ snapshotName: name || null })
+                        });
+                        const data = await res.json();
+                        if (data && data.success) {
+                            try { showToast(data.message || 'Reset completed', 'success'); } catch (e) { alert(data.message || 'Reset completed'); }
+                            // Refresh UI
+                            try { loadAllStudents(); } catch (e) {}
+                            try { loadUnassignedStudents(); } catch (e) {}
+                            try { loadSections(); } catch (e) {}
+                            try { loadDashboard(); } catch (e) {}
+                        } else {
+                            alert('Error: ' + (data.message || 'Failed to reset sections'));
+                        }
+                    } catch (err) {
+                        console.error('Error resetting sections:', err);
+                        alert('An error occurred while resetting sections.');
+                    }
+                }
+            );
+        }
+
+        function openAddSectionModal() {
+            document.getElementById('sectionModalTitle').textContent = 'Add New Section';
+            document.getElementById('sectionId').value = '';
+            document.getElementById('sectionForm').reset();
+            document.getElementById('sectionMaxCapacity').value = 40;
+            const advSel = document.getElementById('sectionAdviserSelect');
+            const advSid = document.getElementById('sectionIdForAdviser');
+            if (advSel) { advSel.innerHTML = '<option value="">-- None --</option>'; }
+            if (advSid) advSid.value = '';
+            populateAdviserSelect('');
+            openModal('sectionModal');
+        }
+
+        function openEditSectionModal(id, name, gradeLevel, maxCapacity, adviser, room, isActive) {
+            document.getElementById('sectionModalTitle').textContent = 'Edit Section';
+            document.getElementById('sectionId').value = id;
+            const advSid = document.getElementById('sectionIdForAdviser');
+            document.getElementById('sectionName').value = name;
+            document.getElementById('sectionGradeLevel').value = gradeLevel;
+            document.getElementById('sectionMaxCapacity').value = maxCapacity || 40;
+            populateAdviserSelect(adviser || '');
+            if (advSid) advSid.value = id;
+            document.getElementById('sectionRoom').value = room || '';
+            // Open the modal first, then load students list for this section
+            openModal('sectionModal');
+
+            // Load students enrolled in this section and render them inside the edit modal
+            const tbody = document.getElementById('sectionModalStudentsTable');
+            if (tbody) {
+                tbody.innerHTML = '<tr><td colspan="3" style="padding:12px; color:var(--gray-600);">Loading students…</td></tr>';
+                fetch(`/api/sections/${id}/students`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (!data || !data.success) {
+                            tbody.innerHTML = '<tr><td colspan="3" style="padding:12px; color:#d32f2f;">Failed to load students.</td></tr>';
+                            return;
+                        }
+
+                        const students = data.students || [];
+                        if (students.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="3" style="padding:12px; color:var(--gray-600);">No students enrolled in this section yet.</td></tr>';
+                            return;
+                        }
+
+                        tbody.innerHTML = '';
+                        students.forEach(stu => {
+                            const sid = stu.id || stu.enrollment_id || '';
+                            const lrn = escapeHtml(stu.lrn || '-');
+                            const sname = escapeHtml(stu.full_name || '-');
+
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td style="padding:8px;">${lrn}</td>
+                                <td style="padding:8px;">${sname}</td>
+                                <td style="padding:8px;">
+                                    <button type="button" class="action-btn action-edit" onclick="openReassignModal(${sid}, '${sname}', ${id}, '${escapeHtml(gradeLevel + ' - ' + name)}')" style="margin-right:6px;">
+                                        <i class="fas fa-exchange-alt"></i> Reassign
+                                    </button>
+                                    <button type="button" class="action-btn action-delete" onclick="openConfirmRemoveFromSectionModal(${sid}, '${sname}', ${id})">
+                                        <i class="fas fa-user-minus"></i> Remove
+                                    </button>
+                                </td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Error loading section students for modal:', err);
+                        tbody.innerHTML = '<tr><td colspan="3" style="padding:12px; color:#d32f2f;">An error occurred while loading students.</td></tr>';
+                    });
+            }
+        }
+
+        document.getElementById('sectionForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const sectionId = document.getElementById('sectionId').value;
+            const sectionData = {
+                section_name: document.getElementById('sectionName').value.trim(),
+                grade_level: document.getElementById('sectionGradeLevel').value,
+                max_capacity: parseInt(document.getElementById('sectionMaxCapacity').value) || 40,
+                adviser_name: (document.getElementById('sectionAdviserSelect').value || '').trim() || null,
+                room_number: document.getElementById('sectionRoom').value.trim() || null
+            };
+
+            const url = sectionId ? `/api/sections/${sectionId}` : '/api/sections';
+            const method = sectionId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(sectionData)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    closeModal('sectionModal');
+                    loadSections();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to save section'));
+                }
+            })
+            .catch(err => {
+                console.error('Error saving section:', err);
+                alert('An error occurred while saving the section.');
+            });
+        });
+
+        // ---- Adviser select loader ----
+        async function populateAdviserSelect(selectedName) {
+            const select = document.getElementById('sectionAdviserSelect');
+            if (!select) return;
+            try {
+                const res = await fetch('/api/teachers');
+                const data = await res.json();
+                const prev = selectedName ? String(selectedName).replace(/\s+/g, ' ').trim() : '';
+                const options = ['<option value="">-- None --</option>'];
+                if (data && data.success && Array.isArray(data.teachers)) {
+                    data.teachers.forEach(t => {
+                        const fullName = (t.full_name && t.full_name.trim()) || [t.first_name, t.middle_name, t.last_name, t.ext_name].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+                        const sel = prev && fullName === prev ? ' selected' : '';
+                        options.push(`<option value="${fullName.replace(/"/g, '&quot;')}"${sel}>${fullName}</option>`);
+                    });
+                }
+                select.innerHTML = options.join('');
+            } catch (err) {
+                console.error('Error loading teachers for adviser select:', err);
+                select.innerHTML = '<option value="">-- None --</option>';
+            }
+        }
+
+        function triggerRemoveAdviser() {
+            const sid = document.getElementById('sectionIdForAdviser')?.value;
+            const sname = document.getElementById('sectionName')?.value || '';
+            if (!sid) return;
+            removeAdviser(parseInt(sid), sname);
+        }
+
+        function removeAdviser(sectionId, sectionName) {
+            openGenericConfirmModal(
+                'Remove adviser',
+                `Remove adviser from section "${sectionName}"?`,
+                async () => {
+                    try {
+                        const r = await fetch(`/api/sections/${sectionId}/adviser/remove`, { method: 'PUT' });
+                        const data = await r.json();
+                        if (data.success) {
+                            alert(data.message);
+                            const advSel = document.getElementById('sectionAdviserSelect');
+                            if (advSel) {
+                                advSel.value = '';
+                                if (advSel.selectedIndex !== 0) advSel.selectedIndex = 0;
+                            }
+                            loadSections();
+                        } else {
+                            alert('Error: ' + (data.message || 'Failed to remove adviser'));
+                        }
+                    } catch (err) {
+                        console.error('Error removing adviser:', err);
+                        alert('An error occurred while removing the adviser.');
+                    }
+                }
+            );
+        }
+
+
+        function viewSectionStudents(sectionId, gradeLevel, sectionName) {
+            // Set modal title
+            document.getElementById('sectionStudentsModalTitle').textContent = `${gradeLevel} - ${sectionName}`;
+            
+            // Show loading state
+            const tbody = document.getElementById('section-students-table-body');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #666;">Loading students...</td></tr>';
+            
+            // Open modal
+            openModal('sectionStudentsModal');
+
+            // Fetch section students
+            fetch(`/api/sections/${sectionId}/students`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update statistics
+                        document.getElementById('totalStudentsCount').textContent = data.statistics.total;
+                        document.getElementById('maleStudentsCount').textContent = data.statistics.male;
+                        document.getElementById('femaleStudentsCount').textContent = data.statistics.female;
+
+                        // Populate students table
+                        tbody.innerHTML = '';
+                        
+                        if (data.students.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px; color: #666;">No students enrolled in this section yet.</td></tr>';
+                        } else {
+                            data.students.forEach(student => {
+                                const row = document.createElement('tr');
+                                const enrollmentDate = new Date(student.enrollment_date).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric'
+                                });
+                                
+                                row.innerHTML = `
+                                    <td>${student.lrn || '-'}</td>
+                                    <td>${student.full_name}</td>
+                                    <td>${student.sex}</td>
+                                    <td>${student.age || '-'}</td>
+                                    <td>${student.contact_number || '-'}</td>
+                                    <td>${enrollmentDate}</td>
+                                    <td class="table-actions">
+                                        <button type="button" class="action-btn action-edit" title="Reassign to another section" onclick="openReassignModal(${student.id}, '${student.full_name}', ${sectionId}, '${gradeLevel} - ${sectionName}')">
+                                            <i class="fas fa-exchange-alt"></i> Reassign
+                                        </button>
+                                        <button type="button" class="action-btn action-delete" title="Remove from section" onclick="removeStudentFromSection(${student.id}, '${student.full_name}', ${sectionId})">
+                                            <i class="fas fa-user-minus"></i> Remove
+                                        </button>
+                                    </td>
+                                `;
+                                tbody.appendChild(row);
+                            });
+                        }
+                    } else {
+                        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px; color: #d32f2f;">Failed to load students.</td></tr>';
+                        alert('Error: ' + (data.message || 'Failed to load section students'));
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading section students:', err);
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px; color: #d32f2f;">An error occurred while loading students.</td></tr>';
+                });
+        }
+
+        function openReassignModal(studentId, studentName, currentSectionId, currentSectionName) {
+            document.getElementById('reassignStudentId').value = studentId;
+            document.getElementById('reassignCurrentSectionId').value = currentSectionId;
+            document.getElementById('reassignStudentName').textContent = studentName;
+            document.getElementById('reassignCurrentSection').textContent = currentSectionName;
+
+            // Load available sections
+            fetch('/api/sections')
+                .then(r => r.json())
+                .then(data => {
+                    const select = document.getElementById('reassignNewSection');
+                    select.innerHTML = '<option value="">-- Select New Section --</option>';
+                    
+                    // Handle both array response and {success, sections} response
+                    const sections = data.sections || data;
+                    
+                    sections.forEach(section => {
+                        // Don't show current section or full sections
+                        if (section.id != currentSectionId && section.available_slots > 0) {
+                            select.innerHTML += `<option value="${section.id}">${section.grade_level} - ${section.section_name} (${section.available_slots} slots available)</option>`;
+                        }
+                    });
+
+                    openModal('reassignSectionModal');
+                })
+                .catch(err => {
+                    console.error('Error loading sections:', err);
+                    alert('Failed to load sections for reassignment.');
+                });
+        }
+
+        document.getElementById('reassignForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const studentId = document.getElementById('reassignStudentId').value;
+            const newSectionId = document.getElementById('reassignNewSection').value;
+            const studentName = document.getElementById('reassignStudentName').textContent;
+
+            if (!newSectionId) {
+                alert('Please select a new section');
+                return;
+            }
+
+            fetch(`/api/students/${studentId}/reassign`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ newSectionId: parseInt(newSectionId) })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    // Show a non-blocking success popout and then switch to Sections tab
+                    try { showToast(data.message || 'Student reassigned successfully', 'success'); } catch (e) { alert(data.message || 'Student reassigned successfully'); }
+                    closeModal('reassignSectionModal');
+                    closeModal('sectionStudentsModal');
+                    loadUnassignedStudents(); // Refresh unassigned list
+                    // Give the toast a moment to be noticed, then navigate to Sections
+                    setTimeout(() => {
+                        try { showContent('sections-content'); } catch (e) { /* fallback */ }
+                        try { loadSections(); } catch (e) { /* fallback */ }
+                    }, 700);
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to reassign student'));
+                }
+            })
+            .catch(err => {
+                console.error('Error reassigning student:', err);
+                alert('An error occurred while reassigning the student.');
+            });
+        });
+
+        function removeStudentFromSection(studentId, studentName, sectionId) {
+            // Backwards-compatible wrapper: open the confirmation modal
+            openConfirmRemoveFromSectionModal(studentId, studentName, sectionId || '');
+        }
+
+        // Opens modal to confirm removing student from their assigned section
+        function openConfirmRemoveFromSectionModal(studentId, studentName, sectionId) {
+            const msgEl = document.getElementById('removeFromSectionMessage');
+            const hidId = document.getElementById('removeFromSectionStudentId');
+            const hidSec = document.getElementById('removeFromSectionSectionId');
+            const confirmBtn = document.getElementById('confirmRemoveFromSectionBtn');
+
+            if (hidId) hidId.value = studentId;
+            if (hidSec) hidSec.value = sectionId || '';
+            if (msgEl) msgEl.textContent = `Are you sure you want to remove "${studentName}" from this section? The student will be moved to Unassigned Students.`;
+
+            // bind one-time handler
+            if (confirmBtn) {
+                confirmBtn.onclick = async () => {
+                    await performRemoveStudentFromSection(studentId, sectionId);
+                    closeModal('confirmRemoveFromSectionModal');
+                };
+            }
+
+            openModal('confirmRemoveFromSectionModal');
+        }
+
+        // Perform the remove operation and update UI
+        async function performRemoveStudentFromSection(studentId, sectionId) {
+            try {
+                const res = await fetch(`/api/students/${studentId}/remove-section`, { method: 'PUT' });
+                let data = null;
+                try { data = await res.json(); } catch (e) { data = { success: false, message: 'Invalid server response' }; }
+
+                if (data && data.success) {
+                    try { showToast(data.message || 'Student removed from section', 'success'); } catch (e) { alert(data.message || 'Student removed from section'); }
+                    // Refresh lists and UI
+                    try { closeModal('sectionStudentsModal'); } catch (e) {}
+                    loadUnassignedStudents();
+                    loadAllStudents();
+                    loadSections();
+                } else {
+                    try { showToast('Error: ' + (data.message || 'Failed to remove student'), 'error'); } catch (e) { alert('Error: ' + (data.message || 'Failed to remove student')); }
+                }
+            } catch (err) {
+                console.error('Error removing student:', err);
+                try { showToast('An error occurred while removing the student.', 'error'); } catch (e) { alert('An error occurred while removing the student.'); }
+            }
+        }
+
+        function loadUnassignedStudents() {
+            fetch('/api/students/unassigned')
+                .then(r => r.json())
+                .then(data => {
+                    const tbody = document.getElementById('unassigned-students-table-body');
+                    const countBadge = document.getElementById('unassigned-count');
+                    
+                    tbody.innerHTML = '';
+                    countBadge.textContent = data.length;
+
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px; color: #666;">No unassigned students.</td></tr>';
+                    } else {
+                        data.forEach(student => {
+                            const row = document.createElement('tr');
+                            const enrollmentDate = new Date(student.enrollment_date).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            });
+                            
+                            row.innerHTML = `
+                                <td>${student.lrn || '-'}</td>
+                                <td>${student.full_name}</td>
+                                <td>${student.grade_level}</td>
+                                <td>${student.sex}</td>
+                                <td>${student.age || '-'}</td>
+                                <td>${student.contact_number || '-'}</td>
+                                <td>${enrollmentDate}</td>
+                                <td class="table-actions">
+                                    <button class="action-btn action-edit" title="Assign to section" onclick="assignUnassignedStudent(${student.id}, '${student.full_name}')">
+                                        <i class="fas fa-user-plus"></i> Assign
+                                    </button>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading unassigned students:', err);
+                    const tbody = document.getElementById('unassigned-students-table-body');
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px; color: #d32f2f;">Failed to load unassigned students.</td></tr>';
+                });
+        }
+
+        function assignUnassignedStudent(studentId, studentName) {
+            // Reuse the reassign modal but for unassigned students
+            document.getElementById('reassignStudentId').value = studentId;
+            document.getElementById('reassignCurrentSectionId').value = '';
+            document.getElementById('reassignStudentName').textContent = studentName;
+            document.getElementById('reassignCurrentSection').textContent = 'None (Unassigned)';
+
+            // Load available sections
+            fetch('/api/sections')
+                .then(r => r.json())
+                .then(data => {
+                    const select = document.getElementById('reassignNewSection');
+                    select.innerHTML = '<option value="">-- Select Section --</option>';
+                    
+                    // Handle both array response and {success, sections} response
+                    const sections = data.sections || data;
+                    
+                    sections.forEach(section => {
+                        if (section.available_slots > 0) {
+                            select.innerHTML += `<option value="${section.id}">${section.grade_level} - ${section.section_name} (${section.available_slots} slots available)</option>`;
+                        }
+                    });
+
+                    openModal('reassignSectionModal');
+                })
+                .catch(err => {
+                    console.error('Error loading sections:', err);
+                    alert('Failed to load sections.');
+                });
+        }
+
+        // Archive functionality - checkbox filter
+        let allStudentsData = []; // Store all students (active + archived)
+
+        function filterStudents() {
+            const showArchived = document.getElementById('showArchivedCheckbox').checked;
+            const tbody = document.getElementById('students-table-body');
+            const selectedSection = (document.getElementById('sectionFilter')?.value || '').trim();
+
+            // Filter based on archive checkbox first
+            let filteredStudents = showArchived 
+                ? allStudentsData.filter(s => s.is_archived)
+                : allStudentsData.filter(s => !s.is_archived);
+
+            // Further filter by selected section (if any)
+            if (selectedSection) {
+                filteredStudents = filteredStudents.filter(s => {
+                    const sec = (s.assigned_section || '').trim();
+                    return sec === selectedSection;
+                });
+            }
+
+            if (filteredStudents.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center" style="padding: 2rem; color: var(--gray-500);">
+                    ${showArchived ? 'No archived students found' : 'No active students found'}
+                </td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filteredStudents.map(student => {
+                const sid = student.id || student.enrollment_id || '';
+                const name = escapeHtml(student.full_name || '');
+                const assignedSectionName = escapeHtml(student.assigned_section || '');
+
+                const sectionBadge = student.assigned_section ?
+                    `<span class="badge" style="background: var(--success-color); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 500;">${assignedSectionName}</span>` :
+                    `<span class="text-muted" style="font-size: 12px;">Not assigned</span>`;
+
+                // Actions: View always; if unassigned show Assign; if assigned show Reassign + Remove; if archived show Restore
+                let actions = `
+                    <button class="action-btn action-view" onclick="openStudentDetails(${sid})" title="View details">
+                        <i class="fas fa-eye"></i> View
+                    </button>`;
+
+                if (!student.is_archived && (!student.assigned_section || student.enrollment_status === 'pending')) {
+                    actions += `
+                        <button class="action-btn action-edit" onclick="openAssignSectionModal(${sid}, '${name}', '${assignedSectionName}')" title="Assign to section">
+                            <i class="fas fa-users"></i> Assign
+                        </button>`;
+                } else if (!student.is_archived && student.assigned_section) {
+                    // Reassign and Remove for assigned students
+                    actions += `
+                        <button type="button" class="action-btn action-edit" onclick="openReassignModal(${sid}, '${name}', '', '${assignedSectionName}')" title="Reassign to another section">
+                            <i class="fas fa-exchange-alt"></i> Reassign
+                        </button>
+                        <button class="action-btn action-delete" onclick="openConfirmRemoveFromSectionModal(${sid}, '${name}', '')" title="Remove from section">
+                            <i class="fas fa-user-minus"></i> Remove
+                        </button>`;
+                }
+
+                if (student.is_archived) {
+                    actions += `
+                        <button class="action-btn action-edit" onclick="unarchiveStudent(${sid}, '${name}')" title="Restore student">
+                            <i class="fas fa-undo"></i> Restore
+                        </button>`;
+                }
+
+                return `
+                    <tr>
+                        <td>${escapeHtml(student.lrn || 'N/A')}</td>
+                        <td>${name}</td>
+                        <td>${escapeHtml(student.grade_level || '')}</td>
+                        <td>${escapeHtml(student.sex || '')}</td>
+                        <td>${escapeHtml(student.age != null ? String(student.age) : 'N/A')}</td>
+                        <td>${escapeHtml(student.contact_number || 'N/A')}</td>
+                        <td>${sectionBadge}</td>
+                        <td class="table-actions">${actions}</td>
+                    </tr>`;
+            }).join('');
+        }
+
+        // Load all students on page load
+        function loadAllStudents() {
+            fetch('/api/students/all')
+                .then(r => r.json())
+                .then(data => {
+                    allStudentsData = data.students || [];
+                    // Populate section filter based on active sections in the system
+                    populateSectionFilter().finally(() => {
+                        filterStudents(); // Apply initial filter after sections loaded
+                    });
+                })
+                .catch(err => {
+                    console.error('Error loading students:', err);
+                });
+        }
+
+        // Populate the Section dropdown used for filtering
+        async function populateSectionFilter() {
+            const sel = document.getElementById('sectionFilter');
+            if (!sel) return;
+            try {
+                const res = await fetch('/api/sections');
+                const data = await res.json();
+                const sections = data.sections || [];
+
+                // Keep 'All sections' as first option
+                const opts = ['<option value="">All sections</option>'];
+                sections.forEach(s => {
+                    // Use section_name as the value (matches assigned_section text)
+                    const name = (s.section_name || '').trim();
+                    opts.push(`<option value="${escapeHtml(name)}">${s.grade_level} — ${escapeHtml(name)}</option>`);
+                });
+                sel.innerHTML = opts.join('');
+            } catch (err) {
+                console.error('Error loading sections for filter:', err);
+            }
+        }
+
+        // Apply the selected section filter when the user clicks the Filter button
+        function applySectionFilter() {
+            filterStudents();
+            // Also re-apply text searches to the visible rows
+            applyStudentFilters();
+        }
+
+        // small helper to avoid inserting raw html
+        function escapeHtml(str) {
+            return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        // Call on page load
+        if (document.getElementById('students-content')) {
+            loadAllStudents();
+        }
+
+        // --- Section Snapshot UI Handlers ---
+        function openSnapshotsModal() {
+            openModal('sectionSnapshotsModal');
+            loadSnapshots();
+        }
+
+        async function saveSnapshotFromModal() {
+            const input = document.getElementById('snapshotNameInputModal');
+            const name = input ? input.value.trim() : '';
+            if (!name) return alert('Enter a snapshot name first');
+            openGenericConfirmModal('Save snapshot', `Save current section counts as "${escapeHtml(name)}"?`, async () => {
+                try {
+                    const res = await fetch('/api/sections/snapshots', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) });
+                    const data = await res.json();
+                    if (data && data.success) {
+                        try { showToast(data.message || 'Snapshot saved', 'success'); } catch (e) { alert(data.message || 'Snapshot saved'); }
+                        input.value = '';
+                        loadSnapshots();
+                    } else {
+                        alert('Error: ' + (data.message || 'Failed to save snapshot'));
+                    }
+                } catch (err) { console.error('Save snapshot error', err); alert('Error saving snapshot'); }
+            });
+        }
+
+        async function loadSnapshots() {
+            const filter = document.getElementById('snapshotFilterSelect')?.value || 'all';
+            // keep filter button label in sync
+            const btn = document.getElementById('snapshotFilterBtn');
+            if (btn) {
+                const label = (filter === 'all') ? 'All' : (filter === 'active' ? 'Active' : 'Archived');
+                btn.innerText = `Filter: ${label} ▾`;
+            }
+            const tbody = document.getElementById('snapshots-table-body');
+            tbody.innerHTML = '<tr><td colspan="4" style="padding:20px; text-align:center; color:#666;">Loading...</td></tr>';
+            try {
+                const res = await fetch('/api/sections/snapshots');
+                const data = await res.json();
+                if (!data.success) return tbody.innerHTML = '<tr><td colspan="4">Failed to load snapshots</td></tr>';
+                const rows = data.groups.filter(g => {
+                    if (filter === 'all') return true;
+                    if (filter === 'active') return !g.is_archived;
+                    if (filter === 'archived') return g.is_archived;
+                });
+                if (rows.length === 0) return tbody.innerHTML = '<tr><td colspan="4" style="padding:20px; text-align:center; color:#666;">No snapshots found</td></tr>';
+                tbody.innerHTML = '';
+                rows.forEach(g => {
+                    const tr = document.createElement('tr');
+                    const created = new Date(g.created_at).toLocaleString();
+                    tr.innerHTML = `
+                        <td>${escapeHtml(g.snapshot_name)}</td>
+                        <td>${created}</td>
+                        <td>${g.is_archived ? '<span class="status-badge status-inactive">Archived</span>' : '<span class="status-badge status-active">Active</span>'}</td>
+                        <td class="table-actions">
+                            <button class="action-btn action-view" onclick="viewSnapshotItems(${g.id}, '${escapeHtml(g.snapshot_name)}')"><i class="fas fa-eye"></i> View</button>
+                            ${g.is_archived ? `<button class="action-btn action-confirm" onclick="recoverSnapshot(${g.id})"><i class="fas fa-undo"></i> Recover</button>
+                                              <button class="action-btn action-delete" onclick="permanentlyDeleteSnapshot(${g.id})"><i class="fas fa-trash"></i> Delete</button>`
+                                           : `<button class="action-btn action-delete" onclick="archiveSnapshot(${g.id})"><i class="fas fa-archive"></i> Archive</button>`}
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                console.error('Load snapshots error', err);
+                tbody.innerHTML = '<tr><td colspan="4">Error loading snapshots</td></tr>';
+            }
+        }
+
+        // Snapshot filter menu helpers
+        function toggleSnapshotFilterMenu(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('snapshotFilterMenu');
+            if (!menu) return;
+            menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        }
+
+        function setSnapshotFilter(val, label) {
+            const hidden = document.getElementById('snapshotFilterSelect');
+            const btn = document.getElementById('snapshotFilterBtn');
+            const menu = document.getElementById('snapshotFilterMenu');
+            if (hidden) hidden.value = val;
+            if (btn) btn.innerText = `Filter: ${label} ▾`;
+            if (menu) menu.style.display = 'none';
+            try { loadSnapshots(); } catch (e) { console.warn('loadSnapshots error', e); }
+        }
+
+        // close filter menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('snapshotFilterMenu');
+            const btn = document.getElementById('snapshotFilterBtn');
+            if (!menu) return;
+            if (e.target === btn || btn?.contains(e.target)) return;
+            if (menu.style.display === 'block') menu.style.display = 'none';
+        });
+
+        async function viewSnapshotItems(groupId, name) {
+            try {
+                const res = await fetch(`/api/sections/snapshots/${groupId}/items`);
+                const data = await res.json();
+                if (!data.success) return alert('Failed to load snapshot items');
+                const tb = document.getElementById('snapshot-items-body');
+                tb.innerHTML = '';
+                data.items.forEach(it => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${escapeHtml(it.grade_level || '')}</td>
+                        <td>${escapeHtml(it.section_name || '')}</td>
+                        <td>${it.count != null ? String(it.count) : '0'}</td>
+                        <td>${escapeHtml(it.adviser_name || '-')}</td>
+                    `;
+                    tb.appendChild(tr);
+                });
+                document.getElementById('snapshotItemsModalTitle').textContent = `Snapshot: ${name}`;
+                openModal('snapshotItemsModal');
+            } catch (err) { console.error('View snapshot items error', err); alert('Error loading items'); }
+        }
+
+        async function archiveSnapshot(groupId) {
+            openGenericConfirmModal('Archive snapshot', 'Archive this snapshot? It will be hidden from active lists.', async () => {
+                try {
+                    const res = await fetch(`/api/sections/snapshots/${groupId}/archive`, { method: 'PUT' });
+                    const data = await res.json();
+                    if (data && data.success) { try { showToast(data.message || 'Archived', 'success'); } catch (e) { alert(data.message || 'Archived'); } loadSnapshots(); }
+                    else alert('Error: ' + (data.message || 'Failed to archive'));
+                } catch (err) { console.error(err); alert('Error archiving snapshot'); }
+            });
+        }
+
+        async function recoverSnapshot(groupId) {
+            openGenericConfirmModal('Recover snapshot', 'Recover this archived snapshot?', async () => {
+                try {
+                    const res = await fetch(`/api/sections/snapshots/${groupId}/recover`, { method: 'PUT' });
+                    const data = await res.json();
+                    if (data && data.success) { try { showToast(data.message || 'Recovered', 'success'); } catch (e) { alert(data.message || 'Recovered'); } loadSnapshots(); }
+                    else alert('Error: ' + (data.message || 'Failed to recover'));
+                } catch (err) { console.error(err); alert('Error recovering snapshot'); }
+            });
+        }
+
+        async function permanentlyDeleteSnapshot(groupId) {
+            openGenericConfirmModal('Delete snapshot', 'Permanently delete this snapshot? This cannot be undone.', async () => {
+                try {
+                    const res = await fetch(`/api/sections/snapshots/${groupId}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if (data && data.success) { try { showToast(data.message || 'Deleted', 'success'); } catch (e) { alert(data.message || 'Deleted'); } loadSnapshots(); }
+                    else alert('Error: ' + (data.message || 'Failed to delete'));
+                } catch (err) { console.error(err); alert('Error deleting snapshot'); }
+            });
+        }
+
+        function unarchiveStudent(studentId, studentName) {
+            openGenericConfirmModal(
+                'Restore student',
+                `Restore student "${studentName}"? They will be moved back to active students.`,
+                async () => {
+                    try {
+                        const r = await fetch(`/api/students/${studentId}/unarchive`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } });
+                        const data = await r.json();
+                        if (data.success) {
+                            alert(data.message);
+                            loadAllStudents();
+                            const chk = document.getElementById('showArchivedCheckbox');
+                            if (chk) chk.checked = false;
+                            filterStudents();
+                        } else {
+                            alert('Error: ' + (data.message || 'Failed to restore student'));
+                        }
+                    } catch (err) {
+                        console.error('Error restoring student:', err);
+                        alert('An error occurred while restoring the student.');
+                    }
+                }
+            );
+        }
+
+        // Load unassigned students when switching to Unassigned Students tab
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', function() {
+                const contentId = this.getAttribute('data-content-id');
+                if (contentId === 'unassigned-content') {
+                    setTimeout(() => loadUnassignedStudents(), 100);
+                }
+            });
+        });
+
+        // Also load on page if unassigned link exists
+        const unassignedLink = document.getElementById('unassigned-link');
+        if (unassignedLink) {
+            unassignedLink.addEventListener('click', function() {
+                setTimeout(() => loadUnassignedStudents(), 100);
+            });
+        }
+
+        function toggleSectionStatus(id, name, currentStatus) {
+            const action = currentStatus ? 'deactivate' : 'activate';
+            openGenericConfirmModal(
+                `${action.charAt(0).toUpperCase() + action.slice(1)} section`,
+                `Are you sure you want to ${action} section "${name}"?`,
+                async () => {
+                    try {
+                        const r = await fetch(`/api/sections/${id}/toggle`, { method: 'PUT' });
+                        const data = await r.json();
+                        if (data.success) {
+                            alert(data.message);
+                            loadSections();
+                        } else {
+                            alert('Error: ' + (data.message || 'Failed to toggle section status'));
+                        }
+                    } catch (err) {
+                        console.error('Error toggling section status:', err);
+                        alert('An error occurred while changing the section status.');
+                    }
+                }
+            );
+        }
+
+        function permanentDeleteSection(id, name) {
+            // First confirmation
+            openGenericConfirmModal(
+                'Permanently delete section',
+                `⚠️ WARNING: Are you sure you want to PERMANENTLY DELETE section "${name}"?\n\nThis action CANNOT be undone and will remove all section data.`,
+                async () => {
+                    // Second (final) confirmation
+                    openGenericConfirmModal(
+                        'Final confirmation',
+                        `Final confirmation: Permanently delete "${name}"?`,
+                        async () => {
+                            try {
+                                const r = await fetch(`/api/sections/${id}/permanent`, { method: 'DELETE' });
+                                const data = await r.json();
+                                if (data.success) {
+                                    alert(data.message);
+                                    loadSections();
+                                } else {
+                                    alert('Error: ' + (data.message || 'Failed to delete section'));
+                                }
+                            } catch (err) {
+                                console.error('Error permanently deleting section:', err);
+                                alert('An error occurred while deleting the section.');
+                            }
+                        }
+                    );
+                }
+            );
+        }
+
+        function deleteSection(id, name) {
+            openGenericConfirmModal(
+                'Delete section',
+                `Are you sure you want to delete section "${name}"? This action cannot be undone.`,
+                async () => {
+                    try {
+                        const r = await fetch(`/api/sections/${id}`, { method: 'DELETE' });
+                        const data = await r.json();
+                        if (data.success) {
+                            alert(data.message);
+                            loadSections();
+                        } else {
+                            alert('Error: ' + (data.message || 'Failed to delete section'));
+                        }
+                    } catch (err) {
+                        console.error('Error deleting section:', err);
+                        alert('An error occurred while deleting the section.');
+                    }
+                }
+            );
+        }
+
+        // Load sections when the Sections tab is clicked
+        document.getElementById('sections-link')?.addEventListener('click', () => {
+            loadSections();
+        });
+        
+        // --- General UI Logic ---
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const menuToggle = document.querySelector('.menu-toggle');
+            const mainContent = document.querySelector('.main-content');
+            
+            sidebar.classList.toggle('expanded');
+            menuToggle.classList.toggle('active');
+            
+            // This is a CSS-based animation, no need to manually update mainContent margin
+            // as the CSS selector handles it.
+        }
+
+        // Dashboard data and charts
+        let enrollmentChart = null;
+        let genderChart = null;
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch('/api/dashboard/summary');
+                const data = await res.json();
+                if (!data.success) {
+                    console.error('Failed to load dashboard:', data.message);
+                    return;
+                }
+
+                const m = data.metrics;
+                // Update stat cards
+                document.getElementById('total-teachers').innerText = m.teachers.total;
+                document.getElementById('total-students').innerText = m.students.total;
+                document.getElementById('avg-class-size').innerText = m.avgClassSize;
+
+                // Populate Sections Overview table
+                const tbody = document.getElementById('sections-overview-body');
+                if (tbody) {
+                    tbody.innerHTML = '';
+                    data.sectionsOverview.forEach(sec => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${sec.section_name}</td>
+                            <td>${sec.total}</td>
+                            <td>${sec.girls}</td>
+                            <td>${sec.boys}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                // Charts
+                // Default to the snapshots chart (controls removed)
+                try { await plotSnapshotsBySY(); } catch (e) { console.warn('Failed to plot snapshots by SY on load', e); }
+                renderGenderDistributionChart(m.students.male, m.students.female);
+            } catch (err) {
+                console.error('Dashboard load error:', err);
+            }
+        }
+
+        // (Removed) Old live enrollment trend chart: replaced with snapshot-centered visualizations.
+
+        function renderGenderDistributionChart(male, female) {
+            const ctx = document.getElementById('genderDistributionChart');
+            if (!ctx) return;
+            if (genderChart) genderChart.destroy();
+            genderChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Male', 'Female'],
+                    datasets: [{
+                        data: [male, female],
+                        backgroundColor: ['#3B82F6', '#EC4899']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 12 },
+                                padding: 15
+                            }
+                        } 
+                    }
+                }
+            });
+        }
+
+        // Snapshot overlay selectors and overlay handlers removed — dashboard defaults to snapshot plot
+
+        // Plot all saved snapshots: each dot represents a school year (SY on Y axis), count on X axis
+        async function plotSnapshotsBySY() {
+            const ctx = document.getElementById('enrollmentTrendChart');
+            if (!ctx) return;
+            try {
+                const res = await fetch('/api/sections/snapshots');
+                const meta = await res.json();
+                if (!meta || !meta.success || !Array.isArray(meta.groups) || meta.groups.length === 0) {
+                    alert('No snapshots available to plot');
+                    return;
+                }
+                const groups = meta.groups.sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+                // fetch items for each group in parallel
+                const itemsResults = await Promise.all(groups.map(g => fetch(`/api/sections/snapshots/${g.id}/items`).then(r=>r.json()).catch(()=>null)));
+                const rows = [];
+                for (let i=0;i<groups.length;i++) {
+                    const g = groups[i];
+                    const d = itemsResults[i];
+                    if (!d || !d.success || !Array.isArray(d.items)) continue;
+                    const total = d.items.reduce((s,it)=> s + (Number(it.count)||0), 0);
+                    rows.push({ name: g.snapshot_name, total });
+                }
+                if (rows.length === 0) { alert('No snapshot items found'); return; }
+                // Render the snapshots chart
+                renderSnapshotsChart(rows);
+                try { renderInterpretationFromRows(rows); } catch (e) { console.warn('renderInterpretation error', e); }
+            } catch (err) {
+                console.error('Error plotting snapshots', err); alert('Failed to plot snapshots');
+            }
+        }
+
+        // Render a snapshots chart for provided rows = [{name, total}, ...]
+        function renderSnapshotsChart(rows) {
+            const ctx = document.getElementById('enrollmentTrendChart');
+            if (!ctx) return;
+            // Sort rows by year extracted from name if possible
+            rows.sort((a,b) => {
+                const pa = (a.name || '').match(/(\d{4})/); const pb = (b.name || '').match(/(\d{4})/);
+                const na = pa ? Number(pa[1]) : a.name.localeCompare(b.name);
+                const nb = pb ? Number(pb[1]) : b.name.localeCompare(a.name);
+                return na - nb;
+            });
+            const labels = rows.map(r => r.name);
+            const values = rows.map(r => r.total);
+            if (enrollmentChart) enrollmentChart.destroy();
+            enrollmentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Students',
+                        data: values,
+                        borderColor: '#1f78b4',
+                        backgroundColor: 'rgba(31,120,180,0.08)',
+                        fill: false,
+                        tension: 0.2,
+                        pointBackgroundColor: '#1f78b4',
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: 'School Year' } },
+                        y: { beginAtZero: true, title: { display: true, text: 'Student Count' } }
+                    },
+                    plugins: {
+                        tooltip: { mode: 'nearest', intersect: true }
+                    }
+                }
+            });
+        }
+
+        // Toggle visibility for the interpretation panel
+        function toggleInterpretation() {
+            const container = document.getElementById('chartInterpretation');
+            const btn = document.getElementById('toggleInterpretationBtn');
+            if (!container || !btn) return;
+            const isHidden = container.style.display === 'none' || container.style.display === '';
+            container.style.display = isHidden ? 'block' : 'none';
+            btn.innerText = isHidden ? 'Hide insights' : 'Show insights';
+        }
+
+        // Render interpretation / breakdown analysis given rows = [{name, total}, ...]
+        function renderInterpretationFromRows(rows) {
+            const container = document.getElementById('chartInterpretation');
+            if (!container) return;
+            if (!rows || rows.length === 0) {
+                container.style.display = 'none';
+                container.innerHTML = '';
+                const btn = document.getElementById('toggleInterpretationBtn'); if (btn) btn.innerText = 'Show insights';
+                return;
+            }
+
+            // Normalize rows and ensure chronological order (earliest -> latest) if possible
+            const normalized = rows.map(r => ({ name: String(r.name || ''), total: Number(r.total) || 0 }));
+            // Try to sort by first 4-digit year in name, fallback to provided order
+            const extractYear = s => { const m = String(s).match(/(\d{4})/); return m ? Number(m[1]) : null; };
+            const withYear = normalized.map(r => ({ ...r, year: extractYear(r.name) }));
+            withYear.sort((a,b) => {
+                if (a.year != null && b.year != null) return a.year - b.year;
+                if (a.year != null) return -1;
+                if (b.year != null) return 1;
+                return 0;
+            });
+
+            const totals = withYear.map(r => r.total);
+            const names = withYear.map(r => r.name);
+            const n = totals.length;
+            const sum = totals.reduce((s,v) => s+v, 0);
+            const avg = Math.round((sum / n) * 10) / 10;
+
+            // min / max indices
+            let minIdx = 0, maxIdx = 0;
+            totals.forEach((v,i)=>{ if (v < totals[minIdx]) minIdx = i; if (v > totals[maxIdx]) maxIdx = i; });
+
+            // compute year-to-year diffs and percent changes
+            const diffs = [];
+            for (let i=0;i<n;i++) {
+                const prev = i > 0 ? totals[i-1] : null;
+                const cur = totals[i];
+                const diff = prev == null ? null : cur - prev;
+                const pct = (prev == null || prev === 0) ? null : Math.round(((cur - prev)/Math.abs(prev)) * 1000)/10;
+                diffs.push({ from: prev, to: cur, diff, pct });
+            }
+
+            // identify top increases/decreases between adjacent years
+            let topInc = null, topDec = null;
+            for (let i=1;i<n;i++) {
+                const d = diffs[i].diff;
+                if (d != null) {
+                    if (topInc == null || d > topInc.amount) topInc = { idxFrom: i-1, idxTo: i, amount: d };
+                    if (topDec == null || d < topDec.amount) topDec = { idxFrom: i-1, idxTo: i, amount: d };
+                }
+            }
+
+            // Build a detailed HTML interpretation
+            let html = '';
+            html += '<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">';
+
+            // Left column: key summary
+            html += '<div style="flex:1 1 320px; min-width:280px;">';
+            html += '<h4 style="margin:0 0 8px 0; font-size:15px;">Snapshot Insights</h4>';
+            html += `<div style="font-size:14px; color:var(--gray-700);">Plotted <strong>${n}</strong> saved school year(s). Average: <strong>${avg.toLocaleString()}</strong> students.</div>`;
+            html += `<div style="margin-top:8px;">Lowest: <strong>${names[minIdx]}</strong> (${totals[minIdx].toLocaleString()})</div>`;
+            html += `<div>Highest: <strong>${names[maxIdx]}</strong> (${totals[maxIdx].toLocaleString()})</div>`;
+            if (n >= 2) {
+                const first = totals[0], last = totals[n-1];
+                const pctTotal = first === 0 ? null : Math.round(((last-first)/Math.abs(first))*1000)/10;
+                html += `<div style="margin-top:8px;">Overall change (${names[0]} → ${names[n-1]}): <strong>${last.toLocaleString()}</strong>`;
+                if (pctTotal != null) html += ` (${pctTotal}% ${pctTotal >= 0 ? '<span style="color:green">increase</span>' : '<span style="color:red">decrease</span>'})`;
+                html += '</div>';
+            }
+
+            // Top inc/dec
+            if (topInc && topInc.amount > 0) {
+                html += `<div style="margin-top:8px; color:green;"><strong>Largest year-on-year increase:</strong> ${names[topInc.idxFrom]} → ${names[topInc.idxTo]}: +${topInc.amount.toLocaleString()}</div>`;
+            }
+            if (topDec && topDec.amount < 0) {
+                html += `<div style="margin-top:6px; color:red;"><strong>Largest year-on-year decrease:</strong> ${names[topDec.idxFrom]} → ${names[topDec.idxTo]}: ${topDec.amount.toLocaleString()}</div>`;
+            }
+
+            // Removed outdated tips about Compare / Plot controls (they were removed)
+            html += '</div>'; // end left column
+
+            // Right column: per-snapshot table with changes
+            html += '<div style="flex:1 1 360px; min-width:260px;">';
+            html += '<h4 style="margin:0 0 8px 0; font-size:15px;">Year-by-year breakdown</h4>';
+            html += '<table style="width:100%; border-collapse:collapse; font-size:13px;">';
+            html += '<thead><tr><th style="text-align:left; padding:6px 8px; font-weight:700;">School Year</th><th style="text-align:right; padding:6px 8px; font-weight:700;">Students</th><th style="text-align:right; padding:6px 8px; font-weight:700;">Change</th><th style="text-align:right; padding:6px 8px; font-weight:700;">%</th></tr></thead>';
+            html += '<tbody>';
+            for (let i=0;i<n;i++) {
+                const name = names[i];
+                const total = totals[i];
+                const d = diffs[i].diff;
+                const p = diffs[i].pct;
+                let ch = '-'; let pct = '-'; let color = '';
+                if (d != null) {
+                    ch = `${d > 0 ? '+' : ''}${d.toLocaleString()}`;
+                    pct = p != null ? `${p > 0 ? '+' : ''}${p}%` : '—';
+                    color = d > 0 ? 'color:green' : (d < 0 ? 'color:red' : '');
+                }
+                html += `<tr style="border-top:1px solid var(--gray-100);"><td style="padding:6px 8px;">${escapeHtml(name)}</td><td style="padding:6px 8px; text-align:right;">${total.toLocaleString()}</td><td style="padding:6px 8px; text-align:right; ${color}">${ch}</td><td style="padding:6px 8px; text-align:right; ${color}">${pct}</td></tr>`;
+            }
+            html += '</tbody></table>';
+            html += '</div>'; // end right column
+
+            html += '</div>'; // end main flex
+
+            // Recommendations section
+            html += '<div style="margin-top:10px; font-size:13px; background:#f8fafc; padding:10px; border-radius:6px; border:1px solid var(--gray-100);">';
+            html += '<strong>Recommendations:</strong> ';
+            html += 'If recent years show strong increases, consider reviewing capacity and adviser assignments; if decreases appear, check for enrollment process issues or data gaps.';
+            html += '</div>';
+
+            container.innerHTML = html;
+            // Keep the interpretation hidden by default; user can click the toggle to view it
+            container.style.display = 'none';
+            const btn = document.getElementById('toggleInterpretationBtn'); if (btn) btn.innerText = 'Show insights';
+        }
+
+        // Initial render on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            showContent('dashboard-content');
+        });
+
+    </script>
+</body>
+</html>

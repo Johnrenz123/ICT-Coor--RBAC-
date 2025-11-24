@@ -1,0 +1,501 @@
+body {
+    font-family: 'Montserrat', 'Open Sans', Arial, sans-serif;
+    background: linear-gradient(135deg, #e9f0fa 0%, #f8f9fa 100%);
+    margin: 0;
+    padding: 0;
+    color: #222;
+}
+.signature-upload-container {
+    margin-top: 14px;
+}
+.gmail-container {
+    max-width: 900px;
+    margin: 40px auto 0 auto;
+    padding: 18px 30px;
+    background: #f4f8fc;
+    border-radius: 10px;
+    border: 1px solid #e3e7ee;
+    box-shadow: 0 2px 8px rgba(0,86,179,0.04);
+}
+.gmail-label {
+    font-weight: 600;
+    color: #0056b3;
+    font-size: 1.08em;
+    display: block;
+    margin-bottom: 8px;
+}
+.gmail-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #bfcbe3;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 1em;
+}
+.enroll-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 40px 30px 30px 30px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    border: 1px solid #e3e7ee;
+}
+.enroll-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+.enroll-logo {
+    width: 60px;
+    height: 60px;
+    margin-right: 18px;
+}
+.enroll-title {
+    font-weight: 700;
+    font-size: 2em;
+    color: #0056b3;
+    margin-bottom: 0;
+    letter-spacing: 1px;
+}
+.form-section-title {
+    font-weight: 700;
+    font-size: 1.15em;
+    margin-top: 28px;
+    margin-bottom: 10px;
+    color: #0056b3;
+    padding-left: 8px;
+    border-left: 4px solid #0056b3;
+    background: #f4f8fc;
+    border-radius: 4px;
+}
+.form-section-title.parent-section-title {
+    margin-top: 0;
+    border-left: none;
+    padding-left: 0;
+    background: none;
+}
+hr {
+    border: 0;
+    height: 1px;
+    background-color: #e3e7ee;
+    margin: 28px 0;
+}
+.enroll-form { 
+    display: grid; 
+    gap: 18px; 
+}
+.form-group { 
+    margin-bottom: 12px; 
+}
+.form-row { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 18px; 
+    margin-bottom: 8px; 
+}
+.form-field { 
+    display: flex; 
+    flex-direction: column; 
+    flex-grow: 1; 
+    min-width: 150px; 
+}
+.form-field label { 
+    font-size: 0.92em; 
+    font-weight: 500; 
+    margin-bottom: 4px; 
+    color: #444; 
+}
+.form-field input:not([type="radio"]), .form-field select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #bfcbe3;
+    border-radius: 6px;
+    background: #f7fafd;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-field input:focus, .form-field select:focus {
+    border-color: #0056b3;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.13);
+    background: #fff;
+}
+.lrn-input {
+    text-align: center;
+    font-size: 1.1em;
+    letter-spacing: 2px;
+    background: #eef3fa;
+}
+.radio-group {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    font-size: 1em;
+    margin-top: 5px;
+}
+.radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0 !important;
+    cursor: pointer;
+}
+.radio-group input[type="radio"] {
+    accent-color: #0056b3;
+    width: 18px;
+    height: 18px;
+}
+.parent-info-section {
+    border: 1px solid #e3e7ee;
+    padding: 18px;
+    border-radius: 10px;
+    margin-top: 12px;
+    background: #f7fafd;
+    box-shadow: 0 2px 8px rgba(0,86,179,0.04);
+}
+.name-group-row {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 15px;
+}
+.submit-btn-container { 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 36px;
+    width: 100%;
+}
+.enroll-form button {
+    background: linear-gradient(90deg, #0056b3 0%, #007bff 100%);
+    color: #fff;
+    border: none;
+    padding: 14px 38px;
+    border-radius: 7px;
+    font-weight: 700;
+    font-size: 1.15em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.08);
+    transition: background 0.2s, box-shadow 0.2s;
+    margin: 0 auto;
+}
+.enroll-form button:hover {
+    background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
+    box-shadow: 0 4px 16px rgba(0,123,255,0.13);
+}
+.disclaimer {
+    font-size: 0.92em;
+    line-height: 1.6;
+    margin-top: 32px;
+    padding: 18px;
+    border: 1px dashed #0056b3;
+    background: #e6f0ff;
+    border-radius: 7px;
+    color: #0056b3;
+}
+.signature-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-top: 32px;
+    font-size: 1em;
+}
+.sig-block { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+}
+.sig-block-date { 
+    flex: 0 0 220px; 
+}
+.signature-line-area { 
+    width: 100%; 
+    height: 32px; 
+    margin-bottom: 7px; 
+}
+.signature-line-area input {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid #0056b3;
+}
+.signature-instruction {
+    margin: 10px 0;
+    color: #888;
+    font-size: 0.95em;
+}
+.signature-upload-label {
+    font-weight: 500;
+    color: #0056b3;
+}
+.signature-upload-input {
+    margin-top: 6px;
+}
+.signature-upload-note {
+    margin: 10px 0;
+    color: #888;
+    font-size: 0.95em;
+}
+.signature-upload-title-style {
+    font-weight: 600;
+    color: #0056b3;
+    margin-top: 14px;
+}
+.signature-canvas-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.signature-canvas {
+    border: 1px solid #bfcbe3;
+    border-radius: 6px;
+    background: #fff;
+    cursor: crosshair;
+}
+.signature-maximize-btn {
+    margin-left: 16px;
+    background: #0056b3;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    height: 32px;
+    font-size: 1em;
+    cursor: pointer;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.signature-clear-btn {
+    margin-top: 6px;
+    background: #eee;
+    color: #0056b3;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.signature-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.45);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+.signature-modal-content {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px 28px 24px 28px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    position: relative;
+    max-width: 520px;
+    width: 95vw;
+}
+.signature-modal-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #eee;
+    color: #0056b3;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 1.2em;
+    cursor: pointer;
+}
+.signature-modal-canvas {
+    border: 1px solid #bfcbe3;
+    border-radius: 8px;
+    background: #fff;
+    cursor: crosshair;
+    display: block;
+    margin: 0 auto 18px auto;
+}
+.signature-modal-btn {
+    background: #eee;
+    color: #0056b3;
+    border: none;
+    padding: 7px 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 12px;
+}
+.signature-modal-done-btn {
+    background: #0056b3;
+    color: #fff;
+    border: none;
+    padding: 7px 18px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.text-center {
+    text-align: center;
+}
+.signature-modal-title {
+    margin-top: 0;
+    color: #0056b3;
+    text-align: center;
+}
+.signature-modal-btn-container {
+    text-align: center;
+}
+.signature-line-input {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid #0056b3;
+    background: transparent;
+    font-size: 1.08em;
+    padding: 8px 0 4px 0;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.footer-centered {
+    text-align: center;
+    margin-top: 28px;
+    margin-bottom: 10px;
+    padding: 12px 20px;
+    background-color: rgba(255, 255, 255, 0.85);
+    border-radius: 8px;
+    color: #333;
+    font-size: 0.98em;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Extracted from the inline style within the form */
+.max-width-200 {
+    max-width: 200px; /* Added to address a likely intent of a CSS utility class for form fields */
+}
+.form-field-flex-2 {
+    flex: 2; /* Added to address a likely intent of a CSS utility class for form fields */
+}
+.font-weight-600 {
+    font-weight: 600; /* Added to address a likely intent of a CSS utility class for labels */
+}
+.margin-top-10 {
+    margin-top: 10px; /* Added to address a likely intent of a CSS utility class for form fields */
+}
+.max-width-400 {
+    max-width: 400px; /* Added to address a likely intent of a CSS utility class for form fields */
+}
+
+/* Extracted from the inline style within the signature section (which was complex and required cleanup) */
+.signature-section-flex {
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 32px; 
+    align-items: flex-end;
+}
+.sig-block-flex {
+    flex: 2; 
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.signature-text {
+    text-align: center; 
+    color: #0056b3; 
+    font-weight: 600; 
+    margin-top: 4px;
+}
+.signature-name-date-row {
+    display: flex; 
+    gap: 32px; 
+    align-items: flex-end; 
+    margin-bottom: 18px; 
+    width: 100%;
+}
+.name-field-flex-2 {
+    flex: 2;
+}
+.date-field-flex-1 {
+    flex: 1;
+}
+.signature-name-input {
+    margin-bottom: 0; 
+    min-width: 220px; 
+    font-size: 1.08em; 
+    padding: 8px 0 4px 0;
+}
+.signature-date-input {
+    margin-bottom: 0; 
+    min-width: 140px;
+}
+.signature-upload-container-full {
+    width: 100%;
+}
+.signature-upload-label-block {
+    margin-bottom: 6px; 
+    display: block;
+}
+.signature-upload-input-margin {
+    margin-bottom: 14px;
+}
+.signature-upload-title-margin {
+    margin-bottom: 4px;
+}
+.signature-canvas-container-start {
+    width: 100%; 
+    justify-content: flex-start;
+}
+.signature-canvas-styled {
+    background: #f7fafd; 
+    border: 2px solid #bfcbe3; 
+    border-radius: 8px;
+}
+.signature-maximize-btn-styled {
+    margin-left: 12px; 
+    height: 40px; 
+    padding: 0 20px; 
+    font-weight: 600;
+}
+.signature-clear-btn-container {
+    width: 100%; 
+    display: flex; 
+    justify-content: flex-start;
+}
+.signature-clear-btn-styled {
+    margin-top: 10px; 
+    background: #0056b3; 
+    color: #fff; 
+    font-weight: 600; 
+    border-radius: 6px; 
+    padding: 7px 24px;
+}
+
+/* Media Query */
+@media (max-width: 700px) {
+    .enroll-container { 
+        margin: 10px; 
+        padding: 15px; 
+    }
+    .form-row, .learner-name-fields, .basic-info-row, .name-group-row { 
+        flex-direction: column; 
+        gap: 12px; 
+    }
+    .form-field, .basic-info-row .form-field { 
+        flex: none !important; 
+        max-width: none !important; 
+        min-width: 100% !important; 
+    }
+    .signature-section { 
+        flex-direction: column; 
+    }
+    .sig-block { 
+        margin-bottom: 18px; 
+    }
+}

@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guidance Dashboard</title>
+    <link rel="stylesheet" href="/guidance.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            color:#222;
+        }
+
+        /* Sidebar Drawer */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 250px;
+            background: #dc2626; /* primary red */
+            color: #fff;
+            padding: 22px 20px 20px;
+            box-shadow: 2px 0 14px rgba(0,0,0,0.12);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .sidebar .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar .brand img {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #fff;
+            padding: 6px;
+        }
+
+        .sidebar .brand .school-name-text {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .sidebar .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .sidebar .nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 11px 14px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.10);
+            transition: background .18s, transform .18s;
+            font-weight: 600;
+            letter-spacing:.3px;
+        }
+
+        .sidebar .nav a:hover { background: rgba(255,255,255,0.22); transform: translateX(3px); }
+        .sidebar .nav a.active { background: #ffffff; color:#dc2626; font-weight:700; }
+
+        .sidebar .spacer { flex: 1; }
+
+        .sidebar .logout-btn {
+            display: inline-block;
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: #b91c1c;
+            font-weight: 700;
+            text-align: center;
+            transition: background .18s;
+        }
+
+        .sidebar .logout-btn:hover { background: #991b1b; }
+
+        main {
+            max-width: 1300px;
+            margin: 32px 24px 40px 290px; /* leave room for sidebar */
+            padding: 0;
+        }
+
+        .dashboard-container {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 34px 34px 40px;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+            border:1px solid #f1f1f1;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .dashboard-header h1 {
+            color: #333;
+            font-size: 32px;
+        }
+
+        .date {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            /* make cards more compact */
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #dc2626;
+            color: #fff;
+            /* reduced padding for smaller footprint */
+            padding: 14px 14px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(220,38,38,0.28);
+            transition: transform .22s, box-shadow .22s;
+            position:relative;
+            overflow:hidden;
+        }
+        .stat-card:before { content:""; position:absolute; inset:0; background:linear-gradient(120deg, rgba(255,255,255,0.12), rgba(255,255,255,0)); }
+
+        .stat-card:hover { transform: translateY(-4px); box-shadow:0 6px 18px rgba(220,38,38,0.36); }
+
+        .stat-card h3 {
+            font-size: 13px;
+            opacity: 0.95;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .stat-card .number {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-card .trend {
+            font-size: 12px;
+            opacity: 0.85;
+        }
+
+        .chart-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: #ffffff;
+            padding: 26px 24px 30px;
+            border-radius: 14px;
+            border: 1px solid #ececec;
+            box-shadow:0 3px 14px rgba(0,0,0,0.05);
+        }
+
+        .chart-card h2 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .chart-svg {
+            width: 100%;
+            height: 150px;
+        }
+
+        .analytics-grid {
+            display:grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap:18px;
+            margin-bottom: 22px;
+        }
+
+        .analytics-card {
+            background: #fff;
+            border:1px solid #ececec;
+            padding: 18px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+
+        .mini-table { width:100%; border-collapse:collapse; }
+    /* Slightly smaller table fonts for compact analytics cards */
+    /* Make table header text white and readable */
+    .mini-table thead { background: #dc2626; }
+    .mini-table th { text-align:left; padding:6px 8px; font-size:12px; color:#fff; }
+    .mini-table td { padding:6px 8px; border-bottom:1px solid #f5f5f5; font-size:12px; color:#333; }
+        .mini-table .numeric { text-align:right; }
+
+        .analytics-note { margin-top:10px; color:#555; font-size:13px; }
+
+        .empty-row { text-align:center; padding:12px; color:#666; }
+
+        .requests-list {
+            margin-top: 30px;
+        }
+
+        .requests-list h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .requests-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .requests-table thead {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .requests-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .requests-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .requests-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-pill {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending { background:#fef3c7; color:#b45309; }
+        .status-approved { background:#dcfce7; color:#166534; }
+        .status-completed { background:#fee2e2; color:#991b1b; }
+
+        @media (max-width: 900px) {
+            .sidebar { width: 200px; }
+            main { margin: 20px 12px 20px 220px; }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                grid-template-columns: 1fr;
+            }
+
+            .requests-table {
+                font-size: 14px;
+            }
+
+            .requests-table th,
+            .requests-table td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <img src="/pictures/SchoolLogo-removebg-preview.png" alt="School Logo">
+            <span class="school-name-text">Mainaga San Francisco Integrated School</span>
+        </div>
+        <nav class="nav">
+            <a href="/guidance/dashboard" class="<%= activePage === 'dashboard' ? 'active' : '' %>">📋 Dashboard</a>
+            <a href="/guidance/document-requests" class="<%= activePage === 'document-requests' ? 'active' : '' %>">📁 Document Requests</a>
+            <a href="/guidance/behavior-analytics" class="<%= activePage === 'behavior-analytics' ? 'active' : '' %>">📊 Behavior Analytics</a>
+            <a href="/guidance/recommendations" class="<%= activePage === 'recommendations' ? 'active' : '' %>">💡 Recommendations</a>
+            <a href="/guidance/sent-messages" class="<%= activePage === 'sent-messages' ? 'active' : '' %>">📋 Sent Messages</a>
+            <a href="/guidance/behavior-archive" class="<%= activePage === 'behavior-archive' ? 'active' : '' %>">📦 Archived Reports</a>
+            <a href="/guidance/analytics" class="<%= activePage === 'analytics' ? 'active' : '' %>">🔒 Security</a>
+        </nav>
+        <div class="spacer"></div>
+        <a class="logout-btn" href="/guidance/logout">Logout</a>
+    </aside>
+
+    <main>
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1>Document Requests Dashboard</h1>
+                <div class="date" id="currentDate"></div>
+                <form id="dateFilterForm" method="get" action="/guidance/dashboard" style="display:flex; gap:10px; align-items:center;">
+                    <label style="font-weight:600; color:#555; font-size:13px;">From</label>
+                    <input type="date" name="from" id="filterFrom" value="<%= from || '' %>" style="padding:6px; border:1px solid #ddd; border-radius:6px;" />
+                    <label style="font-weight:600; color:#555; font-size:13px;">To</label>
+                    <input type="date" name="to" id="filterTo" value="<%= to || '' %>" style="padding:6px; border:1px solid #ddd; border-radius:6px;" />
+                    <button type="submit" class="send-btn" style="padding:8px 10px; font-size:13px;">Apply</button>
+                    <a href="/guidance/dashboard" class="send-btn" style="background:#6b7280; padding:8px 10px; text-decoration:none; display:inline-block; font-size:13px;">Clear</a>
+                </form>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Requests</h3>
+                    <div class="number"><%= typeof totalRequests !== 'undefined' ? totalRequests : (requests && requests.length) || 0 %></div>
+                    <div class="trend">All time</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending</h3>
+                    <div class="number"><%= typeof pendingRequests !== 'undefined' ? pendingRequests : 0 %></div>
+                    <div class="trend">Awaiting action</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Approved</h3>
+                    <div class="number"><%= typeof approvedRequests !== 'undefined' ? approvedRequests : 0 %></div>
+                    <div class="trend">Ready for fulfillment</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Completed</h3>
+                    <div class="number"><%= typeof completedRequests !== 'undefined' ? completedRequests : 0 %></div>
+                    <div class="trend">Fulfilled</div>
+                </div>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h2>Requests by Document</h2>
+                    <table class="mini-table">
+                        <thead>
+                            <tr><th>Document Type</th><th class="numeric">Count</th></tr>
+                        </thead>
+                        <tbody>
+                            <% if (countsByType && countsByType.length) { %>
+                                <% countsByType.forEach(function(ct){ %>
+                                    <tr>
+                                        <td><%= ct.type %></td>
+                                        <td class="numeric"><%= ct.count %></td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr><td colspan="2" class="empty-row">No type data</td></tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="analytics-card">
+                    <h2>Monthly Summary</h2>
+                    <table class="mini-table">
+                        <thead>
+                            <tr><th>Month</th><th class="numeric">Requests</th></tr>
+                        </thead>
+                        <tbody>
+                            <% if (monthlySummary && monthlySummary.length) { %>
+                                <% monthlySummary.forEach(function(m){ %>
+                                    <tr>
+                                        <td><%= m.month %></td>
+                                        <td class="numeric"><%= m.count %></td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr><td colspan="2" class="empty-row">No monthly data</td></tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Top Requesters removed per user request -->
+            </div>
+
+            <!-- Charts for analytics (replaced old placeholders) -->
+            <div class="analytics-charts" style="margin-bottom:22px; display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:18px;">
+                <div class="chart-card">
+                    <h2>Requests by Document Type</h2>
+                    <canvas id="chart-type" height="140"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h2>Monthly Requests Trend</h2>
+                    <canvas id="chart-monthly" height="140"></canvas>
+                </div>
+                <!-- Top Requesters chart removed per user request -->
+            </div>
+
+            <div class="requests-list">
+                <h2>Recent Document Requests</h2>
+                <table class="requests-table">
+                    <thead>
+                        <tr>
+                            <th>Requested</th>
+                            <th>Requester</th>
+                            <th>Document Type</th>
+                            <th>Purpose</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (!(requests && requests.length)) { %>
+                        <tr>
+                            <td colspan="5" class="empty-row">No document requests found</td>
+                        </tr>
+                        <% } else { %>
+                        <% requests.forEach(function(req){ %>
+                        <tr>
+                            <td><%= req.requested_at || req.date || (req.created_at ? new Date(req.created_at).toLocaleString() : '') %></td>
+                            <td><%= req.requester_name || req.student_name || req.student || req.email || '—' %></td>
+                            <td><%= req.document_type || req.type || '—' %></td>
+                            <td><%= req.purpose || req.reason || '—' %></td>
+                            <td>
+                                <% var s = (req.status || '').toString().toLowerCase(); %>
+                                <span class="status-pill <%= s === 'pending' ? 'status-pending' : s === 'approved' || s==='ready' ? 'status-approved' : 'status-completed' %>"><%= req.status || 'Pending' %></span>
+                            </td>
+                        </tr>
+                        <% }) %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Set current date (client-side friendly)
+        try {
+            const today = new Date();
+            document.getElementById('currentDate').textContent = today.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        } catch (e) {}
+    </script>
+    </script>
+    <!-- Polyfill for deprecated DOM mutation events to avoid warnings -->
+    <script src="/js/deprecated-dom-events-polyfill.js"></script>
+    <!-- Server-provided dashboard data as JSON to avoid EJS inside JS parser context -->
+    <script id="dashboard-data" type="application/json"><%- JSON.stringify({ countsByType: countsByType || [], monthlySummary: monthlySummary || [], topRequesters: topRequesters || [] }) %></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        (function(){
+            // Read server-provided JSON from the application/json script tag
+            let _dashboard = { countsByType: [], monthlySummary: [], topRequesters: [] };
+            try {
+                const dataEl = document.getElementById('dashboard-data');
+                if (dataEl && dataEl.textContent) {
+                    _dashboard = JSON.parse(dataEl.textContent);
+                }
+            } catch (err) { console.error('Failed to parse dashboard-data', err); }
+
+            const countsByType = _dashboard.countsByType || [];
+            const monthlySummary = _dashboard.monthlySummary || [];
+            const topRequesters = _dashboard.topRequesters || [];
+
+            // Helper: fallback empty arrays
+            const typeLabels = countsByType.map(x => x.type || 'Unknown');
+            const typeValues = countsByType.map(x => Number(x.count || 0));
+
+            const monthLabels = monthlySummary.map(x => x.month || '');
+            const monthValues = monthlySummary.map(x => Number(x.count || 0));
+
+            const topLabels = topRequesters.map(x => x.name || x.email || 'Unknown');
+            const topValues = topRequesters.map(x => Number(x.count || 0));
+
+            // Requests by Document Type (bar)
+            try {
+                const el = document.getElementById('chart-type');
+                if (el) {
+                    new Chart(el.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: typeLabels,
+                            datasets: [{
+                                label: 'Requests',
+                                data: typeValues,
+                                backgroundColor: '#dc2626'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: { legend: { display: false } },
+                            scales: { y: { beginAtZero: true } }
+                        }
+                    });
+                }
+            } catch (err) { console.error('Chart (type) error', err); }
+
+            // Monthly trend (line)
+            try {
+                const el = document.getElementById('chart-monthly');
+                if (el) {
+                    new Chart(el.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: monthLabels,
+                            datasets: [{
+                                label: 'Requests',
+                                data: monthValues,
+                                borderColor: '#2563eb',
+                                backgroundColor: 'rgba(37,99,235,0.08)',
+                                tension: 0.3,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: { legend: { display: false } },
+                            scales: { y: { beginAtZero: true } }
+                        }
+                    });
+                }
+            } catch (err) { console.error('Chart (monthly) error', err); }
+
+            // Top Requesters chart removed per user request
+        })();
+    </script>
+</body>
+</html>

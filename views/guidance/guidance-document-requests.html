@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Requests - Guidance Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/guidance.css">
+    <link rel="stylesheet" href="/guidance-toast.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            color: #222;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .navbar-brand {
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .navbar-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar-menu a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .navbar-menu a.active {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 32px 24px 40px 290px; /* leave room for sidebar */
+            padding: 0 20px;
+        }
+
+        .page-header {
+            background-color: #fff;
+            padding: 34px 34px 30px;
+            border-radius: 18px;
+            border: 1px solid #f1f1f1;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            color: #333;
+            font-family: 'Montserrat', sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            color: #666;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background-color: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .tab-btn.active {
+            background-color: #dc2626;
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(220,38,38,0.35);
+        }
+
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-card.yellow {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .stat-card.blue {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .stat-card.green {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .stat-card.purple {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .filter-select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .requests-table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow-x: auto;
+        }
+
+        .requests-table thead {
+            background-color: #dc2626;
+            color: #fff;
+        }
+
+        .requests-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .requests-table td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+            color: #666;
+        }
+
+        .requests-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-processing {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        .status-ready {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-completed {
+            background-color: #e2d1f0;
+            color: #5a1a6d;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 5px;
+            transition: all 0.3s;
+        }
+
+        .btn-view {
+            background-color: #dc2626;
+            color: #fff;
+        }
+
+        .btn-view:hover {
+            background-color: #b91c1c;
+        }
+
+        .btn-process {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-process:hover {
+            background-color: #45a049;
+        }
+
+        .btn-reject {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background-color: #da190b;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
+
+        .modal.show {
+            display: block;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            padding: 40px;
+            border-radius: 12px;
+            max-width: 700px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .detail-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .detail-item {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 10px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .detail-value {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        .btn-cancel {
+            padding: 12px 24px;
+            background-color: #666;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-cancel:hover {
+            background-color: #555;
+        }
+
+        .btn-submit {
+            padding: 12px 24px;
+            background-color: #dc2626;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-submit:hover { background-color: #b91c1c; }
+
+        /* Unified Sidebar */
+        .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 250px; background: #dc2626; color: #fff; padding: 22px 20px 20px; box-shadow: 2px 0 14px rgba(0,0,0,0.12); display:flex; flex-direction: column; gap: 18px; }
+        .sidebar .brand { display: flex; align-items: center; gap: 12px; }
+        .sidebar .brand img { width: 46px; height: 46px; border-radius: 50%; background: #fff; padding: 6px; }
+        .sidebar .school-name-text { font-size: 16px; font-weight: 700; line-height: 1.2; }
+        .sidebar .nav { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .sidebar .nav a { color: #fff; text-decoration: none; padding: 11px 14px; border-radius: 10px; background: rgba(255,255,255,0.10); font-weight: 600; letter-spacing: .3px; transition: background .18s, transform .18s; }
+        .sidebar .nav a:hover { background: rgba(255,255,255,0.22); transform: translateX(3px); }
+        .sidebar .nav a.active { background: #fff; color: #dc2626; font-weight: 700; }
+        .sidebar .spacer { flex: 1; }
+        .sidebar .logout-btn { display: inline-block; color: #fff; text-decoration: none; padding: 12px 14px; border-radius: 10px; background: #b91c1c; font-weight: 700; text-align: center; transition: background .18s; }
+        .sidebar .logout-btn:hover { background: #991b1b; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .overflow-auto {
+            overflow-x: auto;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <img src="/pictures/SchoolLogo-removebg-preview.png" alt="School Logo">
+            <span class="school-name-text">Mainaga San Francisco Integrated School</span>
+        </div>
+        <nav class="nav">
+            <a href="/guidance/dashboard">📋 Dashboard</a>
+            <a href="/guidance/document-requests" class="active">� Document Requests</a>
+            <a href="/guidance/behavior-analytics">� Behavior Analytics</a>
+            <a href="/guidance/recommendations">💡 Recommendations</a>
+            <a href="/guidance/sent-messages">📋 Sent Messages</a>
+            <a href="/guidance/behavior-archive">📦 Archived Reports</a>
+            <a href="/guidance/analytics">🔒 Security</a>
+        </nav>
+        <div class="spacer"></div>
+        <a class="logout-btn" href="/guidance/logout">Logout</a>
+    </aside>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>📄 Document Request Management</h1>
+            <p>Manage and process document requests from students and alumni</p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <!-- Stats will be loaded here -->
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('pending')">Pending Requests</button>
+            <button class="tab-btn" onclick="switchTab('processing')">Processing</button>
+            <button class="tab-btn" onclick="switchTab('ready')">Ready for Pickup</button>
+            <button class="tab-btn" onclick="switchTab('history')">History</button>
+        </div>
+
+        <div class="tab-content active" id="pendingTab">
+            <div class="search-filter">
+                <input type="text" class="search-input" id="searchPending" placeholder="Search by name, email, token..." onkeyup="filterRequests('pending')">
+                <select class="filter-select" id="filterDocTypePending" onchange="filterRequests('pending')" title="Filter by document type">
+                    <option value="">All Document Types</option>
+                </select>
+            </div>
+            <div class="overflow-auto">
+                <table class="requests-table">
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Student Name</th>
+                            <th>Document Type</th>
+                            <th>Contact</th>
+                            <th>Request Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingTableBody">
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-content" id="processingTab">
+            <div class="search-filter">
+                <input type="text" class="search-input" id="searchProcessing" placeholder="Search..." onkeyup="filterRequests('processing')">
+            </div>
+            <div class="overflow-auto">
+                <table class="requests-table">
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Student Name</th>
+                            <th>Document Type</th>
+                            <th>Contact</th>
+                            <th>Started Processing</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="processingTableBody">
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-content" id="readyTab">
+            <div class="search-filter">
+                <input type="text" class="search-input" id="searchReady" placeholder="Search..." onkeyup="filterRequests('ready')">
+            </div>
+            <div class="overflow-auto">
+                <table class="requests-table">
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Student Name</th>
+                            <th>Document Type</th>
+                            <th>Contact</th>
+                            <th>Ready Since</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="readyTableBody">
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-content" id="historyTab">
+            <div class="search-filter">
+                <input type="text" class="search-input" id="searchHistory" placeholder="Search..." onkeyup="filterRequests('history')">
+                <select class="filter-select" id="filterStatusHistory" onchange="filterRequests('history')">
+                    <option value="">All Statuses</option>
+                    <option value="completed">Completed</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="overflow-auto">
+                <table class="requests-table">
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Student Name</th>
+                            <th>Document Type</th>
+                            <th>Status</th>
+                            <th>Request Date</th>
+                            <th>Completed Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Details Modal -->
+    <div id="viewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Request Details</h2>
+                <button class="close-btn" onclick="closeModal('viewModal')">&times;</button>
+            </div>
+            <div id="viewModalContent">
+                <!-- Details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Status Modal -->
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Update Request Status</h2>
+                <button class="close-btn" onclick="closeModal('statusModal')">&times;</button>
+            </div>
+            <form id="statusForm">
+                <input type="hidden" id="requestId">
+                <div class="form-group">
+                    <label for="newStatus">New Status</label>
+                    <select id="newStatus" required>
+                        <option value="">Select status...</option>
+                        <option value="processing">Processing</option>
+                        <option value="ready">Ready for Pickup</option>
+                        <option value="completed">Completed</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="form-group" id="notesGroup">
+                    <label for="completionNotes">Notes (Optional)</label>
+                    <textarea id="completionNotes" placeholder="Add any notes or instructions..."></textarea>
+                </div>
+                <div class="form-group hidden" id="rejectionGroup">
+                    <label for="rejectionReason">Rejection Reason *</label>
+                    <textarea id="rejectionReason" placeholder="Please provide a reason for rejection..." required></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal('statusModal')">Cancel</button>
+                    <button type="submit" class="btn-submit">Update Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirm Delete</h2>
+                <button class="close-btn" onclick="closeModal('deleteConfirmModal')">&times;</button>
+            </div>
+            <div id="deleteConfirmContent">
+                <p>Are you sure you want to permanently delete this request? This action cannot be undone.</p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal('deleteConfirmModal')">Cancel</button>
+                <button type="button" id="confirmDeleteBtn" class="btn-submit">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/guidance-toast.js"></script>
+    <script src="/views/guidance/guidance-document-requests.js"></script>
+</body>
+</html>

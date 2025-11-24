@@ -1,0 +1,37 @@
+/* Simple toast notifications for guidance pages */
+.toast-container {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 99999;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  min-width: 260px;
+  max-width: 420px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  line-height: 1.2;
+  transform: translateY(8px);
+  opacity: 0;
+  transition: transform .22s ease, opacity .22s ease;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { background: linear-gradient(90deg,#16a34a,#059669); }
+.toast.error { background: linear-gradient(90deg,#dc2626,#b91c1c); }
+.toast.info { background: linear-gradient(90deg,#2563eb,#4f46e5); }
+.toast.warn { background: linear-gradient(90deg,#f59e0b,#f97316); }
+.toast .toast-icon { font-size: 18px; margin-right: 8px; }
+.toast .toast-text { flex: 1; font-size: 13px; }
+.toast .toast-close { margin-left: 8px; border: none; background: rgba(255,255,255,0.12); color: #fff; padding: 6px 8px; border-radius: 8px; cursor: pointer; font-weight:700; }
+.toast .toast-close:hover { background: rgba(255,255,255,0.18); }
