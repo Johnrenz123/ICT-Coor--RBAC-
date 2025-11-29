@@ -823,37 +823,63 @@
     setInterval(updateUnreadCount, 120000);
 
     // Wire up filters (guard with optional chaining)
-    document.getElementById('studentsSearch')?.addEventListener('input', renderStudents);
-    document.getElementById('studentsReset')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      document.getElementById('studentsSearch').value = '';
-      renderStudents();
-    });
+    const setupEventListeners = () => {
+      const studentsReset = document.getElementById('studentsReset');
+      const reportsReset = document.getElementById('reportsReset');
+      const messagesReset = document.getElementById('messagesReset');
+      
+      console.log('Setting up event listeners...', { studentsReset, reportsReset, messagesReset });
+      
+      document.getElementById('studentsSearch')?.addEventListener('input', renderStudents);
+      if (studentsReset) {
+        studentsReset.addEventListener('click', function(e) {
+          console.log('Students reset clicked');
+          e.preventDefault();
+          e.stopPropagation();
+          document.getElementById('studentsSearch').value = '';
+          renderStudents();
+          return false;
+        });
+      }
 
-    document.getElementById('reportsSearch')?.addEventListener('input', renderSectionReports);
-    document.getElementById('reportsFrom')?.addEventListener('change', renderSectionReports);
-    document.getElementById('reportsTo')?.addEventListener('change', renderSectionReports);
-    document.getElementById('reportsReset')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      document.getElementById('reportsSearch').value = '';
-      document.getElementById('reportsFrom').value = '';
-      document.getElementById('reportsTo').value = '';
-      renderSectionReports();
-    });
+      document.getElementById('reportsSearch')?.addEventListener('input', renderSectionReports);
+      document.getElementById('reportsFrom')?.addEventListener('change', renderSectionReports);
+      document.getElementById('reportsTo')?.addEventListener('change', renderSectionReports);
+      if (reportsReset) {
+        reportsReset.addEventListener('click', function(e) {
+          console.log('Reports reset clicked');
+          e.preventDefault();
+          e.stopPropagation();
+          document.getElementById('reportsSearch').value = '';
+          document.getElementById('reportsFrom').value = '';
+          document.getElementById('reportsTo').value = '';
+          renderSectionReports();
+          return false;
+        });
+      }
 
-    document.getElementById('messagesSearch')?.addEventListener('input', renderMessages);
-    document.getElementById('messagesFrom')?.addEventListener('change', renderMessages);
-    document.getElementById('messagesTo')?.addEventListener('change', renderMessages);
-    document.getElementById('messagesReset')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      document.getElementById('messagesSearch').value = '';
-      document.getElementById('messagesFrom').value = '';
-      document.getElementById('messagesTo').value = '';
-      renderMessages();
-    });
+      document.getElementById('messagesSearch')?.addEventListener('input', renderMessages);
+      document.getElementById('messagesFrom')?.addEventListener('change', renderMessages);
+      document.getElementById('messagesTo')?.addEventListener('change', renderMessages);
+      if (messagesReset) {
+        messagesReset.addEventListener('click', function(e) {
+          console.log('Messages reset clicked');
+          e.preventDefault();
+          e.stopPropagation();
+          document.getElementById('messagesSearch').value = '';
+          document.getElementById('messagesFrom').value = '';
+          document.getElementById('messagesTo').value = '';
+          renderMessages();
+          return false;
+        });
+      }
+    };
+    
+    // Call setup immediately and on DOM ready
+    setupEventListeners();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupEventListeners);
+    }
   </script>
   <script src="/guidance-toast.js"></script>
 </body>
