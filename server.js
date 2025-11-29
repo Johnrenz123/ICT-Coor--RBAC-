@@ -4704,9 +4704,57 @@ app.get('/api/student/:id', async (req, res) => {
         return res.status(403).json({ success: false, message: 'Access denied' });
     }
 
-    const studentId = req.params.id;
+    let studentId = req.params.id;
     try {
-        // First try to get from students table (assigned students)
+        // Check if this is an early_registration student (ID starts with 'ER')
+        if (String(studentId).startsWith('ER')) {
+            // Extract the numeric ID from the ER prefix
+            const erNumericId = parseInt(String(studentId).substring(2));
+            
+            // Query early_registration table
+            const result = await pool.query(`
+                SELECT 
+                    $1 as id,
+                    gmail_address,
+                    school_year,
+                    lrn,
+                    grade_level,
+                    last_name,
+                    first_name,
+                    middle_name,
+                    ext_name,
+                    CONCAT(last_name, ', ', first_name, ' ', COALESCE(middle_name, ''), ' ', COALESCE(ext_name, '')) AS full_name,
+                    birthday,
+                    age,
+                    sex,
+                    religion,
+                    current_address,
+                    ip_community,
+                    ip_community_specify,
+                    pwd,
+                    pwd_specify,
+                    father_name,
+                    mother_name,
+                    guardian_name,
+                    contact_number,
+                    registration_date as enrollment_date,
+                    printed_name,
+                    NULL as assigned_section,
+                    signature_image_path,
+                    created_at,
+                    updated_at
+                FROM early_registration
+                WHERE id = $2
+            `, [studentId, erNumericId]);
+            
+            if (result.rows.length === 0) {
+                return res.status(404).json({ success: false, message: 'Early registration student not found' });
+            }
+            
+            return res.json(result.rows[0]);
+        }
+        
+        // For regular students, query students table
         let result = await pool.query(`
             SELECT 
                 id,
@@ -4738,44 +4786,6 @@ app.get('/api/student/:id', async (req, res) => {
             FROM students
             WHERE id = $1
         `, [studentId]);
-
-        // If not found in students table, try early_registration (enrollees)
-        if (result.rows.length === 0) {
-            result = await pool.query(`
-                SELECT 
-                    id,
-                    gmail_address,
-                    school_year,
-                    lrn,
-                    grade_level,
-                    last_name,
-                    first_name,
-                    middle_name,
-                    ext_name,
-                    CONCAT(last_name, ', ', first_name, ' ', COALESCE(middle_name, ''), ' ', COALESCE(ext_name, '')) AS full_name,
-                    birthday,
-                    age,
-                    sex,
-                    religion,
-                    current_address,
-                    ip_community,
-                    ip_community_specify,
-                    pwd,
-                    pwd_specify,
-                    father_name,
-                    mother_name,
-                    guardian_name,
-                    contact_number,
-                    registration_date,
-                    printed_name,
-                    assigned_section,
-                    signature_image_path,
-                    created_at,
-                    updated_at
-                FROM early_registration
-                WHERE id = $1
-            `, [studentId]);
-        }
 
         if (result.rows.length === 0) {
             return res.status(404).json({ success: false, message: 'Student not found' });
