@@ -1,3 +1,6 @@
+const dotenv = require('dotenv');
+dotenv.config(); // Load environment variables from .env file
+
 const express = require('express');
 const bcrypt = require('bcrypt');
 const { Pool } = require('pg');
@@ -1082,11 +1085,11 @@ const upload = multer({
 
 // PostgreSQL connection pool
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'ICTCOORdb',
-    password: 'bello0517',
-    port: 5432,
+    user: process.env.DB_USER || 'postgres',
+    host: process.env.DB_HOST || 'localhost',
+    database: process.env.DB_NAME || 'ICTCOORdb',
+    password: process.env.DB_PASSWORD || 'bello0517',
+    port: parseInt(process.env.DB_PORT) || 5432,
 });
 
 // Test database connection
@@ -2645,13 +2648,20 @@ app.get('/download-enrollment/:token', async (req, res) => {
             const doc = new PDFDocument({ margin: 50 });
             doc.pipe(res);
 
+            // Helper function to format date without time
+            const formatDateOnly = (dateString) => {
+                if (!dateString) return 'N/A';
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            };
+
             // Title
             doc.fontSize(20).font('Helvetica-Bold').text('ENROLLMENT FORM', { align: 'center' });
             doc.fontSize(10).font('Helvetica').text('Copy/Download Record', { align: 'center' });
             doc.moveDown();
 
             // Metadata
-            doc.fontSize(9).text(`Generated: ${new Date().toLocaleString()}`, { align: 'right' });
+            doc.fontSize(9).text(`Generated: ${formatDateOnly(new Date().toISOString())}`, { align: 'right' });
             doc.text(`Request Token: ${data.request_token}`, { align: 'right' });
             doc.text(`Status: ${data.status || 'Pending'}`, { align: 'right' });
             doc.moveDown();
@@ -2659,7 +2669,7 @@ app.get('/download-enrollment/:token', async (req, res) => {
             // Personal Information Section
             doc.fontSize(12).font('Helvetica-Bold').text('PERSONAL INFORMATION');
             doc.fontSize(9).font('Helvetica');
-            doc.text(`Gmail: ${data.gmail_address}`);
+            doc.text(`Email: ${data.gmail_address}`);
             doc.text(`Name: ${data.last_name}, ${data.first_name} ${data.middle_name || ''} ${data.ext_name || ''}`.trim());
             doc.text(`Birthdate: ${data.birthday}`);
             doc.text(`Age: ${data.age}`);
@@ -2701,7 +2711,7 @@ app.get('/download-enrollment/:token', async (req, res) => {
             // Submission Details Section
             doc.fontSize(12).font('Helvetica-Bold').text('SUBMISSION DETAILS');
             doc.fontSize(9).font('Helvetica');
-            doc.text(`Submitted: ${data.created_at}`);
+            doc.text(`Submitted: ${formatDateOnly(data.created_at)}`);
             doc.text(`Printed Name: ${data.printed_name || 'N/A'}`);
             doc.text(`Signature: ${data.signature_image_path ? 'Provided' : 'Not provided'}`);
 
