@@ -2426,7 +2426,7 @@ app.get('/ictcoorLanding', async (req, res) => {
                 st.contact_number,
                 sec.section_name as assigned_section,
                 st.school_year,
-                st.enrollment_date,
+                COALESCE(st.created_at, CURRENT_TIMESTAMP)::date as enrollment_date,
                 st.enrollment_status
             FROM students st
             LEFT JOIN sections sec ON st.section_id = sec.id
@@ -3475,7 +3475,6 @@ app.post('/assign-section/:id', async (req, res) => {
 
         // 4. Insert into students table
         // Note: students table does not have registration_date/printed_name/signature_image_path columns.
-        // Map early_registration.registration_date to students.enrollment_date (set to CURRENT_DATE here).
         const insertQuery = `
             INSERT INTO students (
                 enrollment_id, section_id,
@@ -3484,8 +3483,8 @@ app.post('/assign-section/:id', async (req, res) => {
                 birthday, age, sex, religion, current_address,
                 ip_community, ip_community_specify, pwd, pwd_specify,
                 father_name, mother_name, guardian_name, contact_number,
-                enrollment_date, enrollment_status, is_archived
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, CURRENT_DATE, 'active', true)
+                enrollment_status, is_archived
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, 'active', false)
             RETURNING id
         `;
 
@@ -4113,7 +4112,7 @@ app.get('/sections/:id/view', async (req, res) => {
                 st.birthday,
                 st.religion,
                 st.current_address,
-                st.enrollment_date,
+                COALESCE(st.created_at, CURRENT_TIMESTAMP)::date as enrollment_date,
                 st.enrollment_status
             FROM students st
             WHERE st.section_id = $1 AND st.enrollment_status = 'active'
@@ -4162,7 +4161,7 @@ app.get('/api/sections/:id/students', async (req, res) => {
                 st.sex,
                 st.age,
                 st.contact_number,
-                st.enrollment_date,
+                COALESCE(st.created_at, CURRENT_TIMESTAMP)::date as enrollment_date,
                 st.enrollment_status
             FROM students st
             WHERE st.section_id = $1 AND st.enrollment_status = 'active'
@@ -4386,7 +4385,7 @@ app.get('/api/students/unassigned', async (req, res) => {
                 st.sex,
                 st.age,
                 st.contact_number,
-                st.enrollment_date,
+                COALESCE(st.created_at, CURRENT_TIMESTAMP)::date as enrollment_date,
                 st.enrollment_status,
                 'students' as source
             FROM students st
@@ -4538,7 +4537,7 @@ app.get('/api/students/archived', async (req, res) => {
                 s.sex,
                 s.contact_number,
                 sec.section_name as assigned_section,
-                s.enrollment_date
+                COALESCE(s.created_at, CURRENT_TIMESTAMP)::date as enrollment_date
             FROM students s
             LEFT JOIN sections sec ON s.section_id = sec.id
             WHERE s.is_archived = true
@@ -4575,7 +4574,7 @@ app.get('/api/students/all', async (req, res) => {
                 s.sex,
                 s.contact_number,
                 sec.section_name as assigned_section,
-                s.enrollment_date,
+                COALESCE(s.created_at, CURRENT_TIMESTAMP)::date as enrollment_date,
                 s.enrollment_status,
                 COALESCE(s.is_archived, false) as is_archived
             FROM students s
@@ -5394,10 +5393,10 @@ app.get('/api/dashboard/summary', async (req, res) => {
 
         // Enrollment trend by month (this year)
         const enrollTrend = await pool.query(`
-            SELECT TO_CHAR(date_trunc('month', st.enrollment_date), 'YYYY-MM') AS ym,
+            SELECT TO_CHAR(date_trunc('month', st.created_at), 'YYYY-MM') AS ym,
                    COUNT(*)::int AS count
             FROM students st
-            WHERE st.enrollment_date >= date_trunc('year', CURRENT_DATE)
+            WHERE st.created_at >= date_trunc('year', CURRENT_DATE)
             GROUP BY ym
             ORDER BY ym
         `);
