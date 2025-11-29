@@ -408,8 +408,10 @@
     }
 
     function renderSectionReports() {
+      console.log('renderSectionReports called');
       const tbody = document.querySelector('#sectionReportsTable tbody');
       if (!allReports || allReports.length === 0) {
+        console.log('No reports available');
         tbody.innerHTML = '<tr><td colspan="5">No reports for this section yet.</td></tr>';
         return;
       }
@@ -418,6 +420,8 @@
       const toRaw = parseDateOnly(document.getElementById('reportsTo')?.value);
       let to = toRaw;
       if (to) { to.setHours(23,59,59,999); }
+      
+      console.log('Filter values:', { search, from, to, allReportsCount: allReports.length });
 
       const filtered = allReports.filter(r => {
         if (search) {
@@ -434,6 +438,7 @@
         return true;
       });
 
+      console.log('Filtered results:', filtered.length);
       if (!filtered || filtered.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5">No reports match the filter.</td></tr>';
         return;
@@ -847,13 +852,27 @@
       document.getElementById('reportsTo')?.addEventListener('change', renderSectionReports);
       if (reportsReset) {
         reportsReset.addEventListener('click', function(e) {
-          console.log('Reports reset clicked');
+          console.log('Reports reset clicked - CLEARING TABLE');
           e.preventDefault();
           e.stopPropagation();
-          document.getElementById('reportsSearch').value = '';
-          document.getElementById('reportsFrom').value = '';
-          document.getElementById('reportsTo').value = '';
-          renderSectionReports();
+          
+          // Clear all filter fields
+          const searchField = document.getElementById('reportsSearch');
+          const fromField = document.getElementById('reportsFrom');
+          const toField = document.getElementById('reportsTo');
+          
+          if (searchField) searchField.value = '';
+          if (fromField) fromField.value = '';
+          if (toField) toField.value = '';
+          
+          // Clear the table completely
+          const tbody = document.querySelector('#sectionReportsTable tbody');
+          tbody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+          console.log('Table cleared, reloading all data');
+          
+          // Reload all section reports
+          loadSectionReports();
+          
           return false;
         });
       }
