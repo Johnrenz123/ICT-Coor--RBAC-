@@ -4202,50 +4202,121 @@ app.put('/api/students/:id/reassign', async (req, res) => {
     try {
         await client.query('BEGIN');
 
-        // Get current student info
-        const studentResult = await client.query('SELECT section_id FROM students WHERE id = $1', [studentId]);
-        if (studentResult.rows.length === 0) {
-            await client.query('ROLLBACK');
-            return res.status(404).json({ success: false, message: 'Student not found' });
+        // Check if this is an early_registration student (ID starts with 'ER')
+        if (String(studentId).startsWith('ER')) {
+            // Extract the actual early_registration ID
+            const earlyRegId = parseInt(String(studentId).substring(2));
+
+            // Get early_registration details
+            const earlyRegResult = await client.query('SELECT * FROM early_registration WHERE id = $1', [earlyRegId]);
+            if (earlyRegResult.rows.length === 0) {
+                await client.query('ROLLBACK');
+                return res.status(404).json({ success: false, message: 'Early registration record not found' });
+            }
+
+            const earlyReg = earlyRegResult.rows[0];
+
+            // Verify new section exists and has capacity
+            const newSectionResult = await client.query(`
+                SELECT id, section_name, max_capacity, current_count 
+                FROM sections 
+                WHERE id = $1 AND is_active = true
+            `, [newSectionId]);
+
+            if (newSectionResult.rows.length === 0) {
+                await client.query('ROLLBACK');
+                return res.status(404).json({ success: false, message: 'New section not found or inactive' });
+            }
+
+            const newSection = newSectionResult.rows[0];
+
+            if (newSection.current_count >= newSection.max_capacity) {
+                await client.query('ROLLBACK');
+                return res.status(400).json({ 
+                    success: false, 
+                    message: `Section ${newSection.section_name} is full (${newSection.current_count}/${newSection.max_capacity})` 
+                });
+            }
+
+            // Insert into students table from early_registration
+            await client.query(`
+                INSERT INTO students (
+                    lrn, school_year, grade_level, last_name, first_name, middle_name, ext_name,
+                    birthday, age, sex, religion, current_address, contact_number,
+                    enrollment_date, enrollment_status, section_id
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+                ON CONFLICT DO NOTHING
+            `, [
+                earlyReg.lrn,
+                earlyReg.school_year,
+                earlyReg.grade_level,
+                earlyReg.last_name,
+                earlyReg.first_name,
+                earlyReg.middle_name || null,
+                earlyReg.ext_name || null,
+                earlyReg.birthday,
+                earlyReg.age,
+                earlyReg.sex,
+                earlyReg.religion || null,
+                earlyReg.current_address,
+                earlyReg.contact_number || null,
+                new Date(),
+                'active',
+                newSectionId
+            ]);
+
+            // Increment new section count
+            await client.query('UPDATE sections SET current_count = current_count + 1 WHERE id = $1', [newSectionId]);
+
+            await client.query('COMMIT');
+            res.json({ success: true, message: `Student enrolled and assigned to ${newSection.section_name}` });
+        } else {
+            // Handle regular students table
+            // Get current student info
+            const studentResult = await client.query('SELECT section_id FROM students WHERE id = $1', [studentId]);
+            if (studentResult.rows.length === 0) {
+                await client.query('ROLLBACK');
+                return res.status(404).json({ success: false, message: 'Student not found' });
+            }
+
+            const oldSectionId = studentResult.rows[0].section_id;
+
+            // Verify new section exists and has capacity
+            const newSectionResult = await client.query(`
+                SELECT id, section_name, max_capacity, current_count 
+                FROM sections 
+                WHERE id = $1 AND is_active = true
+            `, [newSectionId]);
+
+            if (newSectionResult.rows.length === 0) {
+                await client.query('ROLLBACK');
+                return res.status(404).json({ success: false, message: 'New section not found or inactive' });
+            }
+
+            const newSection = newSectionResult.rows[0];
+
+            if (newSection.current_count >= newSection.max_capacity) {
+                await client.query('ROLLBACK');
+                return res.status(400).json({ 
+                    success: false, 
+                    message: `Section ${newSection.section_name} is full (${newSection.current_count}/${newSection.max_capacity})` 
+                });
+            }
+
+            // Update student's section
+            await client.query('UPDATE students SET section_id = $1 WHERE id = $2', [newSectionId, studentId]);
+
+            // Decrement old section count (if student had a section)
+            if (oldSectionId) {
+                await client.query('UPDATE sections SET current_count = current_count - 1 WHERE id = $1', [oldSectionId]);
+            }
+
+            // Increment new section count
+            await client.query('UPDATE sections SET current_count = current_count + 1 WHERE id = $1', [newSectionId]);
+
+            await client.query('COMMIT');
+            res.json({ success: true, message: `Student reassigned to ${newSection.section_name}` });
         }
-
-        const oldSectionId = studentResult.rows[0].section_id;
-
-        // Verify new section exists and has capacity
-        const newSectionResult = await client.query(`
-            SELECT id, section_name, max_capacity, current_count 
-            FROM sections 
-            WHERE id = $1 AND is_active = true
-        `, [newSectionId]);
-
-        if (newSectionResult.rows.length === 0) {
-            await client.query('ROLLBACK');
-            return res.status(404).json({ success: false, message: 'New section not found or inactive' });
-        }
-
-        const newSection = newSectionResult.rows[0];
-
-        if (newSection.current_count >= newSection.max_capacity) {
-            await client.query('ROLLBACK');
-            return res.status(400).json({ 
-                success: false, 
-                message: `Section ${newSection.section_name} is full (${newSection.current_count}/${newSection.max_capacity})` 
-            });
-        }
-
-        // Update student's section
-        await client.query('UPDATE students SET section_id = $1 WHERE id = $2', [newSectionId, studentId]);
-
-        // Decrement old section count (if student had a section)
-        if (oldSectionId) {
-            await client.query('UPDATE sections SET current_count = current_count - 1 WHERE id = $1', [oldSectionId]);
-        }
-
-        // Increment new section count
-        await client.query('UPDATE sections SET current_count = current_count + 1 WHERE id = $1', [newSectionId]);
-
-        await client.query('COMMIT');
-        res.json({ success: true, message: `Student reassigned to ${newSection.section_name}` });
     } catch (err) {
         await client.query('ROLLBACK');
         console.error('Error reassigning student:', err);
@@ -4298,14 +4369,15 @@ app.put('/api/students/:id/remove-section', async (req, res) => {
     }
 });
 
-// ICT Coordinator: Get unassigned students (students with section_id = NULL)
+// ICT Coordinator: Get unassigned students (students with section_id = NULL from students table OR newly approved from early_registration)
 app.get('/api/students/unassigned', async (req, res) => {
     if (!req.session.user || req.session.user.role !== 'ictcoor') {
         return res.status(403).json({ success: false, message: 'Access denied' });
     }
 
     try {
-        const result = await pool.query(`
+        // Query 1: Get unassigned students from students table (section_id IS NULL)
+        const studentsResult = await pool.query(`
             SELECT 
                 st.id,
                 st.lrn,
@@ -4315,14 +4387,37 @@ app.get('/api/students/unassigned', async (req, res) => {
                 st.age,
                 st.contact_number,
                 st.enrollment_date,
-                st.enrollment_status
+                st.enrollment_status,
+                'students' as source
             FROM students st
             WHERE st.section_id IS NULL 
               AND st.enrollment_status = 'active'
             ORDER BY st.grade_level, st.last_name, st.first_name
         `);
 
-        res.json(result.rows);
+        // Query 2: Get newly approved students from early_registration (not yet added to students table)
+        const earlyRegResult = await pool.query(`
+            SELECT 
+                'ER' || er.id as id,
+                er.lrn,
+                CONCAT(er.last_name, ', ', er.first_name, ' ', COALESCE(er.middle_name, ''), ' ', COALESCE(er.ext_name, '')) as full_name,
+                er.grade_level,
+                er.sex,
+                er.age,
+                er.contact_number,
+                er.registration_date as enrollment_date,
+                'active' as enrollment_status,
+                'early_registration' as source
+            FROM early_registration er
+            LEFT JOIN students st ON st.lrn = er.lrn AND st.school_year = er.school_year
+            WHERE st.id IS NULL
+            ORDER BY er.grade_level, er.last_name, er.first_name
+        `);
+
+        // Combine results: students first, then early_registration
+        const combinedResults = [...studentsResult.rows, ...earlyRegResult.rows];
+
+        res.json(combinedResults);
     } catch (err) {
         console.error('Error fetching unassigned students:', err);
         res.status(500).json({ success: false, message: 'Error fetching unassigned students' });
