@@ -4242,8 +4242,8 @@ app.put('/api/students/:id/reassign', async (req, res) => {
                 INSERT INTO students (
                     lrn, school_year, grade_level, last_name, first_name, middle_name, ext_name,
                     birthday, age, sex, religion, current_address, contact_number,
-                    enrollment_date, enrollment_status, section_id
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+                    enrollment_status, section_id
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
                 ON CONFLICT DO NOTHING
             `, [
                 earlyReg.lrn,
@@ -4259,7 +4259,6 @@ app.put('/api/students/:id/reassign', async (req, res) => {
                 earlyReg.religion || null,
                 earlyReg.current_address,
                 earlyReg.contact_number || null,
-                new Date(),
                 'active',
                 newSectionId
             ]);
