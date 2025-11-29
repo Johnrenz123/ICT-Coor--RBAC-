@@ -867,8 +867,8 @@ q<!DOCTYPE html>
                             <div style="min-width:1px;"></div>
                         </div>
                         <!-- Snapshot overlay controls removed per request -->
-                        <div style="height: 240px;">
-                            <canvas id="enrollmentTrendChart"></canvas>
+                        <div style="position: relative; height: 240px; width: 100%;">
+                            <canvas id="enrollmentTrendChart" style="max-width: 100%;"></canvas>
                         </div>
                         <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
                             <button id="toggleInterpretationBtn" type="button" class="btn btn-cancel" style="padding:8px 12px; font-size:13px;" onclick="toggleInterpretation()">Show insights</button>
@@ -877,12 +877,12 @@ q<!DOCTYPE html>
                     </div>
                     <div class="card" style="padding: 16px; border-radius: 12px; background: var(--white); box-shadow: var(--shadow-md);">
                         <h3 class="stat-title" style="margin-bottom: 8px;">Gender Distribution</h3>
-                        <div style="height: 240px;">
-                            <canvas id="genderDistributionChart"></canvas>
+                        <div style="position: relative; height: 240px; width: 100%;">
+                            <canvas id="genderDistributionChart" style="max-width: 100%;"></canvas>
                         </div>
                         <h3 class="stat-title" style="margin-top:12px; margin-bottom:8px;">Barangay Distribution</h3>
-                        <div style="height: 200px;">
-                            <canvas id="barangayDistributionChart"></canvas>
+                        <div style="position: relative; height: 200px; width: 100%;">
+                            <canvas id="barangayDistributionChart" style="max-width: 100%;"></canvas>
                         </div>
                     </div>
                 </div>
@@ -3602,18 +3602,28 @@ q<!DOCTYPE html>
                     });
                 }
 
-                // Charts
-                // Default to the snapshots chart (controls removed)
-                try { await plotSnapshotsBySY(); } catch (e) { console.warn('Failed to plot snapshots by SY on load', e); }
-                renderGenderDistributionChart(m.students.male, m.students.female);
-                // Load barangay distribution and render chart
-                try {
-                    const r = await fetch('/api/stats/barangay-distribution');
-                    const jr = await r.json();
-                    if (jr && jr.success && jr.counts) {
-                        renderBarangayDistributionChart(jr.counts);
+                // Give DOM time to settle before rendering charts
+                setTimeout(() => {
+                    try {
+                        // Charts
+                        // Default to the snapshots chart (controls removed)
+                        try { plotSnapshotsBySY(); } catch (e) { console.warn('Failed to plot snapshots by SY on load', e); }
+                        renderGenderDistributionChart(m.students.male, m.students.female);
+                        // Load barangay distribution and render chart
+                        try {
+                            fetch('/api/stats/barangay-distribution')
+                                .then(r => r.json())
+                                .then(jr => {
+                                    if (jr && jr.success && jr.counts) {
+                                        renderBarangayDistributionChart(jr.counts);
+                                    }
+                                })
+                                .catch(e => console.warn('Failed to load barangay distribution', e));
+                        } catch (e) { console.warn('Failed to load barangay distribution', e); }
+                    } catch (err) {
+                        console.error('Chart rendering error:', err);
                     }
-                } catch (e) { console.warn('Failed to load barangay distribution', e); }
+                }, 100);
             } catch (err) {
                 console.error('Dashboard load error:', err);
             }
@@ -3716,7 +3726,10 @@ q<!DOCTYPE html>
         // Render a snapshots chart for provided rows = [{name, total}, ...]
         function renderSnapshotsChart(rows) {
             const ctx = document.getElementById('enrollmentTrendChart');
-            if (!ctx) return;
+            if (!ctx) {
+                console.error('Chart canvas not found: enrollmentTrendChart');
+                return;
+            }
             // Sort rows by year extracted from name if possible
             rows.sort((a,b) => {
                 const pa = (a.name || '').match(/(\d{4})/); const pb = (b.name || '').match(/(\d{4})/);
@@ -3734,24 +3747,44 @@ q<!DOCTYPE html>
                     datasets: [{
                         label: 'Students',
                         data: values,
-                        borderColor: '#1f78b4',
-                        backgroundColor: 'rgba(31,120,180,0.08)',
-                        fill: false,
-                        tension: 0.2,
-                        pointBackgroundColor: '#1f78b4',
-                        pointRadius: 6,
-                        pointHoverRadius: 8
+                        borderColor: '#DC2626',
+                        backgroundColor: 'rgba(220, 38, 38, 0.08)',
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#DC2626',
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        borderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { title: { display: true, text: 'School Year' } },
-                        y: { beginAtZero: true, title: { display: true, text: 'Student Count' } }
+                        x: { 
+                            title: { display: true, text: 'School Year' },
+                            grid: { display: false }
+                        },
+                        y: { 
+                            beginAtZero: true, 
+                            title: { display: true, text: 'Student Count' },
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                        }
                     },
                     plugins: {
-                        tooltip: { mode: 'nearest', intersect: true }
+                        tooltip: { 
+                            mode: 'nearest', 
+                            intersect: false,
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: { size: 12, weight: 'bold' },
+                            bodyFont: { size: 11 },
+                            padding: 10,
+                            borderRadius: 4
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
                     }
                 }
             });
