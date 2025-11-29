@@ -458,6 +458,58 @@
             transition: width 0.3s ease;
         }
 
+        /* Barangay Chart Styling */
+        .barangay-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .barangay-stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .barangay-stat-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .barangay-stat-label {
+            flex: 1;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .barangay-stat-value {
+            font-weight: 600;
+            color: var(--primary-red);
+        }
+
+        .summary-stat-box {
+            background: var(--gray-50);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary-red);
+        }
+
+        .summary-stat-label {
+            font-size: 12px;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 4px;
+        }
+
+        .summary-stat-number {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-red);
+        }
+
         @media (max-width: 1024px) {
             main {
                 margin-left: 250px;
@@ -760,6 +812,34 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barangay Distribution Chart -->
+            <div class="row g-4 mb-4">
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div>
+                                    <h5 class="card-title mb-1" style="color: var(--primary-red); font-weight: 600;">📍 Enrollees per Barangay</h5>
+                                    <p class="text-muted small mb-0">Distribution of enrollments by location</p>
+                                </div>
+                            </div>
+                            <div style="position: relative; height: 280px; max-width: 280px;">
+                                <canvas id="barangayChart"></canvas>
+                            </div>
+                            <div id="barangayStats" class="mt-3" style="font-size: 13px;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-3" style="color: var(--primary-red); font-weight: 600;">📊 Quick Summary</h5>
+                            <div id="summaryStats" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;"></div>
                         </div>
                     </div>
                 </div>
@@ -1407,6 +1487,7 @@
       </div>
     </div>
   </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>(function(){try{
     // Read server-provided JSON from safe script blocks
@@ -2152,6 +2233,140 @@
             window.showAlert('An error occurred while rejecting the request');
         }
     }
+    
+    // Initialize Barangay Distribution Chart
+    async function initializeBarangayChart() {
+        try {
+            const response = await fetch('/api/stats/barangay-distribution');
+            const data = await response.json();
+            
+            if (!data.success) {
+                console.error('Failed to fetch barangay data');
+                return;
+            }
+
+            const counts = data.counts;
+            const labels = Object.keys(counts);
+            const values = Object.values(counts);
+            
+            // Define colors for each barangay
+            const colors = {
+                'Mainaga': '#DC2626',
+                'San Francisco': '#F87171',
+                'Calamias': '#FCA5A5',
+                'Others': '#E5E7EB'
+            };
+            
+            const chartColors = labels.map(label => colors[label] || '#9CA3AF');
+            const borderColors = labels.map(label => {
+                const color = colors[label] || '#6B7280';
+                return color.replace(')', ', 0.8)').replace('rgb', 'rgba');
+            });
+
+            // Create pie chart
+            const ctx = document.getElementById('barangayChart');
+            if (!ctx) return;
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: chartColors,
+                        borderColor: '#fff',
+                        borderWidth: 3,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const value = context.parsed;
+                                    const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                                    return `${value} enrollee(s) (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Render statistics below chart
+            const statsHtml = labels.map((label, index) => {
+                const value = values[index];
+                const total = values.reduce((a, b) => a + b, 0);
+                const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+                return `
+                    <div class="barangay-stat-item">
+                        <div class="barangay-stat-color" style="background-color: ${chartColors[index]};"></div>
+                        <div class="barangay-stat-label">${label}</div>
+                        <div class="barangay-stat-value">${value} (${percentage}%)</div>
+                    </div>
+                `;
+            }).join('');
+            
+            const statsContainer = document.getElementById('barangayStats');
+            if (statsContainer) {
+                statsContainer.innerHTML = statsHtml;
+            }
+
+            // Render summary statistics
+            const totalEnrollees = values.reduce((a, b) => a + b, 0);
+            const largestBarangay = labels[values.indexOf(Math.max(...values))];
+            const largestCount = Math.max(...values);
+            
+            const summaryHtml = `
+                <div class="summary-stat-box">
+                    <div class="summary-stat-label">Total Enrollees</div>
+                    <div class="summary-stat-number">${totalEnrollees}</div>
+                </div>
+                <div class="summary-stat-box">
+                    <div class="summary-stat-label">Barangays</div>
+                    <div class="summary-stat-number">${labels.length}</div>
+                </div>
+                <div class="summary-stat-box">
+                    <div class="summary-stat-label">Largest Group</div>
+                    <div class="summary-stat-number">${largestCount}</div>
+                    <div style="font-size: 11px; color: var(--gray-600); margin-top: 4px;">${largestBarangay}</div>
+                </div>
+                <div class="summary-stat-box">
+                    <div class="summary-stat-label">Distribution</div>
+                    <div class="summary-stat-number" style="font-size: 16px;">
+                        ${labels.filter(l => counts[l] > 0).length}/${labels.length}
+                    </div>
+                    <div style="font-size: 11px; color: var(--gray-600); margin-top: 4px;">Active</div>
+                </div>
+            `;
+            
+            const summaryContainer = document.getElementById('summaryStats');
+            if (summaryContainer) {
+                summaryContainer.innerHTML = summaryHtml;
+            }
+        } catch (err) {
+            console.error('Error initializing barangay chart:', err);
+        }
+    }
+
+    // Initialize chart when document is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeBarangayChart);
+    } else {
+        initializeBarangayChart();
+    }
+
     // Expose functions globally so inline `onclick` handlers in the table can call them
     // (The script runs inside an IIFE; assign to window explicitly.)
     try {
